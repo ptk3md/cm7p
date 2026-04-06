@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Resolução de Questões | Apex</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #818cf8;
+            --primary-glow: rgba(99, 102, 241, 0.2);
+            --bg-color: #0a0a0f;
+            --card-bg: #13131a;
+            --card-bg-elevated: #1c1c26;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #2a2a3a;
+            --correct: #10b981;
+            --correct-bg: rgba(16, 185, 129, 0.1);
+            --correct-border: rgba(16, 185, 129, 0.4);
+            --wrong: #ef4444;
+            --wrong-bg: rgba(239, 68, 68, 0.1);
+            --wrong-border: rgba(239, 68, 68, 0.4);
+            
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            max-width: 768px;
+            margin: 0 auto;
+            padding: 20px 20px calc(100px + var(--safe-bottom)) 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 32px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 1.8rem; font-weight: 800; text-align: center; margin-bottom: 30px; letter-spacing: -0.03em; }
+        h2 { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 20px; }
+        h3 { font-size: 1.15rem; font-weight: 500; margin-bottom: 24px; line-height: 1.6; color: var(--text-main); }
+
+        /* Formulários */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            font-size: 1rem;
+            font-family: inherit;
+            font-weight: 500;
+            background-color: var(--card-bg-elevated);
+            color: var(--text-main);
+            transition: all 0.2s;
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            padding-right: 48px;
+        }
+        
+        select:focus, input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-glow); }
+
+        /* Barra Inferior Fixa (Bottom Action Bar) */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(to top, var(--bg-color) 70%, transparent);
+            padding: 20px 20px var(--safe-bottom) 20px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            max-width: 728px;
+            pointer-events: auto;
+            box-shadow: 0 8px 20px var(--primary-glow);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 25px var(--primary-glow); filter: brightness(1.1); }
+        .btn-main:active { transform: translateY(0); }
+        .btn-main:disabled {
+            background: var(--card-bg-elevated);
+            color: var(--text-muted);
+            box-shadow: none;
+            cursor: not-allowed;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Status da Questão */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .badge {
+            background: var(--card-bg-elevated);
+            border: 1px solid var(--border-color);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-container { width: 100%; height: 8px; background: var(--card-bg-elevated); border-radius: 8px; margin-bottom: 30px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: var(--primary); border-radius: 8px; transition: width 0.5s ease; }
+
+        /* Alternativas com Bolhas A/B/C/D */
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: var(--card-bg);
+        }
+
+        .option-label:hover { border-color: var(--text-muted); background-color: var(--card-bg-elevated); }
+        .option-label.selected { border-color: var(--primary); background-color: var(--primary-glow); }
+        
+        .option-label input { display: none; }
+        
+        .option-bubble {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--card-bg-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-right: 16px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .option-label.selected .option-bubble { background-color: var(--primary); color: white; border-color: var(--primary); }
+
+        .option-text { font-size: 1rem; line-height: 1.5; color: var(--text-main); margin-top: 4px;}
+
+        /* Cores de Feedback */
+        .option-label.correct-answer { border-color: var(--correct) !important; background-color: var(--correct-bg) !important; }
+        .option-label.correct-answer .option-bubble { background-color: var(--correct); color: #000; border-color: var(--correct); }
+        
+        .option-label.wrong-answer { border-color: var(--wrong) !important; background-color: var(--wrong-bg) !important; opacity: 0.8; }
+        .option-label.wrong-answer .option-bubble { background-color: var(--wrong); color: #fff; border-color: var(--wrong); }
+
+        /* Feedback da Questão */
+        #feedback-section {
+            margin-top: 24px;
+            padding: 24px;
+            border-radius: 16px;
+            background-color: var(--card-bg-elevated);
+            border: 1px solid var(--border-color);
+        }
+
+        #resultado-texto { font-size: 1.3rem; margin-bottom: 8px; font-weight: 700; }
+        .comment-box { color: var(--text-muted); font-size: 0.95rem; }
+        .comment-box strong { color: var(--text-main); }
+
+        /* Dashboard de Fim de Sessão */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+        }
+        
+        .dash-card { background: var(--card-bg-elevated); padding: 20px; border-radius: 16px; text-align: center; border: 1px solid var(--border-color); }
+        .dash-full { grid-column: 1 / -1; }
+        
+        .dash-val { font-size: 2rem; font-weight: 800; color: var(--text-main); line-height: 1; margin-bottom: 8px; }
+        .dash-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .error-list { margin-top: 24px; text-align: left; }
+        .error-item {
+            background: var(--card-bg-elevated);
+            border-left: 4px solid var(--wrong);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .error-theme { font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 4px; }
+        .error-id { font-size: 0.8rem; color: var(--text-muted); font-family: monospace; }
+
+        .hidden { display: none !important; }
+        
+        #loading { text-align: center; color: var(--text-muted); font-weight: 500; margin: 40px 0; }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid var(--border-color); border-top-color: var(--primary);
+            border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <main id="app-container">
+        
+        <div id="setup-screen" class="card">
+            <h1>Nova Sessão</h1>
+            
+            <div id="loading">
+                <div class="spinner"></div>
+                Carregando banco de dados...
+            </div>
+            
+            <div id="setup-form" class="hidden">
+                <div class="form-group">
+                    <label>Especialidade</label>
+                    <select id="filtro-especialidade" onchange="App.onEspecialidadeChange()"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Tema Específico</label>
+                    <select id="filtro-tema" onchange="App.atualizarDisponiveis()"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Filtro de Histórico</label>
+                    <select id="modo-filtro" onchange="App.atualizarDisponiveis()">
+                        <option value="todas">Todas as questões</option>
+                        <option value="ineditas">Apenas Inéditas</option>
+                        <option value="erradas">Apenas Erradas</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantidade de Questões</label>
+                    <input type="number" id="qtd-questoes" value="10" min="1" oninput="App.validarInputQuantidade()">
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="card hidden">
+            <div class="quiz-header">
+                <div class="badge" id="progress-text">0 / 0</div>
+                <div class="badge">ID: <span id="question-id"></span></div>
+            </div>
+            
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
+
+            <h3 id="enunciado"></h3>
+            <div id="opcoes-container"></div>
+
+            <div id="feedback-section" class="hidden">
+                <div id="resultado-texto"></div>
+                <div class="comment-box">
+                    <strong>Comentário:</strong> <span id="comentario-texto"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="end-screen" class="card hidden">
+            <h2>Sessão Concluída!</h2>
+            
+            <div class="dashboard-grid">
+                <div class="dash-card dash-full">
+                    <div class="dash-val" id="dash-pct" style="color: var(--primary);">0%</div>
+                    <div class="dash-label">Desempenho Geral</div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-val" id="dash-acertos" style="color: var(--correct);">0</div>
+                    <div class="dash-label">Acertos de <span id="dash-total">0</span></div>
+                </div>
+                <div class="dash-card">
+                    <div class="dash-val" id="dash-tempo" style="font-size: 1.5rem;">0m 0s</div>
+                    <div class="dash-label">Tempo Médio/Q.</div>
+                </div>
+            </div>
+
+            <div id="weak-points" class="hidden">
+                <h3 style="margin-top: 32px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px;">Pontos de Atenção</h3>
+                <div id="error-list" class="error-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <div class="bottom-bar">
+        <button id="btn-action" class="btn-main hidden" onclick="App.handleAction()"></button>
+    </div>
+
+    <script>
+        // ESTADO CENTRALIZADO DA APLICAÇÃO
+        const App = {
+            url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
+            banco: [],
+            fila: [],
+            indice: 0,
+            historico: JSON.parse(localStorage.getItem('apex_historico')) || {},
+            estadoAtual: 'SETUP', // SETUP, RESPONDENDO, FEEDBACK, FIM
+            stats: { acertos: 0, erros: [], startTime: 0, endTime: 0 },
+            elementos: {},
+
+            // INICIALIZAÇÃO
+            init() {
+                this.mapearElementos();
+                Papa.parse(this.url, {
+                    download: true, header: true, skipEmptyLines: true,
+                    complete: (results) => {
+                        this.banco = results.data.filter(q => q.id && q.enunciado); // Apenas linhas válidas
+                        this.elementos.loading.classList.add('hidden');
+                        this.elementos.setupForm.classList.remove('hidden');
+                        this.elementos.btnAction.classList.remove('hidden');
+                        this.popularEspecialidades();
+                    },
+                    error: () => this.elementos.loading.innerHTML = "Erro ao carregar dados. Verifique a conexão."
+                });
+            },
+
+            mapearElementos() {
+                const ids = ['setup-screen', 'quiz-screen', 'end-screen', 'setup-form', 'loading', 
+                             'filtro-especialidade', 'filtro-tema', 'modo-filtro', 'qtd-questoes',
+                             'progress-text', 'question-id', 'progress-bar', 'enunciado', 'opcoes-container',
+                             'feedback-section', 'resultado-texto', 'comentario-texto', 'btn-action'];
+                ids.forEach(id => {
+                    // Transforma kebab-case em camelCase para os nomes das propriedades
+                    const camelName = id.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                    this.elementos[camelName] = document.getElementById(id);
+                });
+            },
+
+            // LÓGICA DE FILTROS
+            popularEspecialidades() {
+                const especialidades = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
+                this.elementos.filtroEspecialidade.innerHTML = `<option value="todas">Todas Especialidades (${this.banco.length})</option>`;
+                
+                especialidades.forEach(esp => {
+                    const qtd = this.banco.filter(q => q.especialidade === esp).length;
+                    this.elementos.filtroEspecialidade.innerHTML += `<option value="${esp}">${esp} (${qtd})</option>`;
+                });
+                this.onEspecialidadeChange();
+            },
+
+            onEspecialidadeChange() {
+                const esp = this.elementos.filtroEspecialidade.value;
+                const filtered = esp === 'todas' ? this.banco : this.banco.filter(q => q.especialidade === esp);
+                
+                const temas = [...new Set(filtered.map(q => q.tema_especifico).filter(Boolean))].sort();
+                this.elementos.filtroTema.innerHTML = `<option value="todos">Todos os Temas (${filtered.length})</option>`;
+                
+                temas.forEach(tema => {
+                    const qtd = filtered.filter(q => q.tema_especifico === tema).length;
+                    this.elementos.filtroTema.innerHTML += `<option value="${tema}">${tema} (${qtd})</option>`;
+                });
+                this.atualizarDisponiveis();
+            },
+
+            atualizarDisponiveis() {
+                const validas = this.filtrarQuestoes();
+                const btn = this.elementos.btnAction;
+                const input = this.elementos.qtdQuestoes;
+
+                if (validas.length === 0) {
+                    btn.innerText = 'Nenhuma questão encontrada';
+                    btn.disabled = true;
+                } else {
+                    input.max = validas.length;
+                    if (parseInt(input.value) > validas.length) input.value = validas.length;
+                    btn.innerText = `Iniciar Sessão (${input.value} Qs)`;
+                    btn.disabled = false;
+                }
+            },
+
+            validarInputQuantidade() {
+                this.atualizarDisponiveis(); // Atualiza o texto do botão instantaneamente ao digitar
+            },
+
+            filtrarQuestoes() {
+                const esp = this.elementos.filtroEspecialidade.value;
+                const tema = this.elementos.filtroTema.value;
+                const modo = this.elementos.modoFiltro.value;
+
+                return this.banco.filter(q => {
+                    if (esp !== 'todas' && q.especialidade !== esp) return false;
+                    if (tema !== 'todos' && q.tema_especifico !== tema) return false;
+                    if (modo === 'ineditas' && this.historico[q.id]) return false;
+                    if (modo === 'erradas' && this.historico[q.id] !== 'errada') return false;
+                    return true;
+                });
+            },
+
+            // CONTROLE DE FLUXO (BOTÃO INFERIOR)
+            handleAction() {
+                switch(this.estadoAtual) {
+                    case 'SETUP': this.iniciar(); break;
+                    case 'RESPONDENDO': this.confirmar(); break;
+                    case 'FEEDBACK': this.proxima(); break;
+                    case 'FIM': location.reload(); break;
+                }
+            },
+
+            // LÓGICA DO QUIZ
+            iniciar() {
+                const validas = this.filtrarQuestoes();
+                if (!validas.length) return;
+
+                const qtd = parseInt(this.elementos.qtdQuestoes.value);
+                
+                // Embaralha e seleciona a quantidade desejada
+                this.fila = validas.sort(() => Math.random() - 0.5).slice(0, qtd);
+                this.indice = 0;
+                this.stats = { acertos: 0, erros: [], startTime: Date.now(), endTime: null };
+
+                this.elementos.setupScreen.classList.add('hidden');
+                this.elementos.quizScreen.classList.remove('hidden');
+                
+                this.carregarQuestao();
+            },
+
+            carregarQuestao() {
+                this.estadoAtual = 'RESPONDENDO';
+                const q = this.fila[this.indice];
+
+                // Interface
+                this.elementos.progressText.innerText = `Questão ${this.indice + 1} de ${this.fila.length}`;
+                this.elementos.questionId.innerText = q.id;
+                this.elementos.enunciado.innerText = q.enunciado;
+                this.elementos.progressBar.style.width = `${(this.indice / this.fila.length) * 100}%`;
+
+                // Renderiza Alternativas usando DocumentFragment (Melhor Performance)
+                const fragment = document.createDocumentFragment();
+                ['a', 'b', 'c', 'd', 'e'].forEach(letra => {
+                    if (q[letra] && q[letra].trim()) {
+                        const label = document.createElement('label');
+                        label.className = 'option-label';
+                        label.onclick = () => this.selecionarOpcao(label);
+                        
+                        label.innerHTML = `
+                            <input type="radio" name="opcao" value="${letra}">
+                            <div class="option-bubble">${letra.toUpperCase()}</div>
+                            <div class="option-text">${q[letra]}</div>
+                        `;
+                        fragment.appendChild(label);
+                    }
+                });
+                
+                this.elementos.opcoesContainer.innerHTML = '';
+                this.elementos.opcoesContainer.appendChild(fragment);
+
+                this.elementos.feedbackSection.classList.add('hidden');
+                
+                this.elementos.btnAction.innerText = 'Selecione uma alternativa';
+                this.elementos.btnAction.disabled = true;
+                window.scrollTo(0, 0);
+            },
+
+            selecionarOpcao(labelClicada) {
+                if (this.estadoAtual !== 'RESPONDENDO') return;
+                
+                document.querySelectorAll('.option-label').forEach(el => el.classList.remove('selected'));
+                labelClicada.classList.add('selected');
+                labelClicada.querySelector('input').checked = true;
+                
+                this.elementos.btnAction.innerText = 'Confirmar Resposta';
+                this.elementos.btnAction.disabled = false;
+            },
+
+            confirmar() {
+                const q = this.fila[this.indice];
+                const inputSelecionado = document.querySelector('input[name="opcao"]:checked');
+                if (!inputSelecionado) return;
+
+                this.estadoAtual = 'FEEDBACK';
+                const marcada = inputSelecionado.value.toLowerCase();
+                const correta = (q.correta || '').toLowerCase().trim();
+                const isCerta = marcada === correta;
+
+                // Contabilidade
+                if (isCerta) this.stats.acertos++;
+                else this.stats.erros.push(q);
+
+                this.historico[q.id] = isCerta ? 'correta' : 'errada';
+                localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+
+                // UI Update
+                document.querySelectorAll('.option-label').forEach(label => {
+                    label.style.pointerEvents = 'none'; // Trava cliques
+                    const val = label.querySelector('input').value;
+                    if (val === correta) label.classList.add('correct-answer');
+                    else if (val === marcada && !isCerta) label.classList.add('wrong-answer');
+                });
+
+                this.elementos.resultadoTexto.innerText = isCerta ? 'Correto!' : 'Incorreto!';
+                this.elementos.resultadoTexto.style.color = isCerta ? 'var(--correct)' : 'var(--wrong)';
+                this.elementos.comentarioTexto.innerText = q.comentario || 'Sem comentário para esta questão.';
+                
+                this.elementos.feedbackSection.classList.remove('hidden');
+                this.elementos.btnAction.innerText = this.indice === this.fila.length - 1 ? 'Finalizar Sessão' : 'Próxima Questão';
+                
+                // Rola para o feedback
+                setTimeout(() => this.elementos.feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
+            },
+
+            proxima() {
+                this.indice++;
+                if (this.indice < this.fila.length) this.carregarQuestao();
+                else this.finalizar();
+            },
+
+            // DASHBOARD FINAL
+            finalizar() {
+                this.estadoAtual = 'FIM';
+                this.stats.endTime = Date.now();
+                this.elementos.quizScreen.classList.add('hidden');
+                
+                const total = this.fila.length;
+                const pct = Math.round((this.stats.acertos / total) * 100);
+                
+                // Tempo médio (segundos por questão)
+                const tempoTotalSeg = Math.floor((this.stats.endTime - this.stats.startTime) / 1000);
+                const avgSeg = Math.round(tempoTotalSeg / total);
+                const tempoStr = avgSeg > 60 ? `${Math.floor(avgSeg/60)}m ${avgSeg%60}s` : `${avgSeg}s`;
+
+                // Renderiza estatísticas
+                document.getElementById('dash-total').innerText = total;
+                document.getElementById('dash-acertos').innerText = this.stats.acertos;
+                document.getElementById('dash-pct').innerText = `${pct}%`;
+                document.getElementById('dash-tempo').innerText = tempoStr;
+
+                const pctEl = document.getElementById('dash-pct');
+                pctEl.style.color = pct >= 75 ? 'var(--correct)' : (pct < 50 ? 'var(--wrong)' : 'var(--primary)');
+
+                // Renderiza lista de erros detalhada
+                if (this.stats.erros.length > 0) {
+                    document.getElementById('weak-points').classList.remove('hidden');
+                    const errorList = document.getElementById('error-list');
+                    errorList.innerHTML = '';
+                    
+                    this.stats.erros.forEach(q => {
+                        errorList.innerHTML += `
+                            <div class="error-item">
+                                <div class="error-theme">${q.tema_especifico || q.especialidade || 'Sem Tema'}</div>
+                                <div class="error-id">ID Questão: ${q.id} | Gabarito: ${q.correta ? q.correta.toUpperCase() : '?'}</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                this.elementos.endScreen.classList.remove('hidden');
+                this.elementos.btnAction.innerText = 'Configurar Nova Sessão';
+                window.scrollTo(0, 0);
+            }
+        };
+
+        // Inicia o app quando a tela carregar
+        window.addEventListener('DOMContentLoaded', () => App.init());
+    </script>
+</body>
+</html>
