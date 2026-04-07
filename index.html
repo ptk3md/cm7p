@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-    <!-- SRI: Subresource Integrity para verificar integridade do script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dqXqD7BhKPoHkCW0i+8k0V9Jk5K2K5Y0J2K4qL0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V......" crossorigin="anonymous"></script>
+    <!-- SRI: Subresource Integrity para verificar integridade do script (gerar hash real em https://www.srihash.org/) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-PLACEHOLDER_HASH" crossorigin="anonymous"></script>
     <!-- GoatCounter: removido script duplicado -->
     <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
@@ -47,6 +47,12 @@
         .ctag-n { background: var(--surface-3); color: var(--text-2); }
         .ctag-d { background: rgba(62,207,142,0.1); color: var(--correct); }
         .ctag-e { background: rgba(240,96,96,0.1); color: var(--wrong); }
+        /* Link minimalista para dashboard */
+        .dash-link { 
+            font-size: 0.7rem; color: var(--text-3); text-decoration: none; 
+            margin-top: 2px; display: block; transition: color 0.15s; 
+        }
+        .dash-link:hover { color: var(--accent); }
 
         .section-label { font-size: 0.7rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
 
@@ -209,6 +215,8 @@
                 <span class="ctag ctag-n" id="tag-total">— no banco</span>
                 <span class="ctag ctag-d" id="tag-done">— respondidas</span>
                 <span class="ctag ctag-e" id="tag-errors">— com erro</span>
+                <!-- Link minimalista para o dashboard -->
+                <a href="./dash.html" class="dash-link">análise</a>
             </div>
         </div>
 
@@ -494,8 +502,20 @@ const App = {
             return true;
         };
         const total = this.banco.filter(inScope).length;
-        const respondidas = Object.keys(this.historico).filter(id => { const q = this.banco.find(q => q.id === id); return q && inScope(q); }).length;
-        const erradas = Object.keys(this.historico).filter(id => { if (this.historico[id] !== 'errada') return false; const q = this.banco.find(q => q.id === id); return q && inScope(q); }).length;
+        // Contar respondidas e erradas com suporte a formato antigo (string) e novo (objeto)
+        const respondidas = Object.keys(this.historico).filter(id => { 
+            const q = this.banco.find(q => q.id === id); 
+            if (!q || !inScope(q)) return false;
+            const h = this.historico[id];
+            return typeof h === 'string' ? true : !!h.correct;
+        }).length;
+        const erradas = Object.keys(this.historico).filter(id => { 
+            const h = this.historico[id];
+            const isErr = typeof h === 'string' ? h === 'errada' : h.correct === false;
+            if (!isErr) return false;
+            const q = this.banco.find(q => q.id === id); 
+            return q && inScope(q); 
+        }).length;
 
         document.getElementById('counter-value').textContent = validas.length;
         document.getElementById('counter-block').classList.toggle('zero', validas.length === 0);
@@ -617,8 +637,17 @@ const App = {
         const correta = (q.correta || '').toLowerCase().trim();
         const isCerta = marcada === correta;
         this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
-        this.historico[q.id] = isCerta ? 'correta' : 'errada';
+        
+        // 💾 Salvar histórico com dados ricos para o dashboard
+        this.historico[q.id] = { 
+            correct: isCerta, 
+            timestamp: Date.now(),
+            tema: q.tema_especifico || 'Geral',
+            especialidade: q.especialidade || 'Geral',
+            categoria: q.categoria || 'Geral'
+        };
         localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+        
         document.querySelectorAll('.option-label').forEach(lbl => {
             lbl.style.pointerEvents = 'none';
             const v = lbl.querySelector('input').value;
