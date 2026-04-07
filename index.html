@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0a0a0a">
-    <title>Questões Clínica Médica</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Plataforma de Estudos | Resolução</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,40 +16,61 @@
     
     <style>
         /* ==========================================================================
-           1. VARIÁVEIS DE TEMA E RESETS
+           1. DESIGN SYSTEM & CSS VARIABLES
            ========================================================================== */
         :root {
-            /* Cores de Fundo */
-            --bg-base: #0a0a0a;          /* Fundo principal mais escuro */
-            --bg-surface: #141414;       /* Fundo de cards e inputs */
-            --bg-surface-hover: #1e1e1e; /* Hover states */
-            --bg-elevated: #1f1f1f;      /* Dropdowns */
+            /* Palette - Dark Mode Reference */
+            --bg-canvas: #000000;
+            --bg-surface-main: #0f0f0f;
+            --bg-surface-card: #161616;
+            --bg-surface-hover: #222222;
+            --bg-surface-elevated: #1e1e1e;
             
-            /* Bordas */
-            --border-color: #27272a;
-            --border-focus: #3f3f46;
+            /* Borders */
+            --border-subtle: #262626;
+            --border-strong: #3f3f46;
+            --border-focus: #52525b;
             
-            /* Textos */
+            /* Typography Colors */
             --text-primary: #ffffff;
             --text-secondary: #a1a1aa;
             --text-tertiary: #71717a;
             
-            /* Cores de Marca / Ação */
-            --brand-primary: #dc2626;    /* Vermelho Apex */
-            --brand-primary-hover: #b91c1c;
-            --brand-secondary: #2563eb;  /* Azul (opcional) */
+            /* Brand & Action Colors (Based on screenshot's red theme) */
+            --brand-primary: #c53030;
+            --brand-primary-hover: #9b2c2c;
+            --brand-primary-active: #822727;
+            --brand-text: #ffffff;
             
-            /* Feedback */
-            --color-correct: #10b981;
-            --bg-correct: rgba(16, 185, 129, 0.1);
-            --color-wrong: #ef4444;
-            --bg-wrong: rgba(239, 68, 68, 0.1);
+            /* Feedback Colors */
+            --status-correct: #22c55e;
+            --status-correct-bg: rgba(34, 197, 94, 0.15);
+            --status-correct-border: rgba(34, 197, 94, 0.4);
             
-            /* SafeArea para Mobile */
+            --status-wrong: #ef4444;
+            --status-wrong-bg: rgba(239, 68, 68, 0.15);
+            --status-wrong-border: rgba(239, 68, 68, 0.4);
+            
+            /* Sizing & Geometry */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --radius-pill: 9999px;
+            
+            /* Safe Areas for Mobile Devices */
             --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            
+            /* Transitions */
+            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        /* ==========================================================================
+           2. GLOBAL RESETS & BASE STYLES
+           ========================================================================== */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
@@ -56,923 +79,1286 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        body {
-            background-color: var(--bg-base);
-            color: var(--text-primary);
-            line-height: 1.5;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
         }
 
-        /* Container Limitador (Mobile First / Tablet max) */
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* Central App Container constraint for readability */
         .app-container {
             width: 100%;
-            max-width: 600px; /* Layout focado em mobile/tablet vertical */
+            max-width: 600px; /* Mobile/Tablet layout focus */
             position: relative;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            background-color: var(--bg-base);
+            background-color: var(--bg-surface-main);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
 
-        /* Oculta elementos genéricos */
+        /* Common Utility Classes */
         .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* Ícones SVG Gerais */
-        .icon {
-            width: 20px;
-            height: 20px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
+        /* Typography Defaults */
+        h1, h2, h3, h4 { color: var(--text-primary); font-weight: 700; line-height: 1.2; }
+        p { color: var(--text-secondary); }
 
         /* ==========================================================================
-           2. VIEW 1: SETUP (DASHBOARD INICIAL)
+           3. UI COMPONENTS
            ========================================================================== */
-        .view-setup {
-            padding: calc(24px + var(--safe-top)) 24px calc(100px + var(--safe-bottom)) 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-            animation: fadeIn 0.4s ease;
-        }
 
-        /* Logo e Header */
-        .setup-header { text-align: center; margin-bottom: 8px; }
-        .logo-container {
+        /* Buttons */
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            color: var(--text-primary);
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 24px;
-        }
-        .logo-icon { color: var(--brand-primary); }
-        
-        .greeting { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; }
-        .greeting span { color: var(--brand-primary); }
-        .subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px; }
-
-        /* Segmented Control (Inéditas / Erros) */
-        .segmented-control {
-            display: flex;
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 4px;
-            gap: 4px;
-        }
-        .segment-btn {
-            flex: 1;
-            background: transparent;
+            justify-content: center;
+            gap: 10px;
             border: none;
-            color: var(--text-secondary);
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            border-radius: var(--radius-md);
+            font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
+            transition: all var(--transition-fast);
+            padding: 14px 24px;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--brand-primary);
+            color: var(--brand-text);
+            box-shadow: 0 4px 14px rgba(197, 48, 48, 0.2);
+        }
+        .btn-primary:hover { background-color: var(--brand-primary-hover); transform: translateY(-1px); }
+        .btn-primary:active { background-color: var(--brand-primary-active); transform: translateY(1px); }
+        .btn-primary:disabled {
+            background-color: var(--border-strong);
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-subtle);
+        }
+        .btn-ghost:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
+
+        /* Segmented Control (Tabs) */
+        .segmented-control {
+            display: flex;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 24px;
+        }
+        .segment-item {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.2s;
         }
-        .segment-btn.active {
-            background-color: var(--bg-elevated);
+        .segment-item.active {
+            background-color: var(--bg-surface-elevated);
             color: var(--text-primary);
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
+        .segment-item:not(.active):hover { color: var(--text-primary); }
 
-        /* Agrupamento de Filtros (Card) */
-        .filter-card {
-            background-color: var(--bg-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 20px;
+        /* Custom Input Fields */
+        .form-group {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 8px;
+            margin-bottom: 20px;
         }
-
-        /* Search Input */
-        .search-wrapper { position: relative; }
-        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
-        .search-input {
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .text-input {
             width: 100%;
-            background-color: var(--bg-base);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 16px 16px 16px 44px;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
             color: var(--text-primary);
-            font-size: 0.95rem;
+            font-size: 1rem;
+            transition: border-color var(--transition-fast);
             outline: none;
-            transition: border-color 0.2s;
         }
-        .search-input:focus { border-color: var(--text-secondary); }
-        .search-input::placeholder { color: var(--text-tertiary); }
-        .search-btn-plus {
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            background-color: rgba(255,255,255,0.1); border: none; border-radius: 6px;
-            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary); cursor: pointer;
-        }
+        .text-input:focus { border-color: var(--border-focus); }
+        .text-input::placeholder { color: var(--text-tertiary); }
 
-        /* Custom Dropdown UI */
-        .form-group label {
-            display: block; font-size: 0.8rem; font-weight: 700;
-            color: var(--text-secondary); margin-bottom: 8px;
+        /* Search Bar with Icon */
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
         }
-        .custom-select-wrapper { position: relative; user-select: none; }
-        .custom-select-trigger {
-            display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--bg-base); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 16px; color: var(--text-primary);
-            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+        .search-box .icon-left {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
         }
-        .custom-select-trigger.open { border-color: var(--text-secondary); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        .custom-options {
-            position: absolute; top: 100%; left: 0; right: 0;
-            background-color: var(--bg-elevated); border: 1px solid var(--border-color);
-            border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
-            max-height: 250px; overflow-y: auto; z-index: 10;
-            display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        .search-box .text-input {
+            padding-left: 48px;
+            padding-right: 48px;
         }
-        .custom-select-wrapper.open .custom-options { display: block; }
-        .custom-option {
-            padding: 14px 16px; cursor: pointer; font-size: 0.95rem;
-            color: var(--text-secondary); transition: background 0.2s;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        .search-box .action-right {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.05);
+            border-radius: var(--radius-sm);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: background-color var(--transition-fast);
         }
-        .custom-option:last-child { border-bottom: none; }
-        .custom-option:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
-        .custom-option.selected { color: var(--text-primary); font-weight: 700; background-color: rgba(255,255,255,0.02); }
+        .search-box .action-right:hover { background-color: rgba(255,255,255,0.1); color: var(--text-primary); }
 
         /* Accordions */
         .accordion {
-            background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 16px; display: flex; align-items: center;
-            justify-content: space-between; color: var(--text-secondary); font-size: 0.95rem;
-            cursor: pointer; margin-bottom: 12px;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-weight: 400;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background-color var(--transition-fast);
         }
+        .accordion:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
         .accordion-content { display: flex; align-items: center; gap: 12px; }
-        .badge-red { background-color: var(--brand-primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
-
-        /* Botões de Ação Setup */
-        .btn-clear {
-            width: 100%; background: transparent; border: 1px solid var(--border-color);
-            color: var(--text-secondary); padding: 16px; border-radius: 12px;
-            font-size: 1rem; font-weight: 700; display: flex; justify-content: center;
-            align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+        .badge {
+            background-color: var(--brand-primary);
+            color: var(--brand-text);
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
         }
-        .btn-clear:hover { background: rgba(255,255,255,0.05); }
-        
-        .btn-primary {
-            width: 100%; background-color: var(--brand-primary); color: #fff;
-            border: none; padding: 16px; border-radius: 12px; font-size: 1.05rem;
-            font-weight: 700; display: flex; justify-content: center; align-items: center;
-            gap: 12px; cursor: pointer; transition: all 0.2s; margin-top: 12px;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-        }
-        .btn-primary:hover { background-color: var(--brand-primary-hover); transform: translateY(-2px); }
-        .btn-primary:active { transform: translateY(0); }
-        .btn-primary:disabled { background-color: var(--border-focus); color: var(--text-tertiary); cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* Barra de Navegação Inferior */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 600px; background-color: var(--bg-surface);
-            border-top: 1px solid var(--border-color); display: flex; justify-content: space-around;
-            padding: 12px 0 calc(12px + var(--safe-bottom)) 0; z-index: 50;
+        /* Bottom Fixed Action Bar */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            background: linear-gradient(to top, var(--bg-surface-main) 60%, transparent);
+            padding: 24px 24px calc(24px + var(--safe-bottom)) 24px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none; /* Let clicks pass through gradient */
+        }
+        .bottom-action-bar > * { pointer-events: auto; } /* Enable clicks on buttons */
+
+        /* Navigation Bottom Bar (Setup View) */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            background-color: var(--bg-surface-card);
+            border-top: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0 calc(12px + var(--safe-bottom)) 0;
+            z-index: 90;
         }
         .nav-item {
-            display: flex; flex-direction: column; align-items: center; gap: 4px;
-            color: var(--text-tertiary); cursor: pointer; transition: color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            transition: color var(--transition-fast);
         }
-        .nav-item.active { color: var(--brand-primary); }
+        .nav-item:hover, .nav-item.active { color: var(--brand-primary); }
 
         /* ==========================================================================
-           3. VIEW 2: SIMULADO (QUIZ)
+           4. CUSTOM DROPDOWN COMPONENT (Select Replacement)
            ========================================================================== */
-        .view-quiz {
-            display: flex; flex-direction: column; min-height: 100vh;
-            padding-bottom: calc(100px + var(--safe-bottom));
-            animation: slideInRight 0.3s ease;
+        .custom-select {
+            position: relative;
+            width: 100%;
+            user-select: none;
         }
+        .select-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .select-trigger:hover { background-color: var(--bg-surface-hover); }
+        .select-trigger.active { border-color: var(--border-focus); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
         
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+        .select-value {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+        }
+        .select-icon { transition: transform var(--transition-smooth); color: var(--text-tertiary); }
+        .select-trigger.active .select-icon { transform: rotate(180deg); color: var(--text-primary); }
+
+        .select-popover {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-surface-elevated);
+            border: 1px solid var(--border-focus);
+            border-top: none;
+            border-bottom-left-radius: var(--radius-md);
+            border-bottom-right-radius: var(--radius-md);
+            z-index: 200;
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: dropdownFade 0.2s ease forwards;
+        }
+        .custom-select.open .select-popover { display: block; }
+        
+        /* Custom Scrollbar for Popover */
+        .select-popover::-webkit-scrollbar { width: 8px; }
+        .select-popover::-webkit-scrollbar-track { background: transparent; }
+        .select-popover::-webkit-scrollbar-thumb { background-color: var(--border-strong); border-radius: 10px; }
+
+        .select-option {
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color var(--transition-fast);
+        }
+        .select-option:last-child { border-bottom: none; }
+        .select-option:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .select-option.selected { color: var(--text-primary); font-weight: 700; background-color: rgba(255,255,255,0.02); }
+
+        @keyframes dropdownFade {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Top Bar Quiz */
-        .quiz-topbar {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: calc(16px + var(--safe-top)) 24px 16px 24px;
-            border-bottom: 1px solid var(--border-color); background-color: var(--bg-base);
-            position: sticky; top: 0; z-index: 20;
+        /* ==========================================================================
+           5. VIEW SPECIFIC STYLES
+           ========================================================================== */
+        
+        /* Loading Screen */
+        .loading-view {
+            position: absolute;
+            inset: 0;
+            background-color: var(--bg-surface-main);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 24px;
         }
-        .quiz-title { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; }
-        .quiz-timer { background-color: var(--bg-surface); padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); font-family: monospace !important; }
-        .btn-close { background: none; border: none; color: var(--brand-primary); cursor: pointer; display: flex; align-items: center; }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border-strong);
+            border-top-color: var(--brand-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Quiz Header (Progress & Actions) */
-        .quiz-header {
-            display: flex; justify-content: space-between; align-items: center;
+        /* Setup View */
+        .view-setup {
+            padding: calc(32px + var(--safe-top)) 24px calc(180px + var(--safe-bottom)) 24px;
+            display: flex;
+            flex-direction: column;
+            animation: fadeIn var(--transition-smooth);
+        }
+
+        .brand-header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; font-weight: 700; font-size: 1.1rem; }
+        .brand-logo { color: var(--brand-primary); }
+
+        .welcome-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .welcome-title span { color: var(--brand-primary); }
+        .welcome-subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 32px; }
+
+        .filters-card {
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
             padding: 24px;
+            margin-bottom: 24px;
         }
-        .quiz-progress {
-            background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 700;
-        }
-        .quiz-actions {
-            display: flex; gap: 8px; background-color: var(--bg-surface);
-            border: 1px solid var(--border-color); border-radius: 20px; padding: 4px;
-        }
-        .action-btn {
-            background: none; border: none; color: var(--text-secondary);
-            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border-radius: 50%;
-        }
-        .action-btn:hover { background-color: var(--bg-elevated); color: var(--text-primary); }
 
-        /* Tags da Questão */
+        /* Quiz View */
+        .view-quiz {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: calc(140px + var(--safe-bottom));
+            animation: slideIn Right 0.3s ease;
+        }
+
+        .quiz-topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: calc(16px + var(--safe-top)) 24px 16px 24px;
+            background-color: var(--bg-surface-main);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .timer-badge {
+            background-color: var(--bg-surface-card);
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-family: monospace;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 24px 16px 24px;
+        }
+        .quiz-counter {
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            padding: 6px 16px;
+            border-radius: var(--radius-pill);
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .quiz-tools { display: flex; gap: 8px; }
+        .tool-btn {
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            width: 36px; height: 36px;
+            border-radius: var(--radius-md);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
         .quiz-tags {
-            display: flex; gap: 12px; padding: 0 24px; margin-bottom: 24px;
-            align-items: center; flex-wrap: wrap;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 0 24px;
+            margin-bottom: 24px;
         }
-        .quiz-tag {
-            display: flex; align-items: center; gap: 6px; font-size: 0.8rem;
-            color: var(--text-secondary); font-weight: 700; text-transform: uppercase;
+        .tag-item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;
         }
-        .quiz-tag-dot { width: 4px; height: 4px; background-color: var(--border-focus); border-radius: 50%; }
+        .tag-separator { width: 4px; height: 4px; background-color: var(--border-strong); border-radius: 50%; }
 
-        /* Enunciado */
-        .question-text {
-            padding: 0 24px; font-size: 1.2rem; line-height: 1.7;
-            font-weight: 400; margin-bottom: 32px; color: var(--text-primary);
+        .question-statement {
+            padding: 0 24px;
+            font-size: 1.2rem;
+            line-height: 1.7;
+            color: var(--text-primary);
+            margin-bottom: 32px;
         }
 
-        /* Alternativas */
-        .options-container { padding: 0 24px; display: flex; flex-direction: column; gap: 16px; }
+        .options-list {
+            padding: 0 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
         .option-card {
-            background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 20px; display: flex; align-items: flex-start;
-            gap: 16px; cursor: pointer; transition: all 0.2s;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
         }
         .option-card:hover { border-color: var(--border-focus); background-color: var(--bg-surface-hover); }
         .option-card.selected { border-color: var(--text-primary); }
         
         .option-letter {
-            width: 32px; height: 32px; border: 1px solid var(--text-secondary);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--text-secondary); flex-shrink: 0; font-size: 0.9rem;
-            transition: all 0.2s;
+            width: 32px; height: 32px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-secondary);
+            flex-shrink: 0; font-size: 0.95rem;
+            transition: all var(--transition-fast);
         }
         .option-card.selected .option-letter { border-color: var(--text-primary); color: var(--text-primary); }
-        
-        .option-text { font-size: 1.05rem; line-height: 1.5; color: var(--text-secondary); }
+        .option-text { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; }
         .option-card.selected .option-text { color: var(--text-primary); }
 
-        /* Feedback States */
-        .option-card.correct { border-color: var(--color-correct); background-color: var(--bg-correct); }
-        .option-card.correct .option-letter { border-color: var(--color-correct); background-color: var(--color-correct); color: var(--bg-base); }
-        .option-card.correct .option-text { color: var(--text-primary); }
-        
-        .option-card.wrong { border-color: var(--color-wrong); background-color: var(--bg-wrong); opacity: 0.7; pointer-events: none;}
-        .option-card.wrong .option-letter { border-color: var(--color-wrong); background-color: var(--color-wrong); color: var(--text-primary); }
+        /* Option Feedback States */
+        .option-card.is-correct { border-color: var(--status-correct-border); background-color: var(--status-correct-bg); }
+        .option-card.is-correct .option-letter { border-color: var(--status-correct); background-color: var(--status-correct); color: var(--bg-canvas); }
+        .option-card.is-correct .option-text { color: var(--text-primary); }
 
-        /* Floating Responder Button */
-        .floating-action {
-            position: fixed; bottom: var(--safe-bottom); left: 50%; transform: translateX(-50%);
-            width: 100%; max-width: 600px; padding: 24px;
-            background: linear-gradient(to top, var(--bg-base) 60%, transparent);
-            pointer-events: none; z-index: 40; display: flex; justify-content: center;
-        }
-        .btn-floating {
-            pointer-events: auto; background-color: var(--text-secondary); color: var(--bg-base);
-            border: none; padding: 16px 48px; border-radius: 30px; font-size: 1.1rem;
-            font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-        .btn-floating.active { background-color: var(--text-primary); }
-        .btn-floating:hover { transform: translateY(-2px); }
-        .btn-floating:active { transform: translateY(0); }
+        .option-card.is-wrong { border-color: var(--status-wrong-border); background-color: var(--status-wrong-bg); opacity: 0.7; pointer-events: none;}
+        .option-card.is-wrong .option-letter { border-color: var(--status-wrong); background-color: var(--status-wrong); color: var(--text-primary); }
 
-        /* Feedback Comentário */
-        .comment-section {
-            margin: 24px; padding: 24px; background-color: var(--bg-surface);
-            border: 1px solid var(--border-color); border-radius: 16px; display: none;
+        .feedback-box {
+            margin: 32px 24px 0 24px;
+            padding: 24px;
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            animation: fadeIn 0.3s ease;
         }
-        .comment-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        .comment-title.correct { color: var(--color-correct); }
-        .comment-title.wrong { color: var(--color-wrong); }
-        .comment-body { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+        .feedback-title { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
+        .feedback-title.correct { color: var(--status-correct); }
+        .feedback-title.wrong { color: var(--status-wrong); }
+        .feedback-message { color: var(--text-secondary); font-size: 1rem; line-height: 1.6; }
 
-        /* ==========================================================================
-           4. VIEW 3: DASHBOARD FINAL (ANALYSIS)
-           ========================================================================== */
-        .view-end {
+        /* Dashboard View */
+        .view-dashboard {
             padding: calc(32px + var(--safe-top)) 24px calc(100px + var(--safe-bottom)) 24px;
-            display: flex; flex-direction: column; gap: 24px;
-            animation: fadeIn 0.4s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            animation: fadeIn var(--transition-smooth);
         }
-        
-        .end-header { text-align: center; }
-        .end-title { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
-        .end-subtitle { color: var(--text-secondary); }
 
-        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .metric-card {
-            background-color: var(--bg-surface); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 24px; text-align: center;
+        .dash-header { text-align: center; }
+        .dash-title { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
+        .dash-subtitle { color: var(--text-secondary); font-size: 1.05rem; }
+
+        /* Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
-        .metric-val { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
-        .metric-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .stat-card {
+            background-color: var(--bg-surface-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .stat-card.full-width { grid-column: 1 / -1; }
+        .stat-val { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+        .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
-        .weak-points-title { font-size: 1.2rem; margin-top: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        /* Donut Chart Component */
+        .chart-wrapper {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto 16px auto;
+        }
+        .chart-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .chart-bg { fill: none; stroke: var(--border-strong); stroke-width: 8; }
+        .chart-progress { fill: none; stroke: var(--brand-primary); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray 1s ease-out; }
+        .chart-center-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .chart-pct { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1;}
+
+        /* Weak Points Section */
+        .errors-section { border-top: 1px solid var(--border-subtle); padding-top: 32px; }
+        .section-heading { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 24px; color: var(--text-primary); }
         .error-list { display: flex; flex-direction: column; gap: 12px; }
-        .error-item {
-            background-color: var(--bg-surface); border-left: 4px solid var(--color-wrong);
-            padding: 16px; border-radius: 8px;
+        .error-row {
+            background-color: var(--bg-surface-card);
+            border-left: 4px solid var(--status-wrong);
+            padding: 16px;
+            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
-        .error-theme { font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
-        .error-id { font-size: 0.85rem; color: var(--text-secondary); font-family: monospace; }
+        .err-theme { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); }
+        .err-meta { font-size: 0.85rem; color: var(--text-secondary); font-family: monospace; }
 
-        /* Loading Overlay */
-        .loading-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-base); z-index: 100;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 3px solid var(--border-color);
-            border-top-color: var(--brand-primary); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        
-        <div id="loading" class="loading-overlay">
+
+        <div id="view-loading" class="loading-view">
             <div class="spinner"></div>
-            <p style="color: var(--text-secondary); font-weight: 700;">Sincronizando banco de questões...</p>
+            <h3 style="color: var(--text-secondary);">Carregando banco de dados...</h3>
         </div>
 
-        <div id="view-setup" class="view-setup hidden">
-            <div class="setup-header">
-                <div class="logo-container">
-                    <svg class="icon logo-icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" fill="currentColor"/><path d="M12 8l-6 14h12L12 8z" fill="#0a0a0a"/></svg>
-                    Apex Premium
-                </div>
-                <h1 class="greeting">E aí, <span>Patrick</span>?</h1>
-                <p class="subtitle">Metade do dia já foi. Como estão as metas?</p>
+        <main id="view-setup" class="view-setup hidden">
+            
+            <div class="brand-header">
+                <svg class="icon brand-logo" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" fill="currentColor"/><path d="M12 8l-6 14h12L12 8z" fill="#0f0f0f"/></svg>
+                Plataforma Premium
             </div>
 
-            <div class="segmented-control">
-                <button class="segment-btn active" onclick="App.setMode('ineditas', this)">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <div style="margin-bottom: 32px;">
+                <h1 class="welcome-title">Olá, <span>Estudante</span></h1>
+                <p class="welcome-subtitle">Configure sua próxima bateria de questões.</p>
+            </div>
+
+            <div class="segmented-control" id="history-tabs">
+                <div class="segment-item active" data-value="ineditas" onclick="App.UI.setHistoryTab('ineditas')">
+                    <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                     Inéditas
-                </button>
-                <button class="segment-btn" onclick="App.setMode('erradas', this)">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                </div>
+                <div class="segment-item" data-value="erradas" onclick="App.UI.setHistoryTab('erradas')">
+                    <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
                     Meus Erros
-                </button>
-                <button class="segment-btn hidden" id="btn-todas" onclick="App.setMode('todas', this)">Todas</button>
+                </div>
             </div>
 
-            <div class="filter-card">
-                <div class="search-wrapper">
-                    <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="search-input" placeholder="Digite um trecho da questão ou tema...">
-                    <button class="search-btn-plus"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-                </div>
-
-                <div class="form-group">
-                    <label>Disciplina (Grande Área)</label>
-                    <div class="custom-select-wrapper" id="dropdown-esp">
-                        <div class="custom-select-trigger" onclick="App.toggleDropdown('dropdown-esp')">
-                            <span id="label-esp">Todas as disciplinas</span>
-                            <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                        <div class="custom-options" id="options-esp"></div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Tema Específico</label>
-                    <div class="custom-select-wrapper" id="dropdown-tema">
-                        <div class="custom-select-trigger" onclick="App.toggleDropdown('dropdown-tema')">
-                            <span id="label-tema">Todos os temas</span>
-                            <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                        <div class="custom-options" id="options-tema"></div>
-                    </div>
-                </div>
+            <div class="filters-card">
                 
+                <div class="search-box">
+                    <svg class="icon icon-left" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="text-input" placeholder="Digite um trecho ou tema...">
+                    <div class="action-right"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+                </div>
+
                 <div class="form-group">
-                    <label>Quantidade de Questões (Simulado)</label>
-                    <input type="number" id="input-qtd" value="10" min="1" max="100" style="background-color: var(--bg-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); width: 100%; font-size: 1rem; outline: none;">
-                </div>
-            </div>
-
-            <div>
-                <div class="accordion">
-                    <div class="accordion-content">
-                        <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Filtros avançados
+                    <label class="form-label">Disciplina (Grande Área)</label>
+                    <div class="custom-select" id="dropdown-esp">
+                        <div class="select-trigger" onclick="App.UI.toggleDropdown('dropdown-esp')">
+                            <span class="select-value" id="val-esp">Todas as disciplinas</span>
+                            <svg class="icon select-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="select-popover">
+                            <div class="dropdown-list" id="list-esp">
+                                </div>
+                        </div>
                     </div>
-                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
-                <div class="accordion">
-                    <div class="accordion-content">
-                        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Histórico de Provas
+
+                <div class="form-group">
+                    <label class="form-label">Tema Específico</label>
+                    <div class="custom-select" id="dropdown-tema">
+                        <div class="select-trigger" onclick="App.UI.toggleDropdown('dropdown-tema')">
+                            <span class="select-value" id="val-tema">Todos os temas</span>
+                            <svg class="icon select-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="select-popover">
+                            <div class="dropdown-list" id="list-tema">
+                                </div>
+                        </div>
                     </div>
-                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
-                <div class="accordion">
-                    <div class="accordion-content">
-                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Meus Simulados
-                        <span class="badge-red">1</span>
-                    </div>
-                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Quantidade de Questões</label>
+                    <input type="number" class="text-input" id="input-qtd" value="10" min="1" max="100" oninput="App.Engine.updateCount()">
                 </div>
+
             </div>
 
-            <div>
-                <button class="btn-clear" onclick="App.limparFiltros()">
-                    <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    Limpar filtros
-                </button>
-                <button class="btn-primary" id="btn-iniciar" onclick="App.iniciarSessao()">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <span id="btn-iniciar-text">Calculando...</span>
-                </button>
+            <div class="accordion">
+                <div class="accordion-content">
+                    <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    Filtros avançados
+                </div>
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <div class="accordion">
+                <div class="accordion-content">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Histórico de Provas
+                </div>
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
 
-            <div class="bottom-nav">
-                <div class="nav-item active"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
-                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
-            </div>
-        </div>
+            <button class="btn btn-ghost" onclick="App.UI.clearFilters()" style="margin-top: 16px;">
+                <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                Limpar filtros
+            </button>
 
-        <div id="view-quiz" class="view-quiz hidden">
+            <nav class="nav-bar">
+                <div class="nav-item active">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                </div>
+                <div class="nav-item">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                </div>
+                <div class="nav-item">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                </div>
+                <div class="nav-item">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+            </nav>
+
+        </main>
+
+        <main id="view-quiz" class="view-quiz hidden">
             
             <div class="quiz-topbar">
-                <div class="quiz-title">Simulado <span class="quiz-timer" id="timer-display">00:00</span></div>
-                <button class="btn-close" onclick="location.reload()"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 12px;">
+                    Simulado
+                    <span class="timer-badge" id="quiz-timer">00:00</span>
+                </div>
+                <button onclick="location.reload()" style="color: var(--text-secondary);">
+                    <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
             </div>
 
             <div class="quiz-header">
-                <div class="quiz-progress" id="quiz-progress-text">01 / 10</div>
-                <div class="quiz-actions">
-                    <button class="action-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
-                    <button class="action-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
+                <div class="quiz-counter" id="quiz-counter-text">01 / 10</div>
+                <div class="quiz-tools">
+                    <div class="tool-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
+                    <div class="tool-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
                 </div>
             </div>
 
-            <div class="quiz-tags" id="quiz-tags">
+            <div class="quiz-tags" id="quiz-tags-container">
                 </div>
 
-            <div class="question-text" id="question-text"></div>
-
-            <div class="options-container" id="options-container">
+            <div class="question-statement" id="quiz-statement">
                 </div>
 
-            <div class="comment-section" id="comment-section">
-                <div class="comment-title" id="comment-title"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Resposta Correta</div>
-                <div class="comment-body" id="comment-body"></div>
+            <div class="options-list" id="quiz-options">
+                </div>
+
+            <div id="quiz-feedback" class="feedback-box hidden">
+                <div id="feedback-title" class="feedback-title"></div>
+                <div class="feedback-message" id="feedback-message"></div>
             </div>
 
-            <div class="floating-action">
-                <button class="btn-floating" id="btn-quiz-action" onclick="App.handleQuizAction()">Responder</button>
-            </div>
+        </main>
 
-        </div>
-
-        <div id="view-end" class="view-end hidden">
+        <main id="view-dashboard" class="view-dashboard hidden">
             
-            <div class="end-header">
-                <h1 class="end-title">Sessão Finalizada</h1>
-                <p class="end-subtitle" id="end-subtitle">Ótimo trabalho. Confira seu desempenho.</p>
+            <div class="dash-header">
+                <h1 class="dash-title">Sessão Concluída</h1>
+                <p class="dash-subtitle">Veja o resumo do seu desempenho.</p>
             </div>
 
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-val" id="res-pct" style="color: var(--color-correct)">0%</div>
-                    <div class="metric-label">Precisão</div>
+            <div class="stat-card full-width" style="padding: 32px 24px;">
+                <div class="chart-wrapper">
+                    <svg class="chart-svg" viewBox="0 0 36 36">
+                        <path class="chart-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="chart-progress" id="chart-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="chart-center-text">
+                        <div class="chart-pct" id="dash-pct">0%</div>
+                    </div>
                 </div>
-                <div class="metric-card">
-                    <div class="metric-val" id="res-acertos">0</div>
-                    <div class="metric-label">Acertos de <span id="res-total">0</span></div>
+                <div class="stat-label">Precisão Geral</div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <div class="stat-val" id="dash-correct" style="color: var(--status-correct)">0</div>
+                    <div class="stat-label">Acertos de <span id="dash-total">0</span></div>
                 </div>
-                <div class="metric-card" style="grid-column: 1 / -1;">
-                    <div class="metric-val" id="res-tempo" style="font-size: 2rem;">00:00</div>
-                    <div class="metric-label">Tempo Total</div>
+                <div class="stat-card">
+                    <div class="stat-val" id="dash-time">00:00</div>
+                    <div class="stat-label">Tempo Total</div>
                 </div>
             </div>
 
-            <div id="erros-container" class="hidden">
-                <h3 class="weak-points-title">Gabarito das Incorretas</h3>
-                <div class="error-list" id="error-list"></div>
+            <div id="errors-section" class="errors-section hidden">
+                <h3 class="section-heading">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    Revisão de Erros
+                </h3>
+                <div class="error-list" id="error-list-container">
+                    </div>
             </div>
 
-            <button class="btn-primary" style="margin-top: 24px;" onclick="location.reload()">
-                Nova Sessão
+        </main>
+
+        <div class="bottom-action-container">
+            <button class="btn btn-primary hidden" id="fab-main" onclick="App.Controller.handleMainAction()">
+                <svg class="icon" id="fab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <span id="fab-text">Iniciar com 10 questões</span>
             </button>
-            
         </div>
 
     </div>
 
     <script>
+        /**
+         * Core Application Namespace
+         * Enterprise-grade Vanilla JS architecture.
+         */
         const App = {
-            url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
-            db: [],
-            history: JSON.parse(localStorage.getItem('apex_history')) || {},
+            // Endpoint Google Sheets CSV Export
+            DATA_URL: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
             
-            // Filters State
-            state: {
-                mode: 'ineditas', // ineditas, erradas, todas
-                esp: 'todas',
-                tema: 'todos',
-                qtdDisponivel: 0
+            // Global State
+            State: {
+                db: [],
+                history: JSON.parse(localStorage.getItem('study_platform_history')) || {},
+                filters: {
+                    mode: 'ineditas', // 'ineditas', 'erradas', 'todas'
+                    esp: 'todas',
+                    tema: 'todos',
+                    count: 10
+                },
+                availableCount: 0,
+                currentView: 'loading' // 'loading', 'setup', 'quiz', 'dashboard'
             },
 
-            // Session State
-            session: {
+            // Session State (Active Quiz)
+            Session: {
                 questions: [],
                 currentIndex: 0,
-                answered: false,
-                startTime: null,
-                timerInterval: null,
+                isAnswered: false,
+                timeStart: null,
                 timeElapsed: 0,
-                stats: { correct: 0, wrong: [] }
+                timerInterval: null,
+                metrics: { correct: 0, errors: [] }
             },
 
+            /**
+             * Initialization sequence
+             */
             async init() {
-                // Fetch & Parse CSV
-                Papa.parse(this.url, {
-                    download: true, header: true, skipEmptyLines: true,
-                    complete: (results) => {
-                        // Limpa lixo do CSV
-                        this.db = results.data.filter(q => q.id && q.enunciado);
-                        
-                        document.getElementById('loading').classList.add('hidden');
-                        document.getElementById('view-setup').classList.remove('hidden');
-                        
-                        this.buildFilterOptions();
-                        this.updateFilterCount();
-                    },
-                    error: () => alert("Erro crítico de conexão com o banco de questões.")
-                });
+                try {
+                    this.bindGlobalEvents();
+                    await this.fetchData();
+                    
+                    // Filter out bad rows
+                    this.State.db = this.State.db.filter(q => q.id && q.enunciado);
+                    
+                    this.UI.populateDropdowns();
+                    this.Engine.updateCount();
+                    this.Controller.navigate('setup');
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    document.querySelector('#view-loading h3').innerText = "Falha ao carregar o banco de dados.";
+                }
+            },
 
-                // Global Click Listener para fechar dropdowns
+            /**
+             * PapaParse CSV Fetching wrapped in Promise
+             */
+            fetchData() {
+                return new Promise((resolve, reject) => {
+                    Papa.parse(this.DATA_URL, {
+                        download: true,
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => {
+                            this.State.db = results.data;
+                            resolve();
+                        },
+                        error: reject
+                    });
+                });
+            },
+
+            /**
+             * Global Event Listeners
+             */
+            bindGlobalEvents() {
+                // Close dropdowns when clicking outside
                 document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.custom-select-wrapper')) {
-                        document.querySelectorAll('.custom-select-wrapper.open').forEach(el => {
+                    if (!e.target.closest('.custom-select')) {
+                        document.querySelectorAll('.custom-select.open').forEach(el => {
                             el.classList.remove('open');
+                            el.querySelector('.select-trigger').classList.remove('active');
                         });
                     }
                 });
-
-                // Listeners de Input
-                document.getElementById('input-qtd').addEventListener('input', () => this.updateFilterCount());
             },
 
-            // ==========================================
-            // SETUP DASHBOARD LOGIC
-            // ==========================================
-            
-            setMode(mode, btnElement) {
-                this.state.mode = mode;
-                document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
-                btnElement.classList.add('active');
-                this.updateFilterCount();
-            },
-
-            limparFiltros() {
-                this.state.esp = 'todas';
-                this.state.tema = 'todos';
-                document.getElementById('label-esp').innerText = 'Todas as disciplinas';
-                document.getElementById('label-tema').innerText = 'Todos os temas';
-                
-                // Show 'Todas' button temporarily if cleared
-                document.getElementById('btn-todas').classList.remove('hidden');
-                this.setMode('todas', document.getElementById('btn-todas'));
-                
-                this.buildFilterOptions();
-            },
-
-            toggleDropdown(id) {
-                const wrapper = document.getElementById(id);
-                const isOpen = wrapper.classList.contains('open');
-                // close all others
-                document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
-                if (!isOpen) wrapper.classList.add('open');
-            },
-
-            buildFilterOptions() {
-                // Especialidades (Disciplinas)
-                const espSet = [...new Set(this.db.map(q => q.especialidade).filter(Boolean))].sort();
-                const optEsp = document.getElementById('options-esp');
-                optEsp.innerHTML = `<div class="custom-option ${this.state.esp === 'todas' ? 'selected' : ''}" onclick="App.selectOption('esp', 'todas', 'Todas as disciplinas')">Todas as disciplinas</div>`;
-                
-                espSet.forEach(e => {
-                    optEsp.innerHTML += `<div class="custom-option ${this.state.esp === e ? 'selected' : ''}" onclick="App.selectOption('esp', '${e}', '${e}')">${e}</div>`;
-                });
-
-                // Temas baseados na especialidade
-                let filtered = this.state.esp === 'todas' ? this.db : this.db.filter(q => q.especialidade === this.state.esp);
-                const temaSet = [...new Set(filtered.map(q => q.tema_especifico).filter(Boolean))].sort();
-                const optTema = document.getElementById('options-tema');
-                optTema.innerHTML = `<div class="custom-option ${this.state.tema === 'todos' ? 'selected' : ''}" onclick="App.selectOption('tema', 'todos', 'Todos os temas')">Todos os temas</div>`;
-                
-                temaSet.forEach(t => {
-                    optTema.innerHTML += `<div class="custom-option ${this.state.tema === t ? 'selected' : ''}" onclick="App.selectOption('tema', '${t}', '${t}')">${t}</div>`;
-                });
-            },
-
-            selectOption(type, value, label) {
-                if (type === 'esp') {
-                    this.state.esp = value;
-                    this.state.tema = 'todos'; // reset tema
-                    document.getElementById('label-esp').innerText = label;
-                    document.getElementById('label-tema').innerText = 'Todos os temas';
-                    this.buildFilterOptions();
-                } else if (type === 'tema') {
-                    this.state.tema = value;
-                    document.getElementById('label-tema').innerText = label;
-                    this.buildFilterOptions(); // Re-render to show selected state
-                }
-                document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
-                this.updateFilterCount();
-            },
-
-            getFilteredQuestions() {
-                return this.db.filter(q => {
-                    // Categoria
-                    if (this.state.esp !== 'todas' && q.especialidade !== this.state.esp) return false;
-                    if (this.state.tema !== 'todos' && q.tema_especifico !== this.state.tema) return false;
+            /**
+             * Core Logic Engine (Filtering and Sorting)
+             */
+            Engine: {
+                getFilteredData() {
+                    const { db, filters, history } = App.State;
                     
-                    // Histórico
-                    if (this.state.mode === 'ineditas' && this.history[q.id]) return false;
-                    if (this.state.mode === 'erradas' && this.history[q.id] !== 'wrong') return false;
-                    
-                    return true;
-                });
-            },
-
-            updateFilterCount() {
-                const validQs = this.getFilteredQuestions();
-                this.state.qtdDisponivel = validQs.length;
-                
-                const btn = document.getElementById('btn-iniciar');
-                const btnText = document.getElementById('btn-iniciar-text');
-                const input = document.getElementById('input-qtd');
-
-                if (this.state.qtdDisponivel === 0) {
-                    btnText.innerText = '0 questões encontradas';
-                    btn.disabled = true;
-                } else {
-                    let desired = parseInt(input.value) || 10;
-                    if (desired > this.state.qtdDisponivel) {
-                        desired = this.state.qtdDisponivel;
-                        input.value = desired;
-                    }
-                    btnText.innerText = `Iniciar com ${desired} questões`;
-                    btn.disabled = false;
-                }
-            },
-
-            // ==========================================
-            // QUIZ LOGIC
-            // ==========================================
-            
-            iniciarSessao() {
-                let validQs = this.getFilteredQuestions();
-                if (validQs.length === 0) return;
-
-                const qtd = parseInt(document.getElementById('input-qtd').value);
-                
-                // Shuffle & Slice
-                this.session.questions = validQs.sort(() => Math.random() - 0.5).slice(0, qtd);
-                this.session.currentIndex = 0;
-                this.session.stats = { correct: 0, wrong: [] };
-                this.session.timeElapsed = 0;
-                
-                document.getElementById('view-setup').classList.add('hidden');
-                document.getElementById('view-quiz').classList.remove('hidden');
-
-                this.startTimer();
-                this.renderQuestion();
-            },
-
-            startTimer() {
-                this.session.startTime = Date.now();
-                this.session.timerInterval = setInterval(() => {
-                    this.session.timeElapsed++;
-                    const m = String(Math.floor(this.session.timeElapsed / 60)).padStart(2, '0');
-                    const s = String(this.session.timeElapsed % 60).padStart(2, '0');
-                    document.getElementById('timer-display').innerText = `${m}:${s}`;
-                }, 1000);
-            },
-
-            renderQuestion() {
-                this.session.answered = false;
-                const q = this.session.questions[this.session.currentIndex];
-                const total = this.session.questions.length;
-                const currentStr = String(this.session.currentIndex + 1).padStart(2, '0');
-                const totalStr = String(total).padStart(2, '0');
-
-                // Header
-                document.getElementById('quiz-progress-text').innerText = `${currentStr} / ${totalStr}`;
-                
-                // Tags
-                const tagsContainer = document.getElementById('quiz-tags');
-                tagsContainer.innerHTML = '';
-                const tag1 = q.especialidade || 'Geral';
-                const tag2 = q.id;
-                tagsContainer.innerHTML = `
-                    <div class="quiz-tag"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${tag1}</div>
-                    <div class="quiz-tag-dot"></div>
-                    <div class="quiz-tag">ID: ${tag2}</div>
-                `;
-
-                // Text
-                document.getElementById('question-text').innerText = q.enunciado;
-
-                // Options
-                const optContainer = document.getElementById('options-container');
-                optContainer.innerHTML = '';
-                
-                ['a', 'b', 'c', 'd', 'e'].forEach(letra => {
-                    if (q[letra] && q[letra].trim()) {
-                        const div = document.createElement('div');
-                        div.className = 'option-card';
-                        div.dataset.value = letra;
-                        div.onclick = () => this.selectAnswerOption(div);
+                    return db.filter(q => {
+                        // Category Filters
+                        if (filters.esp !== 'todas' && q.especialidade !== filters.esp) return false;
+                        if (filters.tema !== 'todos' && q.tema_especifico !== filters.tema) return false;
                         
-                        div.innerHTML = `
-                            <div class="option-letter">${letra.toUpperCase()}</div>
-                            <div class="option-text">${q[letra]}</div>
-                        `;
-                        optContainer.appendChild(div);
+                        // History Filters
+                        if (filters.mode === 'ineditas' && history[q.id]) return false;
+                        if (filters.mode === 'erradas' && history[q.id] !== 'wrong') return false;
+                        
+                        return true;
+                    });
+                },
+
+                updateCount() {
+                    const available = this.getFilteredData().length;
+                    App.State.availableCount = available;
+                    
+                    const inputEl = document.getElementById('input-qtd');
+                    let desired = parseInt(inputEl.value) || 10;
+                    
+                    const fab = document.getElementById('fab-main');
+                    const fabText = document.getElementById('fab-text');
+
+                    if (available === 0) {
+                        fabText.innerText = '0 questões encontradas';
+                        fab.disabled = true;
+                    } else {
+                        if (desired > available) {
+                            desired = available;
+                            inputEl.value = desired;
+                        }
+                        App.State.filters.count = desired;
+                        fabText.innerText = `Iniciar com ${desired} questões`;
+                        fab.disabled = false;
                     }
-                });
-
-                // Reset Floating Button
-                const btnAction = document.getElementById('btn-quiz-action');
-                btnAction.innerText = 'Responder';
-                btnAction.classList.remove('active');
-                
-                // Reset Comment
-                document.getElementById('comment-section').style.display = 'none';
-                
-                window.scrollTo(0, 0);
+                }
             },
 
-            selectAnswerOption(selectedDiv) {
-                if (this.session.answered) return; // bloqueia se já respondeu
-                
-                document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
-                selectedDiv.classList.add('selected');
-                
-                document.getElementById('btn-quiz-action').classList.add('active');
+            /**
+             * User Interface Manipulation Module
+             */
+            UI: {
+                toggleDropdown(id) {
+                    const wrapper = document.getElementById(id);
+                    const trigger = wrapper.querySelector('.select-trigger');
+                    const isOpen = wrapper.classList.contains('open');
+                    
+                    // Close others
+                    document.querySelectorAll('.custom-select').forEach(el => {
+                        el.classList.remove('open');
+                        el.querySelector('.select-trigger').classList.remove('active');
+                    });
+
+                    if (!isOpen) {
+                        wrapper.classList.add('open');
+                        trigger.classList.add('active');
+                    }
+                },
+
+                populateDropdowns() {
+                    const db = App.State.db;
+                    const { esp, tema } = App.State.filters;
+
+                    // Populate Especialidade
+                    const espSet = [...new Set(db.map(q => q.especialidade).filter(Boolean))].sort();
+                    const listEsp = document.getElementById('list-esp');
+                    listEsp.innerHTML = this.createOptionHTML('esp', 'todas', 'Todas as disciplinas', esp === 'todas');
+                    espSet.forEach(e => listEsp.innerHTML += this.createOptionHTML('esp', e, e, esp === e));
+
+                    // Populate Tema based on Especialidade
+                    let filteredForTema = esp === 'todas' ? db : db.filter(q => q.especialidade === esp);
+                    const temaSet = [...new Set(filteredForTema.map(q => q.tema_especifico).filter(Boolean))].sort();
+                    const listTema = document.getElementById('list-tema');
+                    listTema.innerHTML = this.createOptionHTML('tema', 'todos', 'Todos os temas', tema === 'todos');
+                    temaSet.forEach(t => listTema.innerHTML += this.createOptionHTML('tema', t, t, tema === t));
+                },
+
+                createOptionHTML(type, value, label, isSelected) {
+                    // Safe injection pattern
+                    const safeValue = value.replace(/'/g, "\\'");
+                    return `
+                        <div class="select-option ${isSelected ? 'selected' : ''}" 
+                             onclick="App.Controller.handleDropdownSelect('${type}', '${safeValue}', '${label}')">
+                            ${label}
+                        </div>
+                    `;
+                },
+
+                filterDropdown(listId, query) {
+                    const q = query.toLowerCase();
+                    const items = document.querySelectorAll(`#${listId} .select-option`);
+                    items.forEach(item => {
+                        const text = item.innerText.toLowerCase();
+                        item.style.display = text.includes(q) ? 'flex' : 'none';
+                    });
+                },
+
+                setHistoryTab(mode) {
+                    App.State.filters.mode = mode;
+                    // UI Update
+                    document.querySelectorAll('.segment-item').forEach(el => el.classList.remove('active'));
+                    const activeEl = document.querySelector(`.segment-item[data-value="${mode}"]`);
+                    activeEl.classList.add('active');
+                    
+                    // Animate Indicator
+                    const indicator = document.getElementById('seg-indicator');
+                    indicator.style.width = `${activeEl.offsetWidth}px`;
+                    indicator.style.transform = `translateX(${activeEl.offsetLeft - 6}px)`; // -6 for parent padding padding
+                    
+                    App.Engine.updateCount();
+                },
+
+                clearFilters() {
+                    this.setHistoryTab('ineditas');
+                    App.Controller.handleDropdownSelect('esp', 'todas', 'Todas as disciplinas');
+                    document.getElementById('input-qtd').value = 10;
+                    App.Engine.updateCount();
+                }
             },
 
-            handleQuizAction() {
-                const btnAction = document.getElementById('btn-quiz-action');
-                
-                if (!this.session.answered) {
-                    // Tentando confirmar resposta
+            /**
+             * Application Flow Controller
+             */
+            Controller: {
+                navigate(view) {
+                    App.State.currentView = view;
+                    document.getElementById('view-loading').classList.add('hidden');
+                    document.getElementById('view-setup').classList.add('hidden');
+                    document.getElementById('view-quiz').classList.add('hidden');
+                    document.getElementById('view-dashboard').classList.add('hidden');
+                    
+                    document.getElementById(`view-${view}`).classList.remove('hidden');
+                    
+                    // FAB Management
+                    const fab = document.getElementById('fab-main');
+                    const fabIcon = document.getElementById('fab-icon');
+                    
+                    if (view === 'setup') {
+                        fab.classList.remove('hidden');
+                        fabIcon.innerHTML = `<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>`;
+                    } else if (view === 'quiz') {
+                        fab.classList.remove('hidden');
+                        fabIcon.innerHTML = `<path d="M5 12h14M12 5l7 7-7 7"/>`;
+                    } else {
+                        fab.classList.add('hidden'); // hidden on dashboard
+                    }
+                },
+
+                handleDropdownSelect(type, value, label) {
+                    if (type === 'esp') {
+                        App.State.filters.esp = value;
+                        App.State.filters.tema = 'todos'; // Cascading reset
+                        document.getElementById('val-esp').innerText = label;
+                        document.getElementById('val-tema').innerText = 'Todos os temas';
+                    } else if (type === 'tema') {
+                        App.State.filters.tema = value;
+                        document.getElementById('val-tema').innerText = label;
+                    }
+                    
+                    // Close dropdowns
+                    document.querySelectorAll('.custom-select').forEach(el => {
+                        el.classList.remove('open');
+                        el.querySelector('.select-trigger').classList.remove('active');
+                    });
+                    
+                    App.UI.populateDropdowns();
+                    App.Engine.updateCount();
+                },
+
+                handleMainAction() {
+                    const view = App.State.currentView;
+                    if (view === 'setup') {
+                        this.startQuiz();
+                    } else if (view === 'quiz') {
+                        if (!App.Session.isAnswered) {
+                            this.submitAnswer();
+                        } else {
+                            this.nextQuestion();
+                        }
+                    }
+                },
+
+                // ---- QUIZ FLOW ---- //
+                startQuiz() {
+                    const validData = App.Engine.getFilteredData();
+                    if (validData.length === 0) return;
+
+                    // Fisher-Yates Shuffle & Slice
+                    const shuffled = [...validData].sort(() => Math.random() - 0.5);
+                    App.Session.questions = shuffled.slice(0, App.State.filters.count);
+                    App.Session.currentIndex = 0;
+                    App.Session.metrics = { correct: 0, errors: [] };
+                    App.Session.timeElapsed = 0;
+                    App.Session.isAnswered = false;
+                    
+                    this.navigate('quiz');
+                    this.startTimer();
+                    this.renderCurrentQuestion();
+                },
+
+                startTimer() {
+                    App.Session.timeStart = Date.now();
+                    App.Session.timerInterval = setInterval(() => {
+                        App.Session.timeElapsed++;
+                        const m = String(Math.floor(App.Session.timeElapsed / 60)).padStart(2, '0');
+                        const s = String(App.Session.timeElapsed % 60).padStart(2, '0');
+                        document.getElementById('quiz-timer').innerText = `${m}:${s}`;
+                    }, 1000);
+                },
+
+                renderCurrentQuestion() {
+                    const s = App.Session;
+                    s.isAnswered = false;
+                    const q = s.questions[s.currentIndex];
+                    const total = s.questions.length;
+
+                    // Update Top UI
+                    document.getElementById('quiz-counter-text').innerText = `${String(s.currentIndex + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+                    document.getElementById('quiz-id').innerText = q.id;
+
+                    // Render Tags
+                    const tagDiv = document.getElementById('quiz-tags-container');
+                    const tEsp = q.especialidade || 'Geral';
+                    const tTema = q.tema_especifico || 'Sem Tema';
+                    tagDiv.innerHTML = `
+                        <div class="tag-item"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${tEsp}</div>
+                        <div class="tag-separator"></div>
+                        <div class="tag-item">${tTema}</div>
+                    `;
+
+                    // Render Enunciado
+                    document.getElementById('quiz-statement').innerText = q.enunciado;
+
+                    // Render Options (A to E)
+                    const optDiv = document.getElementById('quiz-options');
+                    optDiv.innerHTML = '';
+                    ['a', 'b', 'c', 'd', 'e'].forEach(letter => {
+                        if (q[letter] && q[letter].trim()) {
+                            const domOption = document.createElement('div');
+                            domOption.className = 'option-card';
+                            domOption.dataset.val = letter;
+                            domOption.onclick = () => this.selectOption(domOption);
+                            
+                            domOption.innerHTML = `
+                                <div class="option-letter">${letter.toUpperCase()}</div>
+                                <div class="option-text">${q[letter]}</div>
+                            `;
+                            optDiv.appendChild(domOption);
+                        }
+                    });
+
+                    // Reset Feedback & Button
+                    document.getElementById('quiz-feedback').classList.add('hidden');
+                    const fabText = document.getElementById('fab-text');
+                    fabText.innerText = 'Selecione uma Alternativa';
+                    document.getElementById('fab-main').disabled = true;
+                    
+                    window.scrollTo(0, 0);
+                },
+
+                selectOption(domElement) {
+                    if (App.Session.isAnswered) return;
+                    
+                    document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+                    domElement.classList.add('selected');
+                    
+                    const fab = document.getElementById('fab-main');
+                    fab.disabled = false;
+                    document.getElementById('fab-text').innerText = 'Confirmar Resposta';
+                },
+
+                submitAnswer() {
                     const selected = document.querySelector('.option-card.selected');
-                    if (!selected) return; // Nenhuma selecionada
+                    if (!selected) return;
 
-                    this.session.answered = true;
-                    const q = this.session.questions[this.session.currentIndex];
-                    const marcada = selected.dataset.value.toLowerCase();
-                    const correta = (q.correta || '').toLowerCase().trim();
-                    const isCorrect = (marcada === correta);
+                    App.Session.isAnswered = true;
+                    const q = App.Session.questions[App.Session.currentIndex];
+                    const chosen = selected.dataset.val.toLowerCase();
+                    const correct = (q.correta || '').toLowerCase().trim();
+                    const isRight = (chosen === correct);
 
-                    // Atualiza Stats & Historico
-                    if (isCorrect) this.session.stats.correct++;
-                    else this.session.stats.wrong.push(q);
+                    // Track Analytics & Storage
+                    if (isRight) App.Session.metrics.correct++;
+                    else App.Session.metrics.errors.push(q);
 
-                    this.history[q.id] = isCorrect ? 'correct' : 'wrong';
-                    localStorage.setItem('apex_history', JSON.stringify(this.history));
+                    App.State.history[q.id] = isRight ? 'correct' : 'wrong';
+                    localStorage.setItem('study_platform_history', JSON.stringify(App.State.history));
 
-                    // UI Feedback Options
+                    // UI Updates (Colors)
                     document.querySelectorAll('.option-card').forEach(card => {
-                        const val = card.dataset.value;
-                        if (val === correta) card.classList.add('correct');
-                        else if (val === marcada && !isCorrect) card.classList.add('wrong');
-                        card.style.pointerEvents = 'none';
+                        card.style.pointerEvents = 'none'; // lock clicks
+                        const val = card.dataset.val;
+                        if (val === correct) card.classList.add('is-correct');
+                        else if (val === chosen && !isRight) card.classList.add('is-wrong');
                     });
 
-                    // UI Feedback Comment
-                    const commSec = document.getElementById('comment-section');
-                    const commTitle = document.getElementById('comment-title');
+                    // Render Feedback Box
+                    const feedBox = document.getElementById('quiz-feedback');
+                    const feedTitle = document.getElementById('feedback-title');
+                    const feedMsg = document.getElementById('feedback-message');
                     
-                    if (isCorrect) {
-                        commTitle.className = 'comment-title correct';
-                        commTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Você Acertou`;
+                    if (isRight) {
+                        feedTitle.className = 'feedback-title correct';
+                        feedTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Resposta Exata`;
                     } else {
-                        commTitle.className = 'comment-title wrong';
-                        commTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Você Errou`;
+                        feedTitle.className = 'feedback-title wrong';
+                        feedTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Resposta Incorreta`;
+                    }
+                    feedMsg.innerText = q.comentario || 'Comentário técnico não disponível na base de dados.';
+                    feedBox.classList.remove('hidden');
+
+                    // Setup next action
+                    const isLast = App.Session.currentIndex === App.Session.questions.length - 1;
+                    document.getElementById('fab-text').innerText = isLast ? 'Ver Resultado Final' : 'Avançar para a Próxima';
+                    
+                    // Scroll to bottom smoothly to see feedback and button
+                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 150);
+                },
+
+                nextQuestion() {
+                    App.Session.currentIndex++;
+                    if (App.Session.currentIndex < App.Session.questions.length) {
+                        this.renderCurrentQuestion();
+                    } else {
+                        this.endSession();
+                    }
+                },
+
+                // ---- DASHBOARD FLOW ---- //
+                endSession() {
+                    clearInterval(App.Session.timerInterval);
+                    this.navigate('dashboard');
+
+                    const total = App.Session.questions.length;
+                    const hits = App.Session.metrics.correct;
+                    const pct = Math.round((hits / total) * 100);
+
+                    // Time Format
+                    const m = String(Math.floor(App.Session.timeElapsed / 60)).padStart(2, '0');
+                    const s = String(App.Session.timeElapsed % 60).padStart(2, '0');
+                    
+                    document.getElementById('dash-total').innerText = total;
+                    document.getElementById('dash-correct').innerText = hits;
+                    document.getElementById('dash-time').innerText = `${m}:${s}`;
+                    document.getElementById('dash-pct').innerText = `${pct}%`;
+
+                    // SVG Donut Chart Animation
+                    const chartPath = document.getElementById('chart-path');
+                    chartPath.style.strokeDasharray = `${pct}, 100`;
+                    
+                    if (pct >= 70) chartPath.style.stroke = 'var(--status-correct)';
+                    else if (pct < 50) chartPath.style.stroke = 'var(--status-wrong)';
+                    else chartPath.style.stroke = 'var(--brand-primary)';
+
+                    // Render Error List
+                    const errSec = document.getElementById('errors-section');
+                    const errList = document.getElementById('error-list-container');
+                    errList.innerHTML = '';
+
+                    if (App.Session.metrics.errors.length > 0) {
+                        App.Session.metrics.errors.forEach(q => {
+                            const tema = q.tema_especifico || q.especialidade || 'Assunto Geral';
+                            const ans = q.correta ? q.correta.toUpperCase() : '?';
+                            errList.innerHTML += `
+                                <div class="error-row">
+                                    <div class="err-theme">${tema}</div>
+                                    <div class="err-meta">
+                                        <span class="error-id">ID: ${q.id}</span>
+                                        <span>Gabarito: <strong>${ans}</strong></span>
+                                    </div>
+                                </div>
+                            `;
+                        });
+                        errSec.classList.remove('hidden');
+                    } else {
+                        errSec.classList.add('hidden');
+                    }
+
+                    // Re-add a button manually at the bottom since FAB is hidden on dashboard
+                    if (!document.getElementById('dash-restart-btn')) {
+                        const btn = document.createElement('button');
+                        btn.id = 'dash-restart-btn';
+                        btn.className = 'btn btn-primary';
+                        btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Voltar ao Início`;
+                        btn.style.marginTop = '40px';
+                        btn.onclick = () => location.reload();
+                        document.getElementById('view-dashboard').appendChild(btn);
                     }
                     
-                    document.getElementById('comment-body').innerText = q.comentario || 'A base de dados não contém comentários para esta questão.';
-                    commSec.style.display = 'block';
-
-                    // Update Button
-                    const isLast = (this.session.currentIndex === this.session.questions.length - 1);
-                    btnAction.innerText = isLast ? 'Finalizar Sessão' : 'Próxima Questão';
-                    
-                    // Scroll down to see feedback
-                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
-
-                } else {
-                    // Indo para a próxima
-                    this.session.currentIndex++;
-                    if (this.session.currentIndex < this.session.questions.length) {
-                        this.renderQuestion();
-                    } else {
-                        this.finishSession();
-                    }
+                    window.scrollTo(0, 0);
                 }
-            },
-
-            // ==========================================
-            // END DASHBOARD LOGIC
-            // ==========================================
-            
-            finishSession() {
-                clearInterval(this.session.timerInterval);
-                
-                document.getElementById('view-quiz').classList.add('hidden');
-                document.getElementById('view-end').classList.remove('hidden');
-
-                const total = this.session.questions.length;
-                const acertos = this.session.stats.correct;
-                const pct = Math.round((acertos / total) * 100);
-
-                document.getElementById('res-total').innerText = total;
-                document.getElementById('res-acertos').innerText = acertos;
-                document.getElementById('res-pct').innerText = `${pct}%`;
-                
-                const pctEl = document.getElementById('res-pct');
-                if (pct >= 70) pctEl.style.color = 'var(--color-correct)';
-                else if (pct < 50) pctEl.style.color = 'var(--color-wrong)';
-                else pctEl.style.color = 'var(--text-primary)';
-
-                // Formatar Tempo Total
-                const m = String(Math.floor(this.session.timeElapsed / 60)).padStart(2, '0');
-                const s = String(this.session.timeElapsed % 60).padStart(2, '0');
-                document.getElementById('res-tempo').innerText = `${m}:${s}`;
-
-                // Lista de Erros
-                const errSec = document.getElementById('erros-container');
-                const errList = document.getElementById('error-list');
-                errList.innerHTML = '';
-
-                if (this.session.stats.wrong.length > 0) {
-                    this.session.stats.wrong.forEach(q => {
-                        const tema = q.tema_especifico || q.especialidade || 'Sem Tema Definido';
-                        const gabarito = q.correta ? q.correta.toUpperCase() : '?';
-                        errList.innerHTML += `
-                            <div class="error-item">
-                                <div class="error-theme">${tema}</div>
-                                <div class="error-id">ID: ${q.id} • Gabarito: ${gabarito}</div>
-                            </div>
-                        `;
-                    });
-                    errSec.classList.remove('hidden');
-                } else {
-                    errSec.classList.add('hidden');
-                }
-                
-                window.scrollTo(0, 0);
             }
         };
 
-        // Initialize App on DOM Load
-        document.addEventListener('DOMContentLoaded', () => App.init());
+        // Bootstrap App when DOM is fully parsed
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial positioning of segmented control indicator
+            setTimeout(() => {
+                const activeTab = document.querySelector('.segment-item.active');
+                if(activeTab){
+                    const indicator = document.getElementById('seg-indicator');
+                    indicator.style.width = `${activeTab.offsetWidth}px`;
+                    indicator.style.transform = `translateX(${activeTab.offsetLeft - 6}px)`;
+                }
+            }, 100);
+            
+            App.init();
+        });
     </script>
 </body>
 </html>
