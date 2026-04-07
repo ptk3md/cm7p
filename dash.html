@@ -20,7 +20,8 @@
             --accent: #5b8df0; --accent-bg: rgba(91,141,240,0.12);
             --correct: #3ecf8e; --correct-bg: rgba(62,207,142,0.1); --correct-border: rgba(62,207,142,0.3);
             --wrong: #f06060; --wrong-bg: rgba(240,96,96,0.1); --wrong-border: rgba(240,96,96,0.3);
-            --warn: #f5a623; --radius: 6px; --radius-lg: 8px;
+            --warn: #f5a623; --warn-bg: rgba(245,166,35,0.1); --warn-border: rgba(245,166,35,0.3);
+            --radius: 6px; --radius-lg: 8px;
             --safe-bottom: env(safe-area-inset-bottom, 16px);
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +33,6 @@
         }
         .hidden { display: none !important; }
         a { color: var(--accent); text-decoration: none; }
-        a:hover { text-decoration: underline; }
 
         /* Header */
         .dash-header { 
@@ -84,40 +84,48 @@
         .chart-bar.bad { background: var(--wrong); }
         .chart-bar.mid { background: var(--warn); }
         .chart-label { font-size: 0.65rem; color: var(--text-3); margin-top: 6px; font-weight: 600; }
-        .chart-tooltip {
-            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
-            background: var(--surface-2); border: 1px solid var(--border-light); font-size: 0.65rem; font-weight: 700;
-            padding: 2px 6px; border-radius: 4px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
-        }
-        .chart-bar-group:hover .chart-tooltip { opacity: 1; }
 
-        /* Diagnosis List */
+        /* Diagnosis List Classificação */
+        .urgency-header {
+            font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em;
+            margin: 24px 0 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .urgency-header.critical { color: var(--wrong); }
+        .urgency-header.warning { color: var(--warn); }
+        .urgency-header.domain { color: var(--correct); }
+        .urgency-header::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
         .diag-list { display: flex; flex-direction: column; gap: 10px; }
         .diag-item { 
             display: flex; align-items: center; justify-content: space-between; 
             padding: 14px; background: var(--surface-2); border: 1px solid var(--border); 
             border-radius: var(--radius); border-left: 3px solid transparent;
         }
-        .diag-item.critical { border-left-color: var(--wrong); }
+        .diag-item.critical { border-left-color: var(--wrong); background: var(--wrong-bg); }
         .diag-item.warning { border-left-color: var(--warn); }
+        .diag-item.domain { border-left-color: var(--correct); }
         
         .diag-info { min-width: 0; flex: 1; }
-        .diag-topic { font-size: 0.95rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-        .diag-meta { font-size: 0.75rem; color: var(--text-3); display: flex; gap: 10px; align-items: center; }
-        .error-badge { color: var(--wrong); font-weight: 700; background: var(--wrong-bg); padding: 2px 6px; border-radius: 4px; }
+        .diag-topic { font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+        .diag-meta { font-size: 0.75rem; color: var(--text-2); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.03em; }
+        .badge.err { color: var(--wrong); background: rgba(240,96,96,0.15); border: 1px solid var(--wrong-border); }
+        .badge.comp { color: var(--accent); background: var(--accent-bg); border: 1px solid rgba(91,141,240,0.3); }
         
         .diag-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
         .diag-acc { font-size: 1.2rem; font-weight: 700; text-align: right; }
         .diag-acc-lbl { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
         .diag-acc.low { color: var(--wrong); }
         .diag-acc.mid { color: var(--warn); }
+        .diag-acc.high { color: var(--correct); }
         
         .btn-prescription {
             background: var(--surface-3); border: 1px solid var(--border-light); color: var(--text);
             padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
             transition: all 0.2s; display: flex; align-items: center; gap: 6px;
         }
-        .btn-prescription:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+        .btn-prescription:hover { background: var(--wrong-bg); border-color: var(--wrong); color: var(--wrong); }
 
         /* Modal Prescription */
         .modal-overlay {
@@ -127,14 +135,14 @@
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .modal-content {
             background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
-            width: 100%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; transform: scale(0.95); transition: transform 0.2s;
+            width: 100%; max-width: 550px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; transform: scale(0.95); transition: transform 0.2s;
         }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-weight: 700; font-size: 1rem; }
         .modal-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1.2rem; }
         .modal-close:hover { color: var(--text); }
-        .modal-body { padding: 20px; overflow-y: auto; flex: 1; font-family: monospace; font-size: 0.85rem; color: var(--text-2); background: var(--surface-2); white-space: pre-wrap; line-height: 1.5; }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; color: var(--text-2); background: var(--surface-2); white-space: pre-wrap; line-height: 1.6; }
         .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
         .btn-copy {
             background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: var(--radius);
@@ -146,13 +154,14 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-3); }
         .empty-state-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
         .empty-state-text { font-size: 0.9rem; }
-        
         .spinner { width: 30px; height: 30px; border: 2px solid var(--surface-3); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 600px) {
             .stats-grid { grid-template-columns: 1fr; }
             .dash-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .diag-item { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .diag-actions { width: 100%; justify-content: space-between; flex-direction: row-reverse; }
         }
     </style>
 </head>
@@ -161,7 +170,7 @@
 <header class="dash-header">
     <div>
         <div class="dash-title">Análise de Desempenho</div>
-        <div class="dash-subtitle">Métricas diretas baseadas no seu histórico</div>
+        <div class="dash-subtitle">Métricas diretas e direcionamento de estudos</div>
     </div>
     <a href="./" class="back-link">← Voltar ao Quiz</a>
 </header>
@@ -169,15 +178,15 @@
 <main id="dash-content">
     <div id="dash-loading" class="card" style="text-align: center; padding: 40px;">
         <div class="spinner"></div>
-        <span style="color:var(--text-2);font-size:0.9rem;">Processando dados e cruzando com o banco...</span>
+        <span style="color:var(--text-2);font-size:0.9rem;">Cruzando dados com o banco de questões...</span>
     </div>
 
     <div id="dash-empty" class="card hidden">
         <div class="empty-state">
             <div class="empty-state-title">Histórico Vazio</div>
-            <div class="empty-state-text">Responda algumas questões no quiz para gerarmos seus dados.</div>
+            <div class="empty-state-text">Responda algumas questões no quiz para gerarmos seus dados de estudo.</div>
             <div style="margin-top:16px;">
-                <a href="./" class="back-link" style="padding:10px 20px;">Ir para o Quiz →</a>
+                <a href="./" class="back-link" style="padding:10px 20px; background: var(--text); color: var(--bg);">Iniciar Quiz</a>
             </div>
         </div>
     </div>
@@ -208,20 +217,21 @@
         <div class="card">
             <div class="card-title">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                Curva de Aprendizagem (Evolução por Blocos)
+                Curva de Aprendizagem (Evolução Histórica)
             </div>
-            <p style="font-size:0.75rem; color:var(--text-3); margin-top:-10px;">Progressão da sua taxa de acerto nas questões respondidas, divididas cronologicamente em 10 blocos.</p>
+            <p style="font-size:0.75rem; color:var(--text-3); margin-top:-10px;">Progressão da sua taxa de acerto nas questões, dividida cronologicamente do início ao fim.</p>
             <div class="chart-container" id="learning-curve-chart">
                 </div>
         </div>
 
-        <div class="card">
-            <div class="card-title" style="color: var(--wrong);">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Onde estão suas taxas de erro? (Diagnóstico de Precisão)
+        <div class="card" id="diagnosis-card">
+            <div class="card-title" style="margin-bottom: 0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Plano de Estudo (Classificado por Urgência)
             </div>
-            <div class="diag-list" id="diag-list">
-                </div>
+            
+            <div id="diag-container"></div>
+            
         </div>
 
     </div>
@@ -230,7 +240,7 @@
 <div class="modal-overlay" id="prescription-modal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div class="modal-header">
-            <div class="modal-title">📋 Prescrição de Estudos Markdown</div>
+            <div class="modal-title">📋 Prescrição de Estudos (Markdown)</div>
             <button class="modal-close" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body" id="markdown-content"></div>
@@ -245,7 +255,7 @@
 
 <script>
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv';
-let globalDiagnosisData = []; // Para armazenar os dados e gerar o markdown
+let globalDiagnosisData = []; 
 let currentMarkdownString = "";
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -279,29 +289,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicStats = {};
         let totalQuestions = 0;
         let totalCorrect = 0;
-        let totalErrors = 0;
 
-        // Processa o histórico cronologicamente (presumindo ordem de inserção do objeto)
+        // 1. Coleta e Agrupa os Dados
         Object.entries(historico).forEach(([id, status]) => {
             const questao = banco.find(q => q.id === id);
             if (!questao) return;
 
             const isCorrect = status === 'correta';
-            
-            // Extrai as áreas conforme a estrutura típica da sua planilha / TSX
             const grande_area = questao.grande_area || questao.categoria || 'Sem Área';
             const especialidade = questao.especialidade || 'Geral';
             const tema = questao.tema_especifico || questao.tema || 'Geral';
             const competencia = questao.competencia || 'Revisão Geral';
 
-            // Chave única para o mapa
+            // Agrupar por Tema E Competência (Para saber O QUE estudar de cada tema)
             const mapKey = `${grande_area}|${especialidade}|${tema}|${competencia}`;
 
             historyArray.push({ correct: isCorrect });
             totalQuestions++;
-            
             if (isCorrect) totalCorrect++;
-            else totalErrors++;
 
             if (!topicStats[mapKey]) {
                 topicStats[mapKey] = { 
@@ -309,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     total: 0, correct: 0, errors: 0 
                 };
             }
-            
             topicStats[mapKey].total++;
             if (isCorrect) topicStats[mapKey].correct++;
             else topicStats[mapKey].errors++;
@@ -321,80 +325,101 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Visão Global
+        // 2. Renderiza Visão Global
         const accRate = Math.round((totalCorrect / totalQuestions) * 100);
-        const errRate = Math.round((totalErrors / totalQuestions) * 100);
-
+        const errRate = Math.round(((totalQuestions - totalCorrect) / totalQuestions) * 100);
         document.getElementById('stat-total').textContent = totalQuestions;
         document.getElementById('stat-acertos').textContent = accRate + '%';
         document.getElementById('stat-erros').textContent = errRate + '%';
 
-        // 2. Curva de Aprendizagem (Divide o histórico em até 10 blocos)
+        // 3. Renderiza Curva de Aprendizagem
         renderLearningCurve(historyArray);
 
-        // 3. Diagnóstico de Precisão (Ordena pelos que têm mais erros absolutos + menor precisão)
-        const errorNodes = [];
+        // 4. Lógica de Urgência e Diagnóstico
+        const analysisNodes = [];
         Object.values(topicStats).forEach(stats => {
-            if (stats.errors > 0) {
+            // Só analisa tópicos que o aluno tentou pelo menos 2 vezes (evita falso positivo de 1 erro isolado)
+            if (stats.total >= 1) {
                 const accuracy = Math.round((stats.correct / stats.total) * 100);
-                errorNodes.push({
-                    ...stats,
-                    acc: accuracy,
-                    urgencyScore: stats.errors + (100 - accuracy) // Peso simples: qtd erros + inverso da precisão
-                });
+                // Score de urgência pondera volume de erros absoluto + baixa precisão
+                const urgencyScore = (stats.errors * 2) + (100 - accuracy); 
+                
+                let category = 'domain'; // > 70% acc
+                if (accuracy < 50 && stats.errors >= 2) category = 'critical';
+                else if (accuracy < 75 || stats.errors >= 1) category = 'warning';
+
+                analysisNodes.push({ ...stats, acc: accuracy, urgencyScore, category });
             }
         });
 
-        // Ordena por Urgência Descendente
-        errorNodes.sort((a, b) => b.urgencyScore - a.urgencyScore);
-        globalDiagnosisData = errorNodes; // Salva para o Markdown
+        // Ordena por maior urgência primeiro
+        analysisNodes.sort((a, b) => b.urgencyScore - a.urgencyScore);
+        globalDiagnosisData = analysisNodes;
 
-        const topDiagnoses = errorNodes.slice(0, 5); // Mostra os top 5 piores
-        const diagList = document.getElementById('diag-list');
+        // Separar em buckets para renderização visual
+        const criticos = analysisNodes.filter(n => n.category === 'critical').slice(0, 5);
+        const atencao = analysisNodes.filter(n => n.category === 'warning').slice(0, 4);
+        const dominios = analysisNodes.filter(n => n.category === 'domain').slice(0, 3);
 
-        if (topDiagnoses.length === 0) {
-            diagList.innerHTML = '<div style="color:var(--correct);font-size:0.85rem;text-align:center;padding:20px;">Você não possui erros registrados. Excelente!</div>';
+        const container = document.getElementById('diag-container');
+        let html = '';
+
+        if (analysisNodes.length === 0) {
+            html = '<div style="color:var(--text-3); padding:20px; text-align:center;">Continue respondendo questões para gerarmos sua análise.</div>';
         } else {
-            diagList.innerHTML = topDiagnoses.map((t, index) => {
-                const accClass = t.acc < 50 ? 'low' : t.acc < 75 ? 'mid' : 'high';
-                const severity = t.acc < 50 ? 'critical' : 'warning';
-                
-                // Apenas o problema #1 (ou os listados) ganha botão de gerar markdown
-                const isTop = index === 0;
-
-                return `
-                    <div class="diag-item ${severity}">
-                        <div class="diag-info">
-                            <div class="diag-topic">${t.tema}</div>
-                            <div class="diag-meta">
-                                <span class="error-badge">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>
-                                <span>de ${t.total} tentativas</span>
-                                <span>• ${t.competencia}</span>
-                            </div>
-                        </div>
-                        <div class="diag-actions">
-                            ${isTop ? `<button class="btn-prescription" onclick="openPrescription()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Gerar Prescrição</button>` : ''}
-                            <div>
-                                <span class="diag-acc-lbl">Precisão</span>
-                                <div class="diag-acc ${accClass}">${t.acc}%</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            // Render: Alta Urgência
+            if (criticos.length > 0) {
+                html += `<div class="urgency-header critical"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Alta Urgência (Revisão Teórica Imediata)</div>`;
+                html += `<div class="diag-list">` + criticos.map((t, i) => renderDiagItem(t, 'critical', i === 0)).join('') + `</div>`;
+            }
+            // Render: Atenção
+            if (atencao.length > 0) {
+                html += `<div class="urgency-header warning"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Atenção (Lacunas Parciais)</div>`;
+                html += `<div class="diag-list">` + atencao.map(t => renderDiagItem(t, 'warning', false)).join('') + `</div>`;
+            }
+            // Render: Domínio
+            if (dominios.length > 0) {
+                html += `<div class="urgency-header domain"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Domínio (Apenas Manutenção via Questões)</div>`;
+                html += `<div class="diag-list">` + dominios.map(t => renderDiagItem(t, 'domain', false)).join('') + `</div>`;
+            }
         }
 
+        container.innerHTML = html;
         loading.classList.add('hidden');
         dataPanel.classList.remove('hidden');
+    }
+
+    function renderDiagItem(t, severity, showPrescriptionBtn) {
+        const accClass = t.acc < 50 ? 'low' : t.acc < 75 ? 'mid' : 'high';
+        // Botão de prescrição apenas no item mais crítico
+        const btnHtml = showPrescriptionBtn ? `<button class="btn-prescription" onclick="openPrescription()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Gerar Prescrição</button>` : '';
+
+        return `
+            <div class="diag-item ${severity}">
+                <div class="diag-info">
+                    <div class="diag-topic">${t.tema}</div>
+                    <div class="diag-meta">
+                        ${t.errors > 0 ? `<span class="badge err">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>` : `<span class="badge" style="background:var(--correct-bg); color:var(--correct)">Sem erros</span>`}
+                        <span class="badge comp">Foco: ${t.competencia}</span>
+                        <span>Base: ${t.total} q.</span>
+                    </div>
+                </div>
+                <div class="diag-actions">
+                    ${btnHtml}
+                    <div>
+                        <span class="diag-acc-lbl">Precisão</span>
+                        <div class="diag-acc ${accClass}">${t.acc}%</div>
+                    </div>
+                </div>
+            </div>
+        `;
     }
 
     function renderLearningCurve(history) {
         const container = document.getElementById('learning-curve-chart');
         const numChunks = 10;
-        const chunkSize = Math.ceil(history.length / numChunks);
-        
-        // Se houver pouquíssimas questões, reduz os blocos
         const actualChunks = history.length < 10 ? history.length : numChunks;
+        const chunkSize = Math.ceil(history.length / actualChunks);
         const chunks = [];
 
         for (let i = 0; i < actualChunks; i++) {
@@ -410,73 +435,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
         container.innerHTML = chunks.map((acc, i) => {
             let colorClass = acc >= 75 ? 'good' : acc >= 50 ? 'mid' : 'bad';
-            let barHeight = Math.max(10, acc); // mínimo 10% de altura visual
+            let barHeight = Math.max(10, acc); 
             return `
                 <div class="chart-bar-group">
-                    <div class="chart-tooltip">Bloco ${i+1}: ${acc}%</div>
-                    <div class="chart-bar ${colorClass}" style="height: ${barHeight}%;"></div>
-                    <div class="chart-label">${i+1}</div>
+                    <div class="chart-bar ${colorClass}" style="height: ${barHeight}%;" title="Bloco ${i+1}: ${acc}%"></div>
                 </div>
             `;
         }).join('');
     }
 });
 
-// -- Lógica do Modal e Markdown --
-
+// -- Lógica da Prescrição e Markdown --
 function openPrescription() {
     if (globalDiagnosisData.length === 0) return;
 
+    // O mais crítico é o index 0
     const main = globalDiagnosisData[0];
-    const others = globalDiagnosisData.slice(1, 4); // Pega os próximos 3
+    const others = globalDiagnosisData.slice(1, 4); 
     
-    // Formata a data atual
     const hoje = new Date();
     const dataFormatada = hoje.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    // Constrói o texto do Markdown exato
     currentMarkdownString = `# 🩺 Prescrição de Estudos — QuestBank
 > Gerada em ${dataFormatada}
 
 ---
 
-## 📊 Diagnóstico Principal
+## 📊 Diagnóstico Principal (Foco Imediato)
 
 **Desempenho:** ${main.acc}% em **${main.tema}** (Meta: 70%)
-**Amostra:** ${main.correct} acertos em ${main.total} questões
+**Amostra:** ${main.correct} acertos em ${main.total} tentativas
+**Erros Mapeados:** ${main.errors}
 
 ---
 
-## 🎯 Foco de Estudo
+## 🎯 Foco de Estudo Direcionado
 
 * **Grande Área:** ${main.grande_area}
 * **Especialidade:** ${main.especialidade}
-* **Tema:** ${main.tema}
-* **Competência (Tipo de questão):** ${main.competencia}
+* **Tema Prioritário:** ${main.tema}
+* **Competência Fraca (O que estudar):** ${main.competencia}
 
 ---
 
-## 📝 Recomendações
+## 📝 Recomendações de Ação
 
-1. Revisar a teoria de **${main.tema}** com foco em **${main.competencia}**.
-2. Criar um filtro de questões contendo apenas **${main.especialidade}** e **${main.tema}**.
-3. Após a revisão teórica, resolver pelo menos 15–20 questões filtradas para consolidar.
-4. Reavaliar o desempenho no próximo ciclo do Dashboard.
-
----
-
-## ⚠️ Outros Pontos de Atenção
-
-${others.length > 0 ? others.map((o, i) => `${i+1}. **${o.tema}** (${o.competencia}) — Precisão: ${o.acc}%`).join('\n') : "_Nenhum outro ponto crítico mapeado no momento._"}
+1. Pare de fazer questões deste assunto agora.
+2. Revise a teoria base de **${main.tema}** focando exclusivamente em entender a parte de **${main.competencia}**.
+3. Crie um filtro de testes contendo apenas **${main.especialidade}** e **${main.tema}**.
+4. Resolva 15-20 questões filtradas para consolidar a teoria.
 
 ---
 
-_Prescrição gerada automaticamente por QuestBank. Use como guia de revisão teórica._`;
+## ⚠️ Outras Lacunas Mapeadas na Sessão
+
+${others.length > 0 ? others.map((o, i) => `${i+1}. **${o.tema}** (${o.competencia}) — Precisão: ${o.acc}% (${o.errors} erros)`).join('\n') : "_Nenhum outro ponto crítico mapeado no momento._"}
+
+---
+
+_Prescrição algorítmica gerada por análise de erros. Use como guia de revisão._`;
 
     document.getElementById('markdown-content').textContent = currentMarkdownString;
     document.getElementById('prescription-modal').classList.add('active');
     
-    // Reseta botão
     const btn = document.getElementById('btn-copy');
     btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar Markdown`;
     btn.style.background = 'var(--accent)';
@@ -493,7 +514,7 @@ function copyMarkdown() {
         btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
         btn.style.background = 'var(--correct)';
     }).catch(() => {
-        alert("Falha ao copiar. Selecione o texto e copie manualmente.");
+        alert("Falha ao copiar. Selecione o texto na caixa e copie manualmente.");
     });
 }
 </script>
