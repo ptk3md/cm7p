@@ -3,354 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#0d0d0d">
-    <title>Dashboard • Banco de Questões</title>
+    <meta name="theme-color" content="#020617">
+    <title>Apex Dashboard • Análise Inteligente</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900;1,9..40,400&display=swap" rel="stylesheet">
     
-    <!-- CSP e GoatCounter -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at https://cm7p.goatcounter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cm7p.goatcounter.com;">
-    <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-
     <style>
         :root {
-            --bg: #0d0d0d; --surface: #181818; --surface-2: #222; --surface-3: #2a2a2a;
-            --border: #2e2e2e; --border-light: #3a3a3a;
-            --text: #f2f2f2; --text-2: #a0a0a0; --text-3: #606060;
-            --accent: #5b8df0; --accent-bg: rgba(91,141,240,0.12);
-            --correct: #3ecf8e; --correct-bg: rgba(62,207,142,0.1); --correct-border: rgba(62,207,142,0.3);
-            --wrong: #f06060; --wrong-bg: rgba(240,96,96,0.1); --wrong-border: rgba(240,96,96,0.3);
-            --warn: #f5a623; --radius: 6px; --radius-lg: 8px;
-            --safe-bottom: env(safe-area-inset-bottom, 16px);
+            /* Slate (Dark Mode) Palette inspired by Tailwind */
+            --bg: #020617; /* slate-950 */
+            --surface: #0f172a; /* slate-900 */
+            --surface-hover: #1e293b; /* slate-800 */
+            --border: #1e293b; 
+            --border-light: #334155;
+            
+            --text: #f8fafc; /* slate-50 */
+            --text-muted: #94a3b8; /* slate-400 */
+            --text-darker: #64748b; /* slate-500 */
+            
+            /* Semantic Colors */
+            --violet-500: #8b5cf6;
+            --violet-400: #a78bfa;
+            --rose-500: #f43f5e;
+            --rose-400: #fb7185;
+            --rose-900: rgba(225, 29, 72, 0.2);
+            --emerald-500: #10b981;
+            --emerald-900: rgba(5, 150, 105, 0.2);
+            --amber-500: #f59e0b;
+            --amber-900: rgba(217, 119, 6, 0.2);
+
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
+
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
         body { 
             background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; 
             max-width: 900px; margin: 0 auto; padding: 0 20px calc(100px + var(--safe-bottom)); 
-            min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; 
+            min-height: 100vh; -webkit-font-smoothing: antialiased; 
         }
         .hidden { display: none !important; }
-        a { color: var(--accent); text-decoration: none; }
-        a:hover { text-decoration: underline; }
+
+        /* Typography & Utilities */
+        .text-gradient {
+            background: linear-gradient(to right, var(--violet-400), #e879f9);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .uppercase-badge {
+            font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+        }
 
         /* Header */
         .dash-header { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; 
+            display: flex; align-items: flex-end; justify-content: space-between; 
+            padding: 40px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; 
         }
-        .dash-title { font-size: 1.4rem; font-weight: 700; }
-        .dash-subtitle { font-size: 0.85rem; color: var(--text-3); margin-top: 2px; }
+        .dash-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; }
+        .dash-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+        
         .back-link { 
-            display: inline-flex; align-items: center; gap: 6px; 
-            padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); 
-            border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; 
-            transition: all 0.15s; 
+            display: inline-flex; align-items: center; gap: 8px; 
+            padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); 
+            border-radius: var(--radius-md); font-size: 0.85rem; font-weight: 700; color: var(--text);
+            text-decoration: none; transition: all 0.2s; 
         }
-        .back-link:hover { border-color: var(--accent); color: var(--accent); }
+        .back-link:hover { border-color: var(--violet-500); background: var(--surface-hover); }
 
-        /* Cards */
+        /* Cards Layout */
+        .grid-layout { display: grid; grid-template-columns: 1fr; gap: 24px; }
+        @media (min-width: 768px) { .grid-layout { grid-template-columns: 2fr 1fr; } }
+
         .card { 
             background: var(--surface); border: 1px solid var(--border); 
-            border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; 
+            border-radius: var(--radius-lg); padding: 24px; position: relative; overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        .card-title { 
-            font-size: 0.75rem; font-weight: 700; color: var(--text-3); 
-            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; 
+        
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .card-icon { 
+            width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; 
         }
+        .card-title { font-size: 1.1rem; font-weight: 800; color: var(--text); }
+        .card-desc { font-size: 0.75rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
 
-        /* Stats Grid */
-        .stats-grid { 
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; 
+        /* General Stats (Rating/Acc/Total) */
+        .stats-row { display: flex; flex-direction: column; gap: 16px; }
+        @media (min-width: 600px) { .stats-row { flex-direction: row; } }
+        
+        .stat-block { 
+            flex: 1; background: var(--bg); border: 1px solid var(--border); 
+            border-radius: var(--radius-md); padding: 20px; 
+            position: relative; z-index: 1;
         }
-        .stat-box { 
-            background: var(--surface-2); border: 1px solid var(--border); 
-            border-radius: var(--radius); padding: 14px; text-align: center; 
-        }
-        .stat-val { font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-        .stat-val.rating { color: var(--accent); }
-        .stat-val.correct { color: var(--correct); }
-        .stat-val.wrong { color: var(--wrong); }
-        .stat-lbl { font-size: 0.7rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+        .stat-value { font-size: 2.5rem; font-weight: 900; line-height: 1; margin: 8px 0; letter-spacing: -0.05em; }
+        .stat-label { font-size: 0.7rem; font-weight: 700; color: var(--text-darker); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        /* Division Badge */
-        .division-badge { 
-            display: inline-flex; align-items: center; gap: 8px; 
-            padding: 10px 16px; background: var(--accent-bg); border: 1px solid var(--accent); 
-            border-radius: var(--radius); font-weight: 600; color: var(--accent); 
-            margin-bottom: 12px; 
+        /* Domain Zone (Best Topic) */
+        .domain-card { background: linear-gradient(145deg, var(--surface), var(--bg)); border-color: var(--emerald-900); text-align: center; }
+        .domain-icon { width: 48px; height: 48px; background: var(--emerald-900); color: var(--emerald-500); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+
+        /* Diagnosis List (Spaced Repetition) */
+        .diag-list { display: flex; flex-direction: column; gap: 12px; }
+        .diag-item { 
+            background: var(--bg); border: 1px solid var(--border); 
+            border-radius: var(--radius-md); padding: 16px; 
+            display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s;
         }
-        .division-badge svg { flex-shrink: 0; }
+        .diag-item:hover { border-color: var(--border-light); }
+        
+        .diag-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .diag-topic { font-size: 1rem; font-weight: 800; color: var(--text); }
+        
+        /* Spaced Repetition Badges */
+        .srs-badge { 
+            display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; 
+            border-radius: 6px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .srs-critical { background: var(--rose-900); color: var(--rose-400); border: 1px solid rgba(244, 63, 94, 0.2); }
+        .srs-warning { background: var(--amber-900); color: var(--amber-400); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .srs-decay { background: var(--surface-hover); color: var(--text-muted); border: 1px solid var(--border-light); }
+
+        .diag-metrics { display: flex; align-items: center; gap: 20px; margin-top: 4px; }
+        .metric-group { display: flex; flex-direction: column; }
+        .metric-val { font-size: 1.1rem; font-weight: 800; }
+        .metric-lbl { font-size: 0.65rem; color: var(--text-darker); font-weight: 700; text-transform: uppercase; }
 
         /* Progress Bar */
-        .progress-wrap { margin: 8px 0 4px; }
-        .progress-label { 
-            display: flex; justify-content: space-between; font-size: 0.75rem; 
-            color: var(--text-3); font-weight: 600; margin-bottom: 6px; 
-        }
-        .progress-bar { 
-            height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; 
-        }
-        .progress-fill { 
-            height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; 
-        }
+        .urgency-bar-bg { width: 100%; height: 6px; background: var(--surface-hover); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+        .urgency-bar-fill { height: 100%; border-radius: 4px; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
 
-        /* Diagnosis List */
-        .diag-list { display: flex; flex-direction: column; gap: 10px; }
-        .diag-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 12px; background: var(--surface-2); border: 1px solid var(--border); 
-            border-radius: var(--radius); 
-        }
-        .diag-info { min-width: 0; flex: 1; }
-        .diag-topic { font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .diag-meta { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
-        .diag-acc { 
-            font-size: 1.1rem; font-weight: 700; margin-left: 12px; flex-shrink: 0; 
-        }
-        .diag-acc.low { color: var(--wrong); }
-        .diag-acc.mid { color: var(--warn); }
-        .diag-acc.high { color: var(--correct); }
-
-        /* Heatmap */
-        .heatmap { 
-            display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; 
-            padding: 12px 0; 
-        }
-        .heatmap-cell { 
-            width: 12px; height: 12px; border-radius: 2px; background: var(--surface-3); 
-            transition: transform 0.1s; 
-        }
-        .heatmap-cell:hover { transform: scale(1.5); }
-        .heatmap-cell.d1 { background: var(--accent-bg); border: 1px solid var(--accent); }
-        .heatmap-cell.d2 { background: var(--accent); }
-        .heatmap-cell.d3 { background: var(--correct); }
-
-        /* Empty State */
-        .empty-state { 
-            text-align: center; padding: 40px 20px; color: var(--text-3); 
-        }
-        .empty-state-icon { 
-            width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 12px; 
-            background: var(--surface-2); display: flex; align-items: center; justify-content: center; 
-        }
-        .empty-state-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-        .empty-state-text { font-size: 0.9rem; }
-
-        /* Footer */
-        .dash-footer { 
-            text-align: center; padding-top: 24px; margin-top: 24px; 
-            border-top: 1px solid var(--border); color: var(--text-3); font-size: 0.8rem; 
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .dash-header { flex-direction: column; align-items: flex-start; gap: 12px; }
-        }
+        /* Loading & Empty */
+        .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        
+        .empty-icon { width: 64px; height: 64px; background: var(--surface-hover); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-<!-- Header -->
 <header class="dash-header">
     <div>
-        <div class="dash-title">Dashboard</div>
-        <div class="dash-subtitle">Sua evolução em tempo real</div>
+        <div class="uppercase-badge" style="color: var(--violet-400); margin-bottom: 8px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="display:inline; margin-right:4px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Análise Inteligente
+        </div>
+        <h1 class="dash-title">Dashboard</h1>
+        <p class="dash-subtitle">Métricas em tempo real guiadas por Repetição Espaçada.</p>
     </div>
-    <a href="./" class="back-link">← Voltar ao Quiz</a>
+    <a href="./" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Sair
+    </a>
 </header>
 
-<!-- Main Content -->
 <main id="dash-content">
-    <!-- Loading -->
-    <div id="dash-loading" class="card">
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div class="spinner" style="width:24px;height:24px;border:2px solid var(--surface-3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
-            <span style="color:var(--text-2);font-size:0.9rem;">Carregando seus dados...</span>
-        </div>
+    
+    <div id="dash-loading" class="card pulse" style="text-align: center; padding: 60px 20px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--violet-500)" stroke-width="2" class="pulse" style="margin: 0 auto 16px;"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+        <div style="font-weight: 700; color: var(--text-muted);">Processando algoritmos de memória...</div>
     </div>
 
-    <!-- Empty State (no data) -->
-    <div id="dash-empty" class="card hidden">
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="empty-state-title">Nenhuma questão respondida ainda</div>
-            <div class="empty-state-text">Comece respondendo questões no quiz para ver suas estatísticas aqui.</div>
-            <div style="margin-top:16px;">
-                <a href="./" class="back-link" style="padding:10px 20px;">Ir para o Quiz →</a>
-            </div>
+    <div id="dash-empty" class="card hidden" style="text-align: center; padding: 60px 20px;">
+        <div class="empty-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="M6 11l-4 4 4 4"/></svg>
         </div>
+        <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px;">Base de Conhecimento Vazia</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; max-width: 300px; margin: 0 auto 24px;">Responda questões para que a inteligência artificial possa mapear suas lacunas.</p>
+        <a href="./" class="back-link" style="background: var(--text); color: var(--bg);">Iniciar Quiz</a>
     </div>
 
-    <!-- Dashboard Content (populated by JS) -->
     <div id="dash-data" class="hidden">
         
-        <!-- Rating & Streak -->
-        <div class="card">
-            <div class="card-title">Desempenho Geral</div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-val rating" id="stat-rating">0</div>
-                    <div class="stat-lbl">Apex Rating</div>
+        <div class="grid-layout">
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--violet-400);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Performance Global</h2>
+                            <p class="card-desc">Visão macro do seu rendimento</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-row">
+                        <div class="stat-block">
+                            <div class="stat-label">Apex Rating</div>
+                            <div class="stat-value text-gradient" id="stat-rating">0</div>
+                            <div class="stat-label" style="text-transform: none; font-size: 0.65rem; font-weight: 600;">Algoritmo Elo</div>
+                        </div>
+                        <div class="stat-block">
+                            <div class="stat-label">Precisão Total</div>
+                            <div class="stat-value" id="stat-accuracy" style="color: var(--text);">0%</div>
+                            <div class="stat-label" id="stat-total-text" style="text-transform: none; font-size: 0.65rem; font-weight: 600;">0 de 0 questões</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="stat-streak">0</div>
-                    <div class="stat-lbl">Dias seguidos</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val correct" id="stat-accuracy">0%</div>
-                    <div class="stat-lbl">Precisão</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-val" id="stat-total">0</div>
-                    <div class="stat-lbl">Questões</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Division -->
-        <div class="card">
-            <div class="card-title">Divisão Atual</div>
-            <div class="division-badge" id="division-badge">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-                <span id="division-name">Calouro</span>
-            </div>
-            <div class="progress-wrap">
-                <div class="progress-label">
-                    <span>Progresso para próxima divisão</span>
-                    <span id="division-progress-text">0/150</span>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: var(--rose-900); color: var(--rose-400);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                        <div>
+                            <h2 class="card-title">Diagnóstico de Revisão (SRS)</h2>
+                            <p class="card-desc">Priorização baseada em curva de esquecimento e erros</p>
+                        </div>
+                    </div>
+                    
+                    <div class="diag-list" id="diag-list">
+                        </div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="division-progress" style="width:0%"></div>
+            </div>
+
+            <div class="card domain-card">
+                <div class="domain-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l9-5l-9-5l2 5Z"/><path d="M12 15v7"/><path d="M5 19v-4a8 8 0 0 1 8-8h0a8 8 0 0 1 8 8v4"/></svg>
                 </div>
-            </div>
-            <div style="font-size:0.75rem;color:var(--text-3);margin-top:8px;">
-                Próxima: <strong id="next-division">Veterano</strong> • Faltam <strong id="questions-to-next">150</strong> questões neste ciclo
-            </div>
-        </div>
-
-        <!-- Diagnosis -->
-        <div class="card">
-            <div class="card-title">Pontos de Atenção</div>
-            <div class="diag-list" id="diag-list">
-                <!-- Preenchido via JS -->
-            </div>
-        </div>
-
-        <!-- Heatmap -->
-        <div class="card">
-            <div class="card-title">Consistência (Últimos 30 dias)</div>
-            <div class="heatmap" id="heatmap">
-                <!-- Preenchido via JS -->
-            </div>
-            <div style="display:flex;justify-content:center;gap:8px;margin-top:8px;font-size:0.7rem;color:var(--text-3);">
-                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--surface-3);"></span> 0</span>
-                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent-bg);border:1px solid var(--accent);"></span> 1-4</span>
-                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);"></span> 5-9</span>
-                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--correct);"></span> 10+</span>
+                <div class="uppercase-badge" style="color: var(--emerald-500); margin-bottom: 12px;">Zona de Domínio</div>
+                <h3 id="best-topic" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px;">N/A</h3>
+                <div id="best-acc" style="font-size: 2.5rem; font-weight: 900; color: var(--emerald-400); line-height: 1; margin-bottom: 12px;">0%</div>
+                <p id="best-meta" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600;">Continue mantendo o ritmo nesta área.</p>
             </div>
         </div>
 
     </div>
 </main>
 
-<!-- Footer -->
-<footer class="dash-footer">
-    Dashboard • Dados armazenados localmente no seu navegador
-</footer>
-
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// CONFIGURAÇÕES
-// ═══════════════════════════════════════════════════════════════════
+// --- CORE CONFIGURATION ---
 const CONFIG = {
     BASE_RATING: 500, MIN_RATING: 0, MAX_RATING: 3000, K_FACTOR: 20, BLOCK_SIZE: 10,
-    BEGINNER_THRESHOLD: 100, BEGINNER_BONUS: 5, NORMAL_BONUS: 1,
-    DIVISION_THRESHOLDS: { 'Calouro': 150, 'Veterano': 450, 'Interno': 750, 'Residente R1': 1050, 'Residente R2': 1350, 'Residente R3': Infinity },
-    DAILY_GOAL: 10
+    BEGINNER_THRESHOLD: 100, BEGINNER_BONUS: 5, NORMAL_BONUS: 1
 };
 
-const DIVISIONS = ['Calouro', 'Veterano', 'Interno', 'Residente R1', 'Residente R2', 'Residente R3'];
+// --- RATING ENGINE (ELO BLOCKS) ---
+const calculateRobustRating = (historyArray) => {
+    if (!historyArray.length) return CONFIG.BASE_RATING;
+    const sorted = [...historyArray].sort((a, b) => a.timestamp - b.timestamp);
+    let currentRating = CONFIG.BASE_RATING;
 
-// ═══════════════════════════════════════════════════════════════════
-// FUNÇÕES AUXILIARES
-// ═══════════════════════════════════════════════════════════════════
-const getLocalDate = (ts) => {
-    const d = new Date(ts);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-};
-
-const getDivision = (questions) => {
-    if (questions > 1350) return 'Residente R3';
-    if (questions > 1050) return 'Residente R2';
-    if (questions > 750) return 'Residente R1';
-    if (questions > 450) return 'Interno';
-    if (questions > 150) return 'Veterano';
-    return 'Calouro';
-};
-
-const getNextDivision = (current) => {
-    const idx = DIVISIONS.indexOf(current);
-    return idx < DIVISIONS.length - 1 ? DIVISIONS[idx + 1] : null;
-};
-
-const calculateRating = (history) => {
-    if (!history.length) return CONFIG.BASE_RATING;
-    let rating = CONFIG.BASE_RATING;
-    const sorted = [...history].sort((a, b) => a.timestamp - b.timestamp);
-    
     for (let i = 0; i < sorted.length; i += CONFIG.BLOCK_SIZE) {
         const block = sorted.slice(i, i + CONFIG.BLOCK_SIZE);
-        const correct = block.filter(h => h.correct).length;
-        const p = correct / block.length;
-        const nTotal = i + block.length;
+        const blockSize = block.length;
+        const blockIndex = Math.floor(i / CONFIG.BLOCK_SIZE);
+
+        const correctInBlock = block.filter(item => item.correct).length;
+        const p = correctInBlock / blockSize;
+
+        const nTotal = i + blockSize;
         const B = nTotal <= CONFIG.BEGINNER_THRESHOLD ? CONFIG.BEGINNER_BONUS : CONFIG.NORMAL_BONUS;
-        let delta = CONFIG.K_FACTOR * (p - 0.5) * B;
-        
+
+        const saturationFactor = Math.max(0.1, (CONFIG.MAX_RATING - currentRating) / 2500);
+        const partialPenalty = blockSize < CONFIG.BLOCK_SIZE ? 0.5 : 1.0;
+
+        let delta = CONFIG.K_FACTOR * (p - 0.5) * B * partialPenalty;
+
         if (delta > 0) {
-            delta *= Math.max(0.1, (CONFIG.MAX_RATING - rating) / 2500);
+            delta *= saturationFactor;
+        } else {
+            if (blockIndex >= 3) {
+                const experienceShield = 1 + (Math.log(blockIndex - 1) * 0.6);
+                delta = delta / experienceShield;
+            }
+            if (currentRating < CONFIG.BASE_RATING) delta *= 0.3;
         }
-        rating = Math.max(CONFIG.MIN_RATING, Math.min(CONFIG.MAX_RATING, rating + delta));
+
+        currentRating = Math.max(CONFIG.MIN_RATING, Math.min(CONFIG.MAX_RATING, currentRating + delta));
     }
-    return Math.round(rating);
+    return Math.round(currentRating);
 };
 
-const calculateStreak = (activityMap, dailyGoal) => {
-    let streak = 0;
-    const today = getLocalDate(Date.now());
-    let date = new Date();
+// --- SPACED REPETITION SYSTEM (SRS) ALGORITHM ---
+const calculateSpacedRepetitionPriority = (stats, now) => {
+    // 1. Accuracy penalty (0 to 1). Lower accuracy = higher penalty.
+    const accuracy = stats.correct / stats.total;
+    const accuracyPenalty = 1 - accuracy; 
     
-    for (let i = 0; i < 365; i++) {
-        const dateStr = getLocalDate(date.getTime());
-        const count = activityMap[dateStr] || 0;
-        
-        if (dateStr === today && count < dailyGoal) {
-            date.setDate(date.getDate() - 1);
-            continue;
-        }
-        if (count >= dailyGoal) streak++;
-        else if (dateStr !== today) break;
-        
-        date.setDate(date.getDate() - 1);
-    }
-    return streak;
+    // 2. Volume weight: We trust the accuracy more if there are more attempts.
+    const volumeWeight = Math.log10(stats.total + 1);
+    
+    // 3. Forgetting Curve (Time Decay)
+    // How many days since they last saw this topic?
+    const daysSince = Math.max(0, (now - stats.lastSeen) / (1000 * 60 * 60 * 24));
+    
+    // Memory Strength: High accuracy builds strong memory, low accuracy builds weak memory.
+    // Minimum strength is 1 day, max is around 14 days for this simulation.
+    const memoryStrength = Math.max(1, accuracy * 14); 
+    
+    // Ebbinghaus Forgetting Curve modification: e^(-time / strength)
+    // We want the inverse: Decay = 1 - Retention
+    const memoryRetention = Math.exp(-daysSince / memoryStrength);
+    const decayFactor = 1 - memoryRetention;
+
+    // Combine into an Urgency Score (0 to 100)
+    // 60% based on their actual errors, 40% based on memory decay
+    const urgency = (accuracyPenalty * volumeWeight * 60) + (decayFactor * 40);
+    
+    return {
+        accuracy: Math.round(accuracy * 100),
+        daysSince: Math.floor(daysSince),
+        urgency: Math.min(100, Math.max(0, urgency)),
+        decay: decayFactor
+    };
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// MAIN: CARREGAR E RENDERIZAR DASHBOARD
-// ═══════════════════════════════════════════════════════════════════
+// --- RENDER LOGIC ---
 document.addEventListener('DOMContentLoaded', async () => {
-    // Aguarda um tick para garantir que localStorage está disponível
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // Fake tiny delay for smooth UI transition
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     const historicoRaw = localStorage.getItem('apex_historico');
     const loading = document.getElementById('dash-loading');
     const empty = document.getElementById('dash-empty');
-    const data = document.getElementById('dash-data');
+    const dataPanel = document.getElementById('dash-data');
     
     if (!historicoRaw) {
         loading.classList.add('hidden');
@@ -359,8 +328,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     try {
-        const historico = JSON.parse(historicoRaw);
-        const entries = Object.entries(historico);
+        const historicoDB = JSON.parse(historicoRaw);
+        const entries = Object.entries(historicoDB);
         
         if (entries.length === 0) {
             loading.classList.add('hidden');
@@ -368,102 +337,147 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         
-        // Processar dados
-        const activityMap = {};
+        const historyArray = [];
         const topicStats = {};
-        let total = 0, correct = 0;
+        let totalQuestions = 0;
+        let totalCorrect = 0;
+        const nowTime = Date.now();
         
-        entries.forEach(([id, status]) => {
-            const isCorrect = status === 'correta';
-            total++;
-            if (isCorrect) correct++;
+        // 1. Data Parsing & Aggregation
+        entries.forEach(([id, payload], index) => {
+            const isObject = typeof payload === 'object' && payload !== null;
+            const isCorrect = isObject ? payload.correct : payload === 'correta';
+            // Fallbacks for data structures without timestamps/topics
+            const timestamp = isObject && payload.timestamp ? payload.timestamp : (nowTime - (entries.length - index) * 86400000/2); // Fake spread if missing
+            const topic = isObject && payload.topic ? payload.topic : `Geral`; 
             
-            // Atividade por dia (simulado - sem timestamp real, usamos data atual para demo)
-            const today = getLocalDate(Date.now());
-            activityMap[today] = (activityMap[today] || 0) + 1;
+            historyArray.push({ id, correct: isCorrect, timestamp });
             
-            // Stats por tópico (simulado - sem dados de tópico no historico atual)
-            // Para funcionar 100%, você precisaria salvar { id, correct, topic, especialidade } no localStorage
-            const topicKey = `Questão ${id}`;
-            if (!topicStats[topicKey]) topicStats[topicKey] = { total: 0, correct: 0 };
-            topicStats[topicKey].total++;
-            if (isCorrect) topicStats[topicKey].correct++;
+            totalQuestions++;
+            if (isCorrect) totalCorrect++;
+            
+            if (!topicStats[topic]) {
+                topicStats[topic] = { total: 0, correct: 0, errors: 0, lastSeen: 0 };
+            }
+            
+            topicStats[topic].total++;
+            if (isCorrect) topicStats[topic].correct++;
+            else topicStats[topic].errors++;
+            
+            topicStats[topic].lastSeen = Math.max(topicStats[topic].lastSeen, timestamp);
         });
         
-        const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
-        const rating = calculateRating(entries.map(([id, status]) => ({ id, correct: status === 'correta', timestamp: Date.now() })));
-        const streak = calculateStreak(activityMap, CONFIG.DAILY_GOAL);
-        const division = getDivision(total);
-        const nextDiv = getNextDivision(division);
-        const currentThreshold = CONFIG.DIVISION_THRESHOLDS[division];
-        const nextThreshold = nextDiv ? CONFIG.DIVISION_THRESHOLDS[nextDiv] : currentThreshold;
-        const progress = Math.min(100, ((total - (currentThreshold - CONFIG.DIVISION_THRESHOLDS[DIVISIONS[0]])) / (nextThreshold - (currentThreshold - CONFIG.DIVISION_THRESHOLDS[DIVISIONS[0]]))) * 100);
-        const toNext = nextDiv ? Math.max(0, nextThreshold - total) : 0;
+        // 2. Global Performance
+        const globalAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+        document.getElementById('stat-rating').textContent = calculateRobustRating(historyArray);
+        document.getElementById('stat-accuracy').textContent = globalAccuracy + '%';
+        document.getElementById('stat-total-text').textContent = `${totalCorrect} acertos de ${totalQuestions}`;
         
-        // Renderizar
-        document.getElementById('stat-rating').textContent = rating;
-        document.getElementById('stat-streak').textContent = streak;
-        document.getElementById('stat-accuracy').textContent = accuracy + '%';
-        document.getElementById('stat-total').textContent = total;
-        
-        document.getElementById('division-name').textContent = division;
-        document.getElementById('division-progress-text').textContent = `${total}/${nextThreshold}`;
-        document.getElementById('division-progress').style.width = `${Math.max(0, progress)}%`;
-        document.getElementById('next-division').textContent = nextDiv || '—';
-        document.getElementById('questions-to-next').textContent = toNext;
-        
-        // Diagnóstico (tópicos com menor precisão)
-        const diagList = document.getElementById('diag-list');
-        const sortedTopics = Object.entries(topicStats)
-            .filter(([_, s]) => s.total >= 1)
-            .map(([topic, s]) => ({ topic, acc: Math.round((s.correct / s.total) * 100), total: s.total }))
-            .sort((a, b) => a.acc - b.acc)
-            .slice(0, 5);
-        
-        if (sortedTopics.length === 0) {
-            diagList.innerHTML = '<div style="color:var(--text-3);font-size:0.85rem;text-align:center;padding:20px;">Responda mais questões para ver diagnóstico por tópico.</div>';
+        // 3. Process SRS and Sorting
+        const processedTopics = [];
+        Object.entries(topicStats).forEach(([tema, stats]) => {
+            if (stats.total < 1) return;
+            const srs = calculateSpacedRepetitionPriority(stats, nowTime);
+            processedTopics.push({ topic: tema, rawStats: stats, srs: srs });
+        });
+
+        // 4. Domain Zone (Best Topic)
+        // Require at least 2 attempts to be considered a "Domain" to avoid 1/1 flukes
+        const eligibleDomains = processedTopics.filter(t => t.rawStats.total >= 2);
+        if (eligibleDomains.length > 0) {
+            // Sort by accuracy DESC, then total ASC (more robust)
+            eligibleDomains.sort((a, b) => {
+                if (b.srs.accuracy !== a.srs.accuracy) return b.srs.accuracy - a.srs.accuracy;
+                return b.rawStats.total - a.rawStats.total;
+            });
+            const best = eligibleDomains[0];
+            document.getElementById('best-topic').textContent = best.topic;
+            document.getElementById('best-acc').textContent = best.srs.accuracy + '%';
+            document.getElementById('best-meta').textContent = `Precisão em ${best.rawStats.total} tentativas.`;
         } else {
-            diagList.innerHTML = sortedTopics.map(t => {
-                const accClass = t.acc < 50 ? 'low' : t.acc < 70 ? 'mid' : 'high';
+            document.getElementById('best-topic').textContent = "Aguardando dados";
+            document.getElementById('best-acc').textContent = "—";
+            document.getElementById('best-meta').textContent = "Resolva mais questões por área.";
+        }
+        
+        // 5. Diagnostic List (Prioritize by SRS Urgency)
+        processedTopics.sort((a, b) => b.srs.urgency - a.srs.urgency);
+        const topUrgent = processedTopics.slice(0, 8); // Top 8 most urgent
+        
+        const diagList = document.getElementById('diag-list');
+        
+        if (topUrgent.length === 0 || (topUrgent.length === 1 && topUrgent[0].topic === 'Geral')) {
+            diagList.innerHTML = `
+                <div style="text-align: center; padding: 30px 10px; color: var(--text-muted); font-size: 0.85rem;">
+                    O algoritmo SRS precisa de questões organizadas por área/tópico para mapear suas lacunas de memória de forma inteligente.
+                </div>`;
+        } else {
+            diagList.innerHTML = topUrgent.map(t => {
+                // Determine Tag and Color based on SRS logic
+                let badgeClass, badgeText, barColor;
+                
+                if (t.srs.urgency > 60) {
+                    badgeClass = 'srs-critical'; 
+                    badgeText = 'Lacuna Crítica';
+                    barColor = 'var(--rose-500)';
+                } else if (t.srs.decay > 0.6 && t.srs.accuracy >= 50) {
+                    badgeClass = 'srs-warning'; 
+                    badgeText = 'Revisão Preventiva'; // High decay, but accuracy was okay
+                    barColor = 'var(--amber-500)';
+                } else if (t.srs.urgency > 30) {
+                    badgeClass = 'srs-warning'; 
+                    badgeText = 'Revisão Necessária';
+                    barColor = 'var(--amber-500)';
+                } else {
+                    badgeClass = 'srs-decay'; 
+                    badgeText = 'Memória Estável';
+                    barColor = 'var(--text-darker)';
+                }
+
+                // Time formatting
+                const timeString = t.srs.daysSince === 0 ? 'Visto Hoje' : `Visto há ${t.srs.daysSince} dia${t.srs.daysSince > 1 ? 's' : ''}`;
+
                 return `
                     <div class="diag-item">
-                        <div class="diag-info">
-                            <div class="diag-topic">${t.topic}</div>
-                            <div class="diag-meta">${t.total} questão${t.total > 1 ? 'ões' : ''}</div>
+                        <div class="diag-header">
+                            <div>
+                                <div class="diag-topic">${t.topic}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-weight: 500;">
+                                    ${t.rawStats.errors} erros • ${timeString}
+                                </div>
+                            </div>
+                            <span class="srs-badge ${badgeClass}">${badgeText}</span>
                         </div>
-                        <div class="diag-acc ${accClass}">${t.acc}%</div>
+                        
+                        <div class="diag-metrics">
+                            <div class="metric-group" style="width: 60px;">
+                                <span class="metric-lbl">Precisão</span>
+                                <span class="metric-val" style="color: ${t.srs.accuracy < 50 ? 'var(--rose-400)' : 'var(--text)'};">${t.srs.accuracy}%</span>
+                            </div>
+                            <div class="metric-group" style="flex: 1;">
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span class="metric-lbl">Nível de Urgência</span>
+                                    <span class="metric-lbl" style="color: var(--text-muted);">${Math.round(t.srs.urgency)}/100</span>
+                                </div>
+                                <div class="urgency-bar-bg">
+                                    <div class="urgency-bar-fill" style="width: ${t.srs.urgency}%; background: ${barColor};"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 `;
             }).join('');
         }
         
-        // Heatmap (últimos 30 dias)
-        const heatmap = document.getElementById('heatmap');
-        const today = new Date();
-        let heatmapHTML = '';
-        for (let i = 29; i >= 0; i--) {
-            const d = new Date(today);
-            d.setDate(d.getDate() - i);
-            const dateStr = getLocalDate(d.getTime());
-            const count = activityMap[dateStr] || 0;
-            let cls = '';
-            if (count >= 10) cls = 'd3';
-            else if (count >= 5) cls = 'd2';
-            else if (count >= 1) cls = 'd1';
-            heatmapHTML += `<div class="heatmap-cell ${cls}" title="${dateStr}: ${count} questões"></div>`;
-        }
-        heatmap.innerHTML = heatmapHTML;
-        
-        // Mostrar dados, esconder loading
         loading.classList.add('hidden');
-        data.classList.remove('hidden');
+        dataPanel.classList.remove('hidden');
         
     } catch (e) {
-        console.error('Erro ao carregar dashboard:', e);
+        console.error('Erro Crítico no Motor SRS:', e);
         loading.classList.add('hidden');
         empty.classList.remove('hidden');
-        empty.querySelector('.empty-state-title').textContent = 'Erro ao carregar dados';
-        empty.querySelector('.empty-state-text').textContent = 'Tente recarregar a página ou responder mais questões.';
+        empty.querySelector('h3').textContent = 'Erro de Sincronização';
+        empty.querySelector('p').textContent = 'Não foi possível rodar o algoritmo analítico. Limpe o cache do navegador.';
     }
 });
 </script>
