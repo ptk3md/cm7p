@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0d0d0d">
+    <meta http-equiv="Content-Security-Policy" 
+      content="script-src 'self' https://gc.zgo.at; connect-src 'self' https://gc.zgo.at https://cm7p.goatcounter.com;">
     <title>Banco de Questões</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +13,21 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script data-goatcounter="https://cm7p.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
+    <script data-goatcounter="https://cm7p.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+<script>
+  // Debug: força um pageview após carregar
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+        console.log('');
+        window.goatcounter.count({ path: window.location.pathname, title: document.title });
+      } else {
+        console.warn('⚠️');
+      }
+    }, 2000);
+  });
+</script>
     <style>
         :root {
             --bg: #0d0d0d; --surface: #181818; --surface-2: #222; --surface-3: #2a2a2a;
