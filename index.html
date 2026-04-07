@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
     <!-- SRI: Subresource Integrity para verificar integridade do script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dqXqD7BhKPoHkCW0i+8k0V9Jk5K2K5Y0J2K4qL0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V......" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dqXqD7BhKPoHkCW0i+8k0V9Jk5K2K5Y0J2K4qL0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0......" crossorigin="anonymous"></script>
     <!-- GoatCounter: removido script duplicado -->
     <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 
@@ -352,11 +352,22 @@ const App = {
         return div.innerHTML;
     },
 
+    // 🔧 Função para normalizar IDs (remove espaços, padroniza maiúsculas)
+    normalizeId(id) {
+        return String(id || '').trim().toUpperCase();
+    },
+
     init() {
         Papa.parse(this.url, {
             download: true, header: true, skipEmptyLines: true,
             complete: (r) => {
-                this.banco = r.data.filter(q => q.id && q.enunciado);
+                // 🔧 Normalizar IDs ao carregar do CSV
+                this.banco = r.data
+                    .filter(q => q.id && q.enunciado)
+                    .map(q => ({
+                        ...q,
+                        id: this.normalizeId(q.id)
+                    }));
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('setup-form').classList.remove('hidden');
                 document.getElementById('btn-start').classList.remove('hidden');
@@ -479,8 +490,10 @@ const App = {
         return this.banco.filter(q => {
             if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
             if (temas.length && !temas.includes(q.tema_especifico)) return false;
-            if (modo === 'ineditas' && this.historico[q.id]) return false;
-            if (modo === 'erradas' && this.historico[q.id] !== 'errada') return false;
+            // 🔧 Usar ID normalizado para comparação com histórico
+            const idNorm = this.normalizeId(q.id);
+            if (modo === 'ineditas' && this.historico[idNorm]) return false;
+            if (modo === 'erradas' && this.historico[idNorm] !== 'errada') return false;
             return true;
         });
     },
@@ -494,8 +507,18 @@ const App = {
             return true;
         };
         const total = this.banco.filter(inScope).length;
-        const respondidas = Object.keys(this.historico).filter(id => { const q = this.banco.find(q => q.id === id); return q && inScope(q); }).length;
-        const erradas = Object.keys(this.historico).filter(id => { if (this.historico[id] !== 'errada') return false; const q = this.banco.find(q => q.id === id); return q && inScope(q); }).length;
+        // 🔧 Contar respondidas/erradas com ID normalizado e suporte a formato antigo
+        const respondidas = Object.keys(this.historico).filter(idNorm => { 
+            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm); 
+            return q && inScope(q); 
+        }).length;
+        const erradas = Object.keys(this.historico).filter(idNorm => { 
+            const h = this.historico[idNorm];
+            const isErr = typeof h === 'string' ? h === 'errada' : h?.correct === false;
+            if (!isErr) return false;
+            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm); 
+            return q && inScope(q); 
+        }).length;
 
         document.getElementById('counter-value').textContent = validas.length;
         document.getElementById('counter-block').classList.toggle('zero', validas.length === 0);
@@ -617,8 +640,12 @@ const App = {
         const correta = (q.correta || '').toLowerCase().trim();
         const isCerta = marcada === correta;
         this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
-        this.historico[q.id] = isCerta ? 'correta' : 'errada';
+        
+        // 🔧 Salvar com ID normalizado para garantir correspondência futura
+        const idNorm = this.normalizeId(q.id);
+        this.historico[idNorm] = isCerta ? 'correta' : 'errada';
         localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+        
         document.querySelectorAll('.option-label').forEach(lbl => {
             lbl.style.pointerEvents = 'none';
             const v = lbl.querySelector('input').value;
