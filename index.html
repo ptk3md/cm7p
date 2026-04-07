@@ -2,1363 +2,1841 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#0a0a0a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Plataforma de Estudos | Resolução</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>Banco de Questões</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
-        /* ==========================================================================
-           1. DESIGN SYSTEM & CSS VARIABLES
-           ========================================================================== */
         :root {
-            /* Palette - Dark Mode Reference */
-            --bg-canvas: #000000;
-            --bg-surface-main: #0f0f0f;
-            --bg-surface-card: #161616;
-            --bg-surface-hover: #222222;
-            --bg-surface-elevated: #1e1e1e;
-            
-            /* Borders */
-            --border-subtle: #262626;
-            --border-strong: #3f3f46;
-            --border-focus: #52525b;
-            
-            /* Typography Colors */
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --text-tertiary: #71717a;
-            
-            /* Brand & Action Colors (Based on screenshot's red theme) */
-            --brand-primary: #c53030;
-            --brand-primary-hover: #9b2c2c;
-            --brand-primary-active: #822727;
-            --brand-text: #ffffff;
-            
-            /* Feedback Colors */
-            --status-correct: #22c55e;
-            --status-correct-bg: rgba(34, 197, 94, 0.15);
-            --status-correct-border: rgba(34, 197, 94, 0.4);
-            
-            --status-wrong: #ef4444;
-            --status-wrong-bg: rgba(239, 68, 68, 0.15);
-            --status-wrong-border: rgba(239, 68, 68, 0.4);
-            
-            /* Sizing & Geometry */
-            --radius-sm: 6px;
-            --radius-md: 10px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-            --radius-pill: 9999px;
-            
-            /* Safe Areas for Mobile Devices */
-            --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            
-            /* Transitions */
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-spring: 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --bg: #0a0a0f;
+            --bg-mid: #0f0f17;
+            --surface: #14141f;
+            --surface-2: #1a1a28;
+            --surface-3: #20202f;
+            --border: rgba(255,255,255,0.07);
+            --border-hover: rgba(255,255,255,0.15);
+            --text: #f0eff8;
+            --text-2: #a09fb8;
+            --text-3: #5f5e7a;
+            --accent: #7c6af5;
+            --accent-2: #9d8ff7;
+            --accent-glow: rgba(124, 106, 245, 0.2);
+            --correct: #34d399;
+            --correct-bg: rgba(52, 211, 153, 0.08);
+            --correct-border: rgba(52, 211, 153, 0.25);
+            --wrong: #f87171;
+            --wrong-bg: rgba(248, 113, 113, 0.08);
+            --wrong-border: rgba(248, 113, 113, 0.25);
+            --warn: #fbbf24;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            --radius-sm: 8px;
+            --radius: 14px;
+            --radius-lg: 20px;
         }
 
-        /* ==========================================================================
-           2. GLOBAL RESETS & BASE STYLES
-           ========================================================================== */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Atkinson Hyperlegible', sans-serif !important;
-            -webkit-tap-highlight-color: transparent;
         }
 
-        html {
-            font-size: 16px;
-            scroll-behavior: smooth;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg-canvas);
-            color: var(--text-primary);
-            line-height: 1.6;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 0 0 calc(120px + var(--safe-bottom)) 0;
             min-height: 100vh;
-            min-height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            overflow-x: hidden;
-        }
-
-        /* Central App Container constraint for readability */
-        .app-container {
-            width: 100%;
-            max-width: 600px; /* Mobile/Tablet layout focus */
             position: relative;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-surface-main);
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
 
-        /* Common Utility Classes */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(124,106,245,0.12) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ============ TYPOGRAPHY ============ */
+        .serif { font-family: 'DM Serif Display', serif; }
+
+        /* ============ UTILITIES ============ */
         .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        .flex-center { display: flex; align-items: center; justify-content: center; }
-        .icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-        /* Typography Defaults */
-        h1, h2, h3, h4 { color: var(--text-primary); font-weight: 700; line-height: 1.2; }
-        p { color: var(--text-secondary); }
+        .fade-in {
+            animation: fadeSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
 
-        /* ==========================================================================
-           3. UI COMPONENTS
-           ========================================================================== */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-        /* Buttons */
-        .btn {
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            70% { transform: scale(1.1); opacity: 0; }
+            100% { transform: scale(1.1); opacity: 0; }
+        }
+
+        @keyframes countUp {
+            from { transform: translateY(8px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes progressFill {
+            from { width: 0%; }
+        }
+
+        @keyframes dropdownOpen {
+            from { opacity: 0; transform: translateY(-8px) scaleY(0.95); }
+            to { opacity: 1; transform: translateY(0) scaleY(1); }
+        }
+
+        /* ============ SETUP SCREEN ============ */
+        #setup-screen {
+            padding: 40px 24px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .setup-logo {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .setup-logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #b19af8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .setup-logo-icon svg { width: 22px; height: 22px; color: white; }
+
+        .setup-logo-text {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .setup-tagline {
+            font-size: 0.9rem;
+            color: var(--text-3);
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ============ LOADING ============ */
+        #loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 60px 0;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--surface-3);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text {
+            color: var(--text-3);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* ============ FILTER CARD ============ */
+        .filter-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        /* Quick toggle tabs */
+        .filter-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            padding: 6px;
+            background: var(--bg-mid);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-tab {
+            padding: 12px;
+            border-radius: var(--radius-sm);
             border: none;
-            border-radius: var(--radius-md);
+            background: transparent;
+            color: var(--text-3);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .filter-tab.active {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        .filter-tab svg { width: 16px; height: 16px; }
+
+        /* Filter groups inside card */
+        .filter-section {
+            padding: 20px;
+        }
+
+        .filter-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ============ CUSTOM DROPDOWN ============ */
+        .dropdown-wrap {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: var(--border-hover);
+            background: var(--surface-3);
+        }
+
+        .dropdown-trigger.open {
+            border-color: var(--accent);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .dropdown-trigger-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .dropdown-trigger-icon {
+            width: 28px;
+            height: 28px;
+            background: var(--surface-3);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .dropdown-trigger-icon svg { width: 14px; height: 14px; color: var(--accent-2); }
+
+        .dropdown-trigger-text {
+            min-width: 0;
+        }
+
+        .dropdown-trigger-label {
+            font-size: 0.7rem;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            display: block;
+        }
+
+        .dropdown-trigger-value {
+            font-size: 0.95rem;
+            color: var(--text);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+            max-width: 260px;
+        }
+
+        .dropdown-chevron {
+            width: 20px;
+            height: 20px;
+            color: var(--text-3);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-trigger.open .dropdown-chevron {
+            transform: rotate(180deg);
+            color: var(--accent);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            background: var(--surface-2);
+            border: 1px solid var(--accent);
+            border-top: none;
+            border-bottom-left-radius: var(--radius);
+            border-bottom-right-radius: var(--radius);
+            max-height: 240px;
+            overflow-y: auto;
+            animation: dropdownOpen 0.18s ease both;
+            transform-origin: top;
+        }
+
+        .dropdown-menu::-webkit-scrollbar { width: 4px; }
+        .dropdown-menu::-webkit-scrollbar-track { background: transparent; }
+        .dropdown-menu::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 2px; }
+
+        .dropdown-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-2);
+            font-weight: 400;
+            transition: all 0.15s;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .dropdown-option:last-child { border-bottom: none; }
+
+        .dropdown-option:hover {
+            background: var(--surface-3);
+            color: var(--text);
+            padding-left: 20px;
+        }
+
+        .dropdown-option.selected {
+            color: var(--accent-2);
+            font-weight: 600;
+        }
+
+        .dropdown-option.selected::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        /* ============ QUANTITY INPUT ============ */
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .qty-control:focus-within { border-color: var(--accent); }
+
+        .qty-btn {
+            width: 48px;
+            height: 52px;
+            background: transparent;
+            border: none;
+            color: var(--text-2);
+            font-size: 1.3rem;
+            font-weight: 300;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .qty-btn:hover { background: var(--surface-3); color: var(--text); }
+        .qty-btn:active { background: var(--accent-glow); color: var(--accent-2); }
+
+        .qty-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            outline: none;
+            min-width: 0;
+        }
+
+        .qty-input::-webkit-inner-spin-button,
+        .qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+        .qty-divider {
+            width: 1px;
+            height: 28px;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+
+        .qty-max-hint {
+            font-size: 0.8rem;
+            color: var(--text-3);
+            text-align: right;
+            margin-top: 8px;
+        }
+
+        /* ============ QUESTION COUNTER BANNER ============ */
+        .question-counter {
+            background: linear-gradient(135deg, var(--surface-2) 0%, var(--surface) 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 16px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .question-counter::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--accent), var(--accent-2));
+            border-radius: 0 2px 2px 0;
+        }
+
+        .question-counter.zero::before {
+            background: var(--wrong);
+        }
+
+        .question-counter.zero {
+            border-color: var(--wrong-border);
+        }
+
+        .counter-left { flex: 1; }
+
+        .counter-number {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.8rem;
+            line-height: 1;
+            color: var(--text);
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            animation: countUp 0.3s ease both;
+        }
+
+        .counter-number.animating {
+            animation: countUp 0.3s ease both;
+        }
+
+        .counter-suffix {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-3);
+        }
+
+        .counter-label {
+            font-size: 0.8rem;
+            color: var(--text-3);
+            font-weight: 500;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .counter-breakdown {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .counter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .counter-tag.total { background: var(--surface-3); color: var(--text-2); }
+        .counter-tag.available { background: var(--accent-glow); color: var(--accent-2); }
+        .counter-tag.done { background: rgba(52,211,153,0.1); color: var(--correct); }
+        .counter-tag.errors { background: var(--wrong-bg); color: var(--wrong); }
+
+        /* ============ START BUTTON ============ */
+        .start-btn-wrap {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px calc(16px + var(--safe-bottom));
+            background: linear-gradient(to top, var(--bg) 60%, transparent);
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .start-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 18px 32px;
+            border-radius: 100px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent) 0%, #9d8ff7 100%);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all var(--transition-fast);
-            padding: 14px 24px;
-            width: 100%;
+            pointer-events: auto;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            letter-spacing: -0.01em;
+            box-shadow: 0 8px 32px rgba(124, 106, 245, 0.35);
+            position: relative;
+            overflow: hidden;
         }
 
-        .btn-primary {
-            background-color: var(--brand-primary);
-            color: var(--brand-text);
-            box-shadow: 0 4px 14px rgba(197, 48, 48, 0.2);
+        .start-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
         }
-        .btn-primary:hover { background-color: var(--brand-primary-hover); transform: translateY(-1px); }
-        .btn-primary:active { background-color: var(--brand-primary-active); transform: translateY(1px); }
-        .btn-primary:disabled {
-            background-color: var(--border-strong);
-            color: var(--text-tertiary);
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(124, 106, 245, 0.45);
+        }
+
+        .start-btn:active { transform: scale(0.98); }
+
+        .start-btn:disabled {
+            background: var(--surface-2);
+            color: var(--text-3);
             cursor: not-allowed;
             box-shadow: none;
             transform: none;
         }
 
-        .btn-ghost {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-subtle);
-        }
-        .btn-ghost:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
+        .start-btn:disabled::before { display: none; }
 
-        /* Segmented Control (Tabs) */
-        .segmented-control {
-            display: flex;
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 4px;
-            gap: 4px;
-            margin-bottom: 24px;
-        }
-        .segment-item {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .segment-item.active {
-            background-color: var(--bg-surface-elevated);
-            color: var(--text-primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .segment-item:not(.active):hover { color: var(--text-primary); }
-
-        /* Custom Input Fields */
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .form-label {
+        .start-btn-count {
+            background: rgba(255,255,255,0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
             font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
-        .text-input {
-            width: 100%;
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color var(--transition-fast);
-            outline: none;
-        }
-        .text-input:focus { border-color: var(--border-focus); }
-        .text-input::placeholder { color: var(--text-tertiary); }
 
-        /* Search Bar with Icon */
-        .search-box {
+        /* ============ QUIZ SCREEN ============ */
+        #quiz-screen {
+            padding: 0;
             position: relative;
-            margin-bottom: 24px;
-        }
-        .search-box .icon-left {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-tertiary);
-        }
-        .search-box .text-input {
-            padding-left: 48px;
-            padding-right: 48px;
-        }
-        .search-box .action-right {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255,255,255,0.05);
-            border-radius: var(--radius-sm);
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: background-color var(--transition-fast);
-        }
-        .search-box .action-right:hover { background-color: rgba(255,255,255,0.1); color: var(--text-primary); }
-
-        /* Accordions */
-        .accordion {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: var(--text-secondary);
-            font-weight: 400;
-            font-size: 1rem;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: background-color var(--transition-fast);
-        }
-        .accordion:hover { background-color: var(--bg-surface-hover); color: var(--text-primary); }
-        .accordion-content { display: flex; align-items: center; gap: 12px; }
-        .badge {
-            background-color: var(--brand-primary);
-            color: var(--brand-text);
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: var(--radius-pill);
+            z-index: 1;
         }
 
-        /* Bottom Fixed Action Bar */
-        .bottom-action-bar {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 600px;
-            background: linear-gradient(to top, var(--bg-surface-main) 60%, transparent);
-            padding: 24px 24px calc(24px + var(--safe-bottom)) 24px;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none; /* Let clicks pass through gradient */
-        }
-        .bottom-action-bar > * { pointer-events: auto; } /* Enable clicks on buttons */
-
-        /* Navigation Bottom Bar (Setup View) */
-        .nav-bar {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 600px;
-            background-color: var(--bg-surface-card);
-            border-top: 1px solid var(--border-subtle);
-            display: flex;
-            justify-content: space-around;
-            padding: 12px 0 calc(12px + var(--safe-bottom)) 0;
-            z-index: 90;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            color: var(--text-tertiary);
-            cursor: pointer;
-            transition: color var(--transition-fast);
-        }
-        .nav-item:hover, .nav-item.active { color: var(--brand-primary); }
-
-        /* ==========================================================================
-           4. CUSTOM DROPDOWN COMPONENT (Select Replacement)
-           ========================================================================== */
-        .custom-select {
-            position: relative;
-            width: 100%;
-            user-select: none;
-        }
-        .select-trigger {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-md);
-            padding: 16px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-        .select-trigger:hover { background-color: var(--bg-surface-hover); }
-        .select-trigger.active { border-color: var(--border-focus); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-        
-        .select-value {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 90%;
-        }
-        .select-icon { transition: transform var(--transition-smooth); color: var(--text-tertiary); }
-        .select-trigger.active .select-icon { transform: rotate(180deg); color: var(--text-primary); }
-
-        .select-popover {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background-color: var(--bg-surface-elevated);
-            border: 1px solid var(--border-focus);
-            border-top: none;
-            border-bottom-left-radius: var(--radius-md);
-            border-bottom-right-radius: var(--radius-md);
-            z-index: 200;
-            max-height: 280px;
-            overflow-y: auto;
-            display: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: dropdownFade 0.2s ease forwards;
-        }
-        .custom-select.open .select-popover { display: block; }
-        
-        /* Custom Scrollbar for Popover */
-        .select-popover::-webkit-scrollbar { width: 8px; }
-        .select-popover::-webkit-scrollbar-track { background: transparent; }
-        .select-popover::-webkit-scrollbar-thumb { background-color: var(--border-strong); border-radius: 10px; }
-
-        .select-option {
-            padding: 14px 16px;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background-color var(--transition-fast);
-        }
-        .select-option:last-child { border-bottom: none; }
-        .select-option:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
-        .select-option.selected { color: var(--text-primary); font-weight: 700; background-color: rgba(255,255,255,0.02); }
-
-        @keyframes dropdownFade {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ==========================================================================
-           5. VIEW SPECIFIC STYLES
-           ========================================================================== */
-        
-        /* Loading Screen */
-        .loading-view {
-            position: absolute;
-            inset: 0;
-            background-color: var(--bg-surface-main);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 24px;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid var(--border-strong);
-            border-top-color: var(--brand-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Setup View */
-        .view-setup {
-            padding: calc(32px + var(--safe-top)) 24px calc(180px + var(--safe-bottom)) 24px;
-            display: flex;
-            flex-direction: column;
-            animation: fadeIn var(--transition-smooth);
-        }
-
-        .brand-header { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; font-weight: 700; font-size: 1.1rem; }
-        .brand-logo { color: var(--brand-primary); }
-
-        .welcome-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
-        .welcome-title span { color: var(--brand-primary); }
-        .welcome-subtitle { color: var(--text-secondary); font-size: 1rem; margin-bottom: 32px; }
-
-        .filters-card {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* Quiz View */
-        .view-quiz {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding-bottom: calc(140px + var(--safe-bottom));
-            animation: slideIn Right 0.3s ease;
-        }
-
+        /* Quiz top bar */
         .quiz-topbar {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: calc(16px + var(--safe-top)) 24px 16px 24px;
-            background-color: var(--bg-surface-main);
-            border-bottom: 1px solid var(--border-subtle);
-            position: sticky;
-            top: 0;
-            z-index: 50;
-        }
-        .timer-badge {
-            background-color: var(--bg-surface-card);
-            padding: 4px 12px;
-            border-radius: var(--radius-pill);
-            font-family: monospace;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-        }
-
-        .quiz-header {
-            display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 24px 24px 16px 24px;
-        }
-        .quiz-counter {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            padding: 6px 16px;
-            border-radius: var(--radius-pill);
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }
-        .quiz-tools { display: flex; gap: 8px; }
-        .tool-btn {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            width: 36px; height: 36px;
-            border-radius: var(--radius-md);
-            display: flex; align-items: center; justify-content: center;
-            color: var(--text-secondary);
-            cursor: pointer;
-        }
-
-        .quiz-tags {
-            display: flex;
-            flex-wrap: wrap;
+            padding: 20px 24px 0;
             gap: 12px;
-            padding: 0 24px;
-            margin-bottom: 24px;
-        }
-        .tag-item {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;
-        }
-        .tag-separator { width: 4px; height: 4px; background-color: var(--border-strong); border-radius: 50%; }
-
-        .question-statement {
-            padding: 0 24px;
-            font-size: 1.2rem;
-            line-height: 1.7;
-            color: var(--text-primary);
-            margin-bottom: 32px;
         }
 
-        .options-list {
-            padding: 0 24px;
+        .quiz-progress-wrap {
+            flex: 1;
+        }
+
+        .quiz-progress-label {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
             display: flex;
-            flex-direction: column;
-            gap: 16px;
+            justify-content: space-between;
         }
 
-        .option-card {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 20px;
+        .quiz-progress-bar {
+            height: 4px;
+            background: var(--surface-3);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .quiz-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            border-radius: 2px;
+            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .quiz-id-badge {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            color: var(--text-3);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        /* Question body */
+        .quiz-body {
+            padding: 28px 24px;
+        }
+
+        .question-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .meta-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-3);
+        }
+
+        .meta-badge svg { width: 12px; height: 12px; }
+
+        #enunciado {
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.75;
+            color: var(--text);
+            margin-bottom: 28px;
+        }
+
+        /* Options */
+        .option-label {
             display: flex;
             align-items: flex-start;
-            gap: 16px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
             cursor: pointer;
-            transition: all var(--transition-fast);
+            background: var(--surface);
+            transition: all 0.2s ease;
+            gap: 14px;
         }
-        .option-card:hover { border-color: var(--border-focus); background-color: var(--bg-surface-hover); }
-        .option-card.selected { border-color: var(--text-primary); }
-        
-        .option-letter {
-            width: 32px; height: 32px;
-            border: 1px solid var(--text-secondary);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 700; color: var(--text-secondary);
-            flex-shrink: 0; font-size: 0.95rem;
-            transition: all var(--transition-fast);
+
+        .option-label:hover {
+            background: var(--surface-2);
+            border-color: var(--border-hover);
+            transform: translateX(2px);
         }
-        .option-card.selected .option-letter { border-color: var(--text-primary); color: var(--text-primary); }
-        .option-text { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.5; }
-        .option-card.selected .option-text { color: var(--text-primary); }
 
-        /* Option Feedback States */
-        .option-card.is-correct { border-color: var(--status-correct-border); background-color: var(--status-correct-bg); }
-        .option-card.is-correct .option-letter { border-color: var(--status-correct); background-color: var(--status-correct); color: var(--bg-canvas); }
-        .option-card.is-correct .option-text { color: var(--text-primary); }
+        .option-label input { display: none; }
 
-        .option-card.is-wrong { border-color: var(--status-wrong-border); background-color: var(--status-wrong-bg); opacity: 0.7; pointer-events: none;}
-        .option-card.is-wrong .option-letter { border-color: var(--status-wrong); background-color: var(--status-wrong); color: var(--text-primary); }
-
-        .feedback-box {
-            margin: 32px 24px 0 24px;
-            padding: 24px;
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            animation: fadeIn 0.3s ease;
-        }
-        .feedback-title { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; font-weight: 700; margin-bottom: 12px; }
-        .feedback-title.correct { color: var(--status-correct); }
-        .feedback-title.wrong { color: var(--status-wrong); }
-        .feedback-message { color: var(--text-secondary); font-size: 1rem; line-height: 1.6; }
-
-        /* Dashboard View */
-        .view-dashboard {
-            padding: calc(32px + var(--safe-top)) 24px calc(100px + var(--safe-bottom)) 24px;
+        .option-bubble {
             display: flex;
-            flex-direction: column;
-            gap: 32px;
-            animation: fadeIn var(--transition-smooth);
-        }
-
-        .dash-header { text-align: center; }
-        .dash-title { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 8px; }
-        .dash-subtitle { color: var(--text-secondary); font-size: 1.05rem; }
-
-        /* Analytics Grid */
-        .analytics-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-        .stat-card {
-            background-color: var(--bg-surface-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border: 1.5px solid var(--surface-3);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-3);
+            background: var(--surface-2);
+            transition: all 0.2s;
         }
-        .stat-card.full-width { grid-column: 1 / -1; }
-        .stat-val { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
-        .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
-        /* Donut Chart Component */
-        .chart-wrapper {
+        .option-text {
+            font-size: 1rem;
+            flex: 1;
+            line-height: 1.55;
+            padding-top: 5px;
+            color: var(--text-2);
+            transition: color 0.2s;
+        }
+
+        .option-label.selected {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .option-label.selected .option-bubble {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+
+        .option-label.selected .option-text { color: var(--text); }
+
+        .option-label.correct-answer {
+            border-color: var(--correct-border);
+            background: var(--correct-bg);
+        }
+
+        .option-label.correct-answer .option-bubble {
+            border-color: var(--correct);
+            background: var(--correct);
+            color: var(--bg);
+        }
+
+        .option-label.correct-answer .option-text { color: var(--text); }
+
+        .option-label.wrong-answer {
+            border-color: var(--wrong-border);
+            background: var(--wrong-bg);
+            opacity: 0.75;
+        }
+
+        .option-label.wrong-answer .option-bubble {
+            border-color: var(--wrong);
+            background: var(--wrong);
+            color: white;
+        }
+
+        /* Feedback section */
+        #feedback-section {
+            margin: 8px 24px 0;
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            animation: fadeSlideIn 0.35s ease both;
+        }
+
+        .feedback-result {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .feedback-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .feedback-icon.correct { background: var(--correct-bg); border: 1px solid var(--correct-border); }
+        .feedback-icon.wrong { background: var(--wrong-bg); border: 1px solid var(--wrong-border); }
+        .feedback-icon svg { width: 16px; height: 16px; }
+
+        .feedback-label {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .feedback-label.correct { color: var(--correct); }
+        .feedback-label.wrong { color: var(--wrong); }
+
+        .feedback-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 14px 0;
+        }
+
+        .feedback-comment-label {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        #comentario-texto {
+            font-size: 0.95rem;
+            color: var(--text-2);
+            line-height: 1.65;
+        }
+
+        /* Action bar */
+        .quiz-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px 24px calc(16px + var(--safe-bottom));
+            background: linear-gradient(to top, var(--bg) 60%, transparent);
+            display: flex;
+            justify-content: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .quiz-action-btn {
+            width: 100%;
+            max-width: 400px;
+            padding: 18px 32px;
+            border-radius: 100px;
+            border: none;
+            background: linear-gradient(135deg, var(--accent) 0%, #9d8ff7 100%);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+            box-shadow: 0 8px 32px rgba(124, 106, 245, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-action-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+        }
+
+        .quiz-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(124, 106, 245, 0.4);
+        }
+
+        .quiz-action-btn:active { transform: scale(0.98); }
+
+        .quiz-action-btn:disabled {
+            background: var(--surface-2);
+            color: var(--text-3);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .quiz-action-btn:disabled::before { display: none; }
+
+        /* ============ END SCREEN ============ */
+        #end-screen {
+            padding: 40px 24px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .end-header {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .end-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .end-subtitle {
+            font-size: 0.95rem;
+            color: var(--text-3);
+        }
+
+        /* Score ring */
+        .score-ring-wrap {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .score-ring {
             position: relative;
             width: 140px;
             height: 140px;
-            margin: 0 auto 16px auto;
         }
-        .chart-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
-        .chart-bg { fill: none; stroke: var(--border-strong); stroke-width: 8; }
-        .chart-progress { fill: none; stroke: var(--brand-primary); stroke-width: 8; stroke-linecap: round; transition: stroke-dasharray 1s ease-out; }
-        .chart-center-text {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-        .chart-pct { font-size: 2rem; font-weight: 700; color: var(--text-primary); line-height: 1;}
 
-        /* Weak Points Section */
-        .errors-section { border-top: 1px solid var(--border-subtle); padding-top: 32px; }
-        .section-heading { font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 24px; color: var(--text-primary); }
-        .error-list { display: flex; flex-direction: column; gap: 12px; }
-        .error-row {
-            background-color: var(--bg-surface-card);
-            border-left: 4px solid var(--status-wrong);
-            padding: 16px;
-            border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        .score-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .score-ring-bg {
+            fill: none;
+            stroke: var(--surface-3);
+            stroke-width: 8;
+        }
+
+        .score-ring-fill {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .score-ring-center {
+            position: absolute;
+            inset: 0;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            align-items: center;
+            justify-content: center;
         }
-        .err-theme { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); }
-        .err-meta { font-size: 0.85rem; color: var(--text-secondary); font-family: monospace; }
 
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+        .score-pct {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.2rem;
+            color: var(--text);
+            line-height: 1;
+        }
 
+        .score-pct-label {
+            font-size: 0.75rem;
+            color: var(--text-3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 12px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.8rem;
+            color: var(--text);
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-3);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Theme analysis */
+        .analysis-block {
+            border-top: 1px solid var(--border);
+            padding-top: 28px;
+            margin-top: 28px;
+        }
+
+        .analysis-block-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-3);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-block-title svg { width: 16px; height: 16px; }
+
+        .theme-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+
+        .theme-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+
+        .theme-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text);
+            flex: 1;
+            line-height: 1.3;
+        }
+
+        .theme-stat {
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .theme-bar-bg {
+            height: 5px;
+            background: var(--surface-3);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .theme-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            animation: progressFill 1s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .error-item {
+            padding: 14px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--wrong);
+            border-radius: var(--radius);
+            margin-bottom: 8px;
+        }
+
+        .error-topic {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .error-detail {
+            font-size: 0.78rem;
+            color: var(--text-3);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============ SCROLLBAR ============ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 3px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
+<main id="app-container">
 
-        <div id="view-loading" class="loading-view">
-            <div class="spinner"></div>
-            <h3 style="color: var(--text-secondary);">Carregando banco de dados...</h3>
-        </div>
-
-        <main id="view-setup" class="view-setup hidden">
-            
-            <div class="brand-header">
-                <svg class="icon brand-logo" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" fill="currentColor"/><path d="M12 8l-6 14h12L12 8z" fill="#0f0f0f"/></svg>
-                Plataforma Premium
-            </div>
-
-            <div style="margin-bottom: 32px;">
-                <h1 class="welcome-title">Olá, <span>Estudante</span></h1>
-                <p class="welcome-subtitle">Configure sua próxima bateria de questões.</p>
-            </div>
-
-            <div class="segmented-control" id="history-tabs">
-                <div class="segment-item active" data-value="ineditas" onclick="App.UI.setHistoryTab('ineditas')">
-                    <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    Inéditas
-                </div>
-                <div class="segment-item" data-value="erradas" onclick="App.UI.setHistoryTab('erradas')">
-                    <svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-                    Meus Erros
-                </div>
-            </div>
-
-            <div class="filters-card">
-                
-                <div class="search-box">
-                    <svg class="icon icon-left" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                    <input type="text" class="text-input" placeholder="Digite um trecho ou tema...">
-                    <div class="action-right"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Disciplina (Grande Área)</label>
-                    <div class="custom-select" id="dropdown-esp">
-                        <div class="select-trigger" onclick="App.UI.toggleDropdown('dropdown-esp')">
-                            <span class="select-value" id="val-esp">Todas as disciplinas</span>
-                            <svg class="icon select-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                        <div class="select-popover">
-                            <div class="dropdown-list" id="list-esp">
-                                </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tema Específico</label>
-                    <div class="custom-select" id="dropdown-tema">
-                        <div class="select-trigger" onclick="App.UI.toggleDropdown('dropdown-tema')">
-                            <span class="select-value" id="val-tema">Todos os temas</span>
-                            <svg class="icon select-icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-                        </div>
-                        <div class="select-popover">
-                            <div class="dropdown-list" id="list-tema">
-                                </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-bottom: 0;">
-                    <label class="form-label">Quantidade de Questões</label>
-                    <input type="number" class="text-input" id="input-qtd" value="10" min="1" max="100" oninput="App.Engine.updateCount()">
-                </div>
-
-            </div>
-
-            <div class="accordion">
-                <div class="accordion-content">
-                    <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                    Filtros avançados
-                </div>
-                <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-            <div class="accordion">
-                <div class="accordion-content">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Histórico de Provas
-                </div>
-                <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-
-            <button class="btn btn-ghost" onclick="App.UI.clearFilters()" style="margin-top: 16px;">
-                <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                Limpar filtros
-            </button>
-
-            <nav class="nav-bar">
-                <div class="nav-item active">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                </div>
-                <div class="nav-item">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                </div>
-                <div class="nav-item">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-                </div>
-                <div class="nav-item">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                </div>
-            </nav>
-
-        </main>
-
-        <main id="view-quiz" class="view-quiz hidden">
-            
-            <div class="quiz-topbar">
-                <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 12px;">
-                    Simulado
-                    <span class="timer-badge" id="quiz-timer">00:00</span>
-                </div>
-                <button onclick="location.reload()" style="color: var(--text-secondary);">
-                    <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-            </div>
-
-            <div class="quiz-header">
-                <div class="quiz-counter" id="quiz-counter-text">01 / 10</div>
-                <div class="quiz-tools">
-                    <div class="tool-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
-                    <div class="tool-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
-                </div>
-            </div>
-
-            <div class="quiz-tags" id="quiz-tags-container">
-                </div>
-
-            <div class="question-statement" id="quiz-statement">
-                </div>
-
-            <div class="options-list" id="quiz-options">
-                </div>
-
-            <div id="quiz-feedback" class="feedback-box hidden">
-                <div id="feedback-title" class="feedback-title"></div>
-                <div class="feedback-message" id="feedback-message"></div>
-            </div>
-
-        </main>
-
-        <main id="view-dashboard" class="view-dashboard hidden">
-            
-            <div class="dash-header">
-                <h1 class="dash-title">Sessão Concluída</h1>
-                <p class="dash-subtitle">Veja o resumo do seu desempenho.</p>
-            </div>
-
-            <div class="stat-card full-width" style="padding: 32px 24px;">
-                <div class="chart-wrapper">
-                    <svg class="chart-svg" viewBox="0 0 36 36">
-                        <path class="chart-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="chart-progress" id="chart-path" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+    <!-- ======== SETUP SCREEN ======== -->
+    <div id="setup-screen" class="fade-in">
+        <div class="setup-header">
+            <div class="setup-logo">
+                <div class="setup-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3H5a2 2 0 0 0-2 2v4"/><path d="M9 3h6"/><path d="M15 3h4a2 2 0 0 1 2 2v4"/>
+                        <path d="M5 21h4"/><path d="M15 21h4a2 2 0 0 0 2-2v-4"/><path d="M5 21H3a2 2 0 0 1-2-2v-4"/>
+                        <rect x="7" y="7" width="10" height="10" rx="1"/>
                     </svg>
-                    <div class="chart-center-text">
-                        <div class="chart-pct" id="dash-pct">0%</div>
-                    </div>
                 </div>
-                <div class="stat-label">Precisão Geral</div>
+                <span class="setup-logo-text"></span>
             </div>
-
-            <div class="analytics-grid">
-                <div class="stat-card">
-                    <div class="stat-val" id="dash-correct" style="color: var(--status-correct)">0</div>
-                    <div class="stat-label">Acertos de <span id="dash-total">0</span></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-val" id="dash-time">00:00</div>
-                    <div class="stat-label">Tempo Total</div>
-                </div>
-            </div>
-
-            <div id="errors-section" class="errors-section hidden">
-                <h3 class="section-heading">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    Revisão de Erros
-                </h3>
-                <div class="error-list" id="error-list-container">
-                    </div>
-            </div>
-
-        </main>
-
-        <div class="bottom-action-container">
-            <button class="btn btn-primary hidden" id="fab-main" onclick="App.Controller.handleMainAction()">
-                <svg class="icon" id="fab-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <span id="fab-text">Iniciar com 10 questões</span>
-            </button>
+            <div class="setup-tagline"></div>
         </div>
 
+        <!-- Loading state -->
+        <div id="loading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Carregando banco de questões...</div>
+        </div>
+
+        <!-- Form state -->
+        <div id="setup-form" class="hidden">
+
+            <!-- Question counter banner -->
+            <div class="question-counter" id="question-counter">
+                <div class="counter-left">
+                    <div class="counter-number" id="counter-number">
+                        <span id="counter-value">0</span>
+                        <span class="counter-suffix">questões</span>
+                    </div>
+                    <div class="counter-label">disponíveis com os filtros atuais</div>
+                </div>
+                <div class="counter-breakdown">
+                    <span class="counter-tag total" id="tag-total">— no banco</span>
+                    <span class="counter-tag done" id="tag-done">— respondidas</span>
+                    <span class="counter-tag errors" id="tag-errors">— com erro</span>
+                </div>
+            </div>
+
+            <!-- Mode tabs -->
+            <div class="filter-card">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" id="tab-todas" onclick="App.setModo('todas', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        Todas
+                    </button>
+                    <button class="filter-tab" id="tab-ineditas" onclick="App.setModo('ineditas', this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/><path d="M12 8v4l3 3"/></svg>
+                        Inéditas
+                    </button>
+                </div>
+
+                <div class="filter-section">
+                    <!-- Especialidade -->
+                    <div class="filter-label">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        Disciplina
+                    </div>
+                    <div class="dropdown-wrap" id="wrap-especialidade">
+                        <button class="dropdown-trigger" id="trigger-especialidade" onclick="App.toggleDropdown('especialidade')">
+                            <div class="dropdown-trigger-left">
+                                <div class="dropdown-trigger-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                                </div>
+                                <div class="dropdown-trigger-text">
+                                    <span class="dropdown-trigger-label">Especialidade</span>
+                                    <span class="dropdown-trigger-value" id="label-especialidade">Todas as Especialidades</span>
+                                </div>
+                            </div>
+                            <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="dropdown-menu hidden" id="menu-especialidade"></div>
+                    </div>
+
+                    <!-- Tema -->
+                    <div class="filter-label">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        Tema Específico
+                    </div>
+                    <div class="dropdown-wrap" id="wrap-tema">
+                        <button class="dropdown-trigger" id="trigger-tema" onclick="App.toggleDropdown('tema')">
+                            <div class="dropdown-trigger-left">
+                                <div class="dropdown-trigger-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                </div>
+                                <div class="dropdown-trigger-text">
+                                    <span class="dropdown-trigger-label">Tema</span>
+                                    <span class="dropdown-trigger-value" id="label-tema">Todos os Temas</span>
+                                </div>
+                            </div>
+                            <svg class="dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                        <div class="dropdown-menu hidden" id="menu-tema"></div>
+                    </div>
+
+                    <!-- Erradas toggle -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; padding: 14px 16px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); cursor:pointer;" onclick="App.toggleErradas(this)">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <div class="dropdown-trigger-icon">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                            </div>
+                            <div>
+                                <div style="font-size:0.7rem; color:var(--text-3); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Filtro</div>
+                                <div style="font-size:0.9rem; font-weight:500; color:var(--text);">Apenas Meus Erros</div>
+                            </div>
+                        </div>
+                        <div id="toggle-erradas" style="width:40px; height:22px; border-radius:11px; background:var(--surface-3); position:relative; transition:background 0.25s; flex-shrink:0;">
+                            <div style="position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--text-3); transition:all 0.25s;" id="toggle-knob"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="filter-card">
+                <div class="filter-section">
+                    <div class="filter-label">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                        Quantidade de Questões
+                    </div>
+                    <div class="qty-control">
+                        <button class="qty-btn" onclick="App.adjustQty(-5)">−</button>
+                        <div class="qty-divider"></div>
+                        <input type="number" class="qty-input" id="qtd-questoes" value="10" min="1" oninput="App.onQtyInput()">
+                        <div class="qty-divider"></div>
+                        <button class="qty-btn" onclick="App.adjustQty(+5)">+</button>
+                    </div>
+                    <div class="qty-max-hint" id="qty-hint">Máximo: <span id="qty-max">0</span> disponíveis</div>
+                </div>
+            </div>
+
+        </div><!-- end setup-form -->
     </div>
 
-    <script>
-        /**
-         * Core Application Namespace
-         * Enterprise-grade Vanilla JS architecture.
-         */
-        const App = {
-            // Endpoint Google Sheets CSV Export
-            DATA_URL: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
-            
-            // Global State
-            State: {
-                db: [],
-                history: JSON.parse(localStorage.getItem('study_platform_history')) || {},
-                filters: {
-                    mode: 'ineditas', // 'ineditas', 'erradas', 'todas'
-                    esp: 'todas',
-                    tema: 'todos',
-                    count: 10
-                },
-                availableCount: 0,
-                currentView: 'loading' // 'loading', 'setup', 'quiz', 'dashboard'
+    <!-- ======== QUIZ SCREEN ======== -->
+    <div id="quiz-screen" class="hidden">
+        <div class="quiz-topbar">
+            <div class="quiz-progress-wrap">
+                <div class="quiz-progress-label">
+                    <span id="progress-text">1 / 10</span>
+                    <span id="progress-pct">0%</span>
+                </div>
+                <div class="quiz-progress-bar">
+                    <div class="quiz-progress-fill" id="progress-fill" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="quiz-id-badge">ID: <span id="question-id">—</span></div>
+        </div>
+
+        <div class="quiz-body">
+            <div class="question-meta" id="question-meta"></div>
+            <div id="enunciado"></div>
+            <div id="opcoes-container"></div>
+        </div>
+
+        <div id="feedback-section" class="hidden" style="margin: 0 24px;">
+            <div class="feedback-result">
+                <div class="feedback-icon" id="feedback-icon"></div>
+                <div class="feedback-label" id="resultado-texto"></div>
+            </div>
+            <div class="feedback-divider"></div>
+            <div class="feedback-comment-label">Comentário do Gabarito</div>
+            <div id="comentario-texto"></div>
+        </div>
+
+        <div style="height: 8px;"></div>
+    </div>
+
+    <!-- ======== END SCREEN ======== -->
+    <div id="end-screen" class="hidden fade-in">
+        <div class="end-header">
+            <div class="end-title serif">Sessão Concluída</div>
+            <div class="end-subtitle" id="dash-feedback-msg">Analisando seu desempenho...</div>
+        </div>
+
+        <div class="score-ring-wrap">
+            <div class="score-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle class="score-ring-bg" cx="50" cy="50" r="42"/>
+                    <circle class="score-ring-fill" id="score-ring-fill" cx="50" cy="50" r="42"
+                        stroke-dasharray="264"
+                        stroke-dashoffset="264"/>
+                </svg>
+                <div class="score-ring-center">
+                    <div class="score-pct" id="dash-pct">0%</div>
+                    <div class="score-pct-label">acertos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-val" id="dash-acertos">0</div>
+                <div class="stat-label">Acertos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="dash-total-end">0</div>
+                <div class="stat-label">Questões</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" id="dash-tempo">—</div>
+                <div class="stat-label">Tempo/Q.</div>
+            </div>
+        </div>
+
+        <div class="analysis-block" id="themes-block">
+            <div class="analysis-block-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Desempenho por Tema
+            </div>
+            <div id="themes-container"></div>
+        </div>
+
+        <div class="analysis-block hidden" id="errors-block">
+            <div class="analysis-block-title" style="color:var(--wrong)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Gabarito dos Erros
+            </div>
+            <div id="error-list"></div>
+        </div>
+
+        <div style="height:16px;"></div>
+    </div>
+
+</main>
+
+<!-- Fixed bottom bars (shared) -->
+<div class="start-btn-wrap" id="start-bar">
+    <button class="start-btn hidden" id="btn-start" onclick="App.iniciarSessao()">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Iniciar Sessão
+        <span class="start-btn-count" id="start-count">0</span>
+    </button>
+</div>
+
+<div class="quiz-action-bar hidden" id="quiz-bar">
+    <button class="quiz-action-btn" id="btn-action" onclick="App.handleAction()" disabled>
+        Selecione uma Alternativa
+    </button>
+</div>
+
+<script>
+const App = {
+    url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
+    banco: [],
+    fila: [],
+    indice: 0,
+    historico: JSON.parse(localStorage.getItem('apex_historico') || '{}'),
+    estado: 'SETUP',
+    sessao: { respostas: [], startTime: 0 },
+    filtros: { especialidade: 'todas', tema: 'todos', modo: 'todas' },
+    activeDropdown: null,
+
+    // ====== INIT ======
+    init() {
+        Papa.parse(this.url, {
+            download: true, header: true, skipEmptyLines: true,
+            complete: (results) => {
+                this.banco = results.data.filter(q => q.id && q.enunciado);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('setup-form').classList.remove('hidden');
+                document.getElementById('btn-start').classList.remove('hidden');
+                this.popularFiltros();
+                this.atualizarTudo();
             },
-
-            // Session State (Active Quiz)
-            Session: {
-                questions: [],
-                currentIndex: 0,
-                isAnswered: false,
-                timeStart: null,
-                timeElapsed: 0,
-                timerInterval: null,
-                metrics: { correct: 0, errors: [] }
-            },
-
-            /**
-             * Initialization sequence
-             */
-            async init() {
-                try {
-                    this.bindGlobalEvents();
-                    await this.fetchData();
-                    
-                    // Filter out bad rows
-                    this.State.db = this.State.db.filter(q => q.id && q.enunciado);
-                    
-                    this.UI.populateDropdowns();
-                    this.Engine.updateCount();
-                    this.Controller.navigate('setup');
-                } catch (error) {
-                    console.error("Initialization failed:", error);
-                    document.querySelector('#view-loading h3').innerText = "Falha ao carregar o banco de dados.";
-                }
-            },
-
-            /**
-             * PapaParse CSV Fetching wrapped in Promise
-             */
-            fetchData() {
-                return new Promise((resolve, reject) => {
-                    Papa.parse(this.DATA_URL, {
-                        download: true,
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: (results) => {
-                            this.State.db = results.data;
-                            resolve();
-                        },
-                        error: reject
-                    });
-                });
-            },
-
-            /**
-             * Global Event Listeners
-             */
-            bindGlobalEvents() {
-                // Close dropdowns when clicking outside
-                document.addEventListener('click', (e) => {
-                    if (!e.target.closest('.custom-select')) {
-                        document.querySelectorAll('.custom-select.open').forEach(el => {
-                            el.classList.remove('open');
-                            el.querySelector('.select-trigger').classList.remove('active');
-                        });
-                    }
-                });
-            },
-
-            /**
-             * Core Logic Engine (Filtering and Sorting)
-             */
-            Engine: {
-                getFilteredData() {
-                    const { db, filters, history } = App.State;
-                    
-                    return db.filter(q => {
-                        // Category Filters
-                        if (filters.esp !== 'todas' && q.especialidade !== filters.esp) return false;
-                        if (filters.tema !== 'todos' && q.tema_especifico !== filters.tema) return false;
-                        
-                        // History Filters
-                        if (filters.mode === 'ineditas' && history[q.id]) return false;
-                        if (filters.mode === 'erradas' && history[q.id] !== 'wrong') return false;
-                        
-                        return true;
-                    });
-                },
-
-                updateCount() {
-                    const available = this.getFilteredData().length;
-                    App.State.availableCount = available;
-                    
-                    const inputEl = document.getElementById('input-qtd');
-                    let desired = parseInt(inputEl.value) || 10;
-                    
-                    const fab = document.getElementById('fab-main');
-                    const fabText = document.getElementById('fab-text');
-
-                    if (available === 0) {
-                        fabText.innerText = '0 questões encontradas';
-                        fab.disabled = true;
-                    } else {
-                        if (desired > available) {
-                            desired = available;
-                            inputEl.value = desired;
-                        }
-                        App.State.filters.count = desired;
-                        fabText.innerText = `Iniciar com ${desired} questões`;
-                        fab.disabled = false;
-                    }
-                }
-            },
-
-            /**
-             * User Interface Manipulation Module
-             */
-            UI: {
-                toggleDropdown(id) {
-                    const wrapper = document.getElementById(id);
-                    const trigger = wrapper.querySelector('.select-trigger');
-                    const isOpen = wrapper.classList.contains('open');
-                    
-                    // Close others
-                    document.querySelectorAll('.custom-select').forEach(el => {
-                        el.classList.remove('open');
-                        el.querySelector('.select-trigger').classList.remove('active');
-                    });
-
-                    if (!isOpen) {
-                        wrapper.classList.add('open');
-                        trigger.classList.add('active');
-                    }
-                },
-
-                populateDropdowns() {
-                    const db = App.State.db;
-                    const { esp, tema } = App.State.filters;
-
-                    // Populate Especialidade
-                    const espSet = [...new Set(db.map(q => q.especialidade).filter(Boolean))].sort();
-                    const listEsp = document.getElementById('list-esp');
-                    listEsp.innerHTML = this.createOptionHTML('esp', 'todas', 'Todas as disciplinas', esp === 'todas');
-                    espSet.forEach(e => listEsp.innerHTML += this.createOptionHTML('esp', e, e, esp === e));
-
-                    // Populate Tema based on Especialidade
-                    let filteredForTema = esp === 'todas' ? db : db.filter(q => q.especialidade === esp);
-                    const temaSet = [...new Set(filteredForTema.map(q => q.tema_especifico).filter(Boolean))].sort();
-                    const listTema = document.getElementById('list-tema');
-                    listTema.innerHTML = this.createOptionHTML('tema', 'todos', 'Todos os temas', tema === 'todos');
-                    temaSet.forEach(t => listTema.innerHTML += this.createOptionHTML('tema', t, t, tema === t));
-                },
-
-                createOptionHTML(type, value, label, isSelected) {
-                    // Safe injection pattern
-                    const safeValue = value.replace(/'/g, "\\'");
-                    return `
-                        <div class="select-option ${isSelected ? 'selected' : ''}" 
-                             onclick="App.Controller.handleDropdownSelect('${type}', '${safeValue}', '${label}')">
-                            ${label}
-                        </div>
-                    `;
-                },
-
-                filterDropdown(listId, query) {
-                    const q = query.toLowerCase();
-                    const items = document.querySelectorAll(`#${listId} .select-option`);
-                    items.forEach(item => {
-                        const text = item.innerText.toLowerCase();
-                        item.style.display = text.includes(q) ? 'flex' : 'none';
-                    });
-                },
-
-                setHistoryTab(mode) {
-                    App.State.filters.mode = mode;
-                    // UI Update
-                    document.querySelectorAll('.segment-item').forEach(el => el.classList.remove('active'));
-                    const activeEl = document.querySelector(`.segment-item[data-value="${mode}"]`);
-                    activeEl.classList.add('active');
-                    
-                    // Animate Indicator
-                    const indicator = document.getElementById('seg-indicator');
-                    indicator.style.width = `${activeEl.offsetWidth}px`;
-                    indicator.style.transform = `translateX(${activeEl.offsetLeft - 6}px)`; // -6 for parent padding padding
-                    
-                    App.Engine.updateCount();
-                },
-
-                clearFilters() {
-                    this.setHistoryTab('ineditas');
-                    App.Controller.handleDropdownSelect('esp', 'todas', 'Todas as disciplinas');
-                    document.getElementById('input-qtd').value = 10;
-                    App.Engine.updateCount();
-                }
-            },
-
-            /**
-             * Application Flow Controller
-             */
-            Controller: {
-                navigate(view) {
-                    App.State.currentView = view;
-                    document.getElementById('view-loading').classList.add('hidden');
-                    document.getElementById('view-setup').classList.add('hidden');
-                    document.getElementById('view-quiz').classList.add('hidden');
-                    document.getElementById('view-dashboard').classList.add('hidden');
-                    
-                    document.getElementById(`view-${view}`).classList.remove('hidden');
-                    
-                    // FAB Management
-                    const fab = document.getElementById('fab-main');
-                    const fabIcon = document.getElementById('fab-icon');
-                    
-                    if (view === 'setup') {
-                        fab.classList.remove('hidden');
-                        fabIcon.innerHTML = `<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>`;
-                    } else if (view === 'quiz') {
-                        fab.classList.remove('hidden');
-                        fabIcon.innerHTML = `<path d="M5 12h14M12 5l7 7-7 7"/>`;
-                    } else {
-                        fab.classList.add('hidden'); // hidden on dashboard
-                    }
-                },
-
-                handleDropdownSelect(type, value, label) {
-                    if (type === 'esp') {
-                        App.State.filters.esp = value;
-                        App.State.filters.tema = 'todos'; // Cascading reset
-                        document.getElementById('val-esp').innerText = label;
-                        document.getElementById('val-tema').innerText = 'Todos os temas';
-                    } else if (type === 'tema') {
-                        App.State.filters.tema = value;
-                        document.getElementById('val-tema').innerText = label;
-                    }
-                    
-                    // Close dropdowns
-                    document.querySelectorAll('.custom-select').forEach(el => {
-                        el.classList.remove('open');
-                        el.querySelector('.select-trigger').classList.remove('active');
-                    });
-                    
-                    App.UI.populateDropdowns();
-                    App.Engine.updateCount();
-                },
-
-                handleMainAction() {
-                    const view = App.State.currentView;
-                    if (view === 'setup') {
-                        this.startQuiz();
-                    } else if (view === 'quiz') {
-                        if (!App.Session.isAnswered) {
-                            this.submitAnswer();
-                        } else {
-                            this.nextQuestion();
-                        }
-                    }
-                },
-
-                // ---- QUIZ FLOW ---- //
-                startQuiz() {
-                    const validData = App.Engine.getFilteredData();
-                    if (validData.length === 0) return;
-
-                    // Fisher-Yates Shuffle & Slice
-                    const shuffled = [...validData].sort(() => Math.random() - 0.5);
-                    App.Session.questions = shuffled.slice(0, App.State.filters.count);
-                    App.Session.currentIndex = 0;
-                    App.Session.metrics = { correct: 0, errors: [] };
-                    App.Session.timeElapsed = 0;
-                    App.Session.isAnswered = false;
-                    
-                    this.navigate('quiz');
-                    this.startTimer();
-                    this.renderCurrentQuestion();
-                },
-
-                startTimer() {
-                    App.Session.timeStart = Date.now();
-                    App.Session.timerInterval = setInterval(() => {
-                        App.Session.timeElapsed++;
-                        const m = String(Math.floor(App.Session.timeElapsed / 60)).padStart(2, '0');
-                        const s = String(App.Session.timeElapsed % 60).padStart(2, '0');
-                        document.getElementById('quiz-timer').innerText = `${m}:${s}`;
-                    }, 1000);
-                },
-
-                renderCurrentQuestion() {
-                    const s = App.Session;
-                    s.isAnswered = false;
-                    const q = s.questions[s.currentIndex];
-                    const total = s.questions.length;
-
-                    // Update Top UI
-                    document.getElementById('quiz-counter-text').innerText = `${String(s.currentIndex + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
-                    document.getElementById('quiz-id').innerText = q.id;
-
-                    // Render Tags
-                    const tagDiv = document.getElementById('quiz-tags-container');
-                    const tEsp = q.especialidade || 'Geral';
-                    const tTema = q.tema_especifico || 'Sem Tema';
-                    tagDiv.innerHTML = `
-                        <div class="tag-item"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${tEsp}</div>
-                        <div class="tag-separator"></div>
-                        <div class="tag-item">${tTema}</div>
-                    `;
-
-                    // Render Enunciado
-                    document.getElementById('quiz-statement').innerText = q.enunciado;
-
-                    // Render Options (A to E)
-                    const optDiv = document.getElementById('quiz-options');
-                    optDiv.innerHTML = '';
-                    ['a', 'b', 'c', 'd', 'e'].forEach(letter => {
-                        if (q[letter] && q[letter].trim()) {
-                            const domOption = document.createElement('div');
-                            domOption.className = 'option-card';
-                            domOption.dataset.val = letter;
-                            domOption.onclick = () => this.selectOption(domOption);
-                            
-                            domOption.innerHTML = `
-                                <div class="option-letter">${letter.toUpperCase()}</div>
-                                <div class="option-text">${q[letter]}</div>
-                            `;
-                            optDiv.appendChild(domOption);
-                        }
-                    });
-
-                    // Reset Feedback & Button
-                    document.getElementById('quiz-feedback').classList.add('hidden');
-                    const fabText = document.getElementById('fab-text');
-                    fabText.innerText = 'Selecione uma Alternativa';
-                    document.getElementById('fab-main').disabled = true;
-                    
-                    window.scrollTo(0, 0);
-                },
-
-                selectOption(domElement) {
-                    if (App.Session.isAnswered) return;
-                    
-                    document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
-                    domElement.classList.add('selected');
-                    
-                    const fab = document.getElementById('fab-main');
-                    fab.disabled = false;
-                    document.getElementById('fab-text').innerText = 'Confirmar Resposta';
-                },
-
-                submitAnswer() {
-                    const selected = document.querySelector('.option-card.selected');
-                    if (!selected) return;
-
-                    App.Session.isAnswered = true;
-                    const q = App.Session.questions[App.Session.currentIndex];
-                    const chosen = selected.dataset.val.toLowerCase();
-                    const correct = (q.correta || '').toLowerCase().trim();
-                    const isRight = (chosen === correct);
-
-                    // Track Analytics & Storage
-                    if (isRight) App.Session.metrics.correct++;
-                    else App.Session.metrics.errors.push(q);
-
-                    App.State.history[q.id] = isRight ? 'correct' : 'wrong';
-                    localStorage.setItem('study_platform_history', JSON.stringify(App.State.history));
-
-                    // UI Updates (Colors)
-                    document.querySelectorAll('.option-card').forEach(card => {
-                        card.style.pointerEvents = 'none'; // lock clicks
-                        const val = card.dataset.val;
-                        if (val === correct) card.classList.add('is-correct');
-                        else if (val === chosen && !isRight) card.classList.add('is-wrong');
-                    });
-
-                    // Render Feedback Box
-                    const feedBox = document.getElementById('quiz-feedback');
-                    const feedTitle = document.getElementById('feedback-title');
-                    const feedMsg = document.getElementById('feedback-message');
-                    
-                    if (isRight) {
-                        feedTitle.className = 'feedback-title correct';
-                        feedTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Resposta Exata`;
-                    } else {
-                        feedTitle.className = 'feedback-title wrong';
-                        feedTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Resposta Incorreta`;
-                    }
-                    feedMsg.innerText = q.comentario || 'Comentário técnico não disponível na base de dados.';
-                    feedBox.classList.remove('hidden');
-
-                    // Setup next action
-                    const isLast = App.Session.currentIndex === App.Session.questions.length - 1;
-                    document.getElementById('fab-text').innerText = isLast ? 'Ver Resultado Final' : 'Avançar para a Próxima';
-                    
-                    // Scroll to bottom smoothly to see feedback and button
-                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 150);
-                },
-
-                nextQuestion() {
-                    App.Session.currentIndex++;
-                    if (App.Session.currentIndex < App.Session.questions.length) {
-                        this.renderCurrentQuestion();
-                    } else {
-                        this.endSession();
-                    }
-                },
-
-                // ---- DASHBOARD FLOW ---- //
-                endSession() {
-                    clearInterval(App.Session.timerInterval);
-                    this.navigate('dashboard');
-
-                    const total = App.Session.questions.length;
-                    const hits = App.Session.metrics.correct;
-                    const pct = Math.round((hits / total) * 100);
-
-                    // Time Format
-                    const m = String(Math.floor(App.Session.timeElapsed / 60)).padStart(2, '0');
-                    const s = String(App.Session.timeElapsed % 60).padStart(2, '0');
-                    
-                    document.getElementById('dash-total').innerText = total;
-                    document.getElementById('dash-correct').innerText = hits;
-                    document.getElementById('dash-time').innerText = `${m}:${s}`;
-                    document.getElementById('dash-pct').innerText = `${pct}%`;
-
-                    // SVG Donut Chart Animation
-                    const chartPath = document.getElementById('chart-path');
-                    chartPath.style.strokeDasharray = `${pct}, 100`;
-                    
-                    if (pct >= 70) chartPath.style.stroke = 'var(--status-correct)';
-                    else if (pct < 50) chartPath.style.stroke = 'var(--status-wrong)';
-                    else chartPath.style.stroke = 'var(--brand-primary)';
-
-                    // Render Error List
-                    const errSec = document.getElementById('errors-section');
-                    const errList = document.getElementById('error-list-container');
-                    errList.innerHTML = '';
-
-                    if (App.Session.metrics.errors.length > 0) {
-                        App.Session.metrics.errors.forEach(q => {
-                            const tema = q.tema_especifico || q.especialidade || 'Assunto Geral';
-                            const ans = q.correta ? q.correta.toUpperCase() : '?';
-                            errList.innerHTML += `
-                                <div class="error-row">
-                                    <div class="err-theme">${tema}</div>
-                                    <div class="err-meta">
-                                        <span class="error-id">ID: ${q.id}</span>
-                                        <span>Gabarito: <strong>${ans}</strong></span>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        errSec.classList.remove('hidden');
-                    } else {
-                        errSec.classList.add('hidden');
-                    }
-
-                    // Re-add a button manually at the bottom since FAB is hidden on dashboard
-                    if (!document.getElementById('dash-restart-btn')) {
-                        const btn = document.createElement('button');
-                        btn.id = 'dash-restart-btn';
-                        btn.className = 'btn btn-primary';
-                        btn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Voltar ao Início`;
-                        btn.style.marginTop = '40px';
-                        btn.onclick = () => location.reload();
-                        document.getElementById('view-dashboard').appendChild(btn);
-                    }
-                    
-                    window.scrollTo(0, 0);
-                }
+            error: () => {
+                document.getElementById('loading').innerHTML = `
+                    <div style="color:var(--wrong); text-align:center; padding:20px;">
+                        <div style="font-size:1.1rem; font-weight:600; margin-bottom:8px;">Erro de conexão</div>
+                        <div style="font-size:0.85rem; color:var(--text-3);">Não foi possível carregar a planilha.</div>
+                    </div>`;
             }
-        };
-
-        // Bootstrap App when DOM is fully parsed
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initial positioning of segmented control indicator
-            setTimeout(() => {
-                const activeTab = document.querySelector('.segment-item.active');
-                if(activeTab){
-                    const indicator = document.getElementById('seg-indicator');
-                    indicator.style.width = `${activeTab.offsetWidth}px`;
-                    indicator.style.transform = `translateX(${activeTab.offsetLeft - 6}px)`;
-                }
-            }, 100);
-            
-            App.init();
         });
-    </script>
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown-wrap')) this.closeAllDropdowns();
+        });
+    },
+
+    // ====== DROPDOWNS ======
+    toggleDropdown(id) {
+        const menu = document.getElementById('menu-' + id);
+        const trigger = document.getElementById('trigger-' + id);
+        const isOpen = !menu.classList.contains('hidden');
+
+        this.closeAllDropdowns();
+
+        if (!isOpen) {
+            menu.classList.remove('hidden');
+            trigger.classList.add('open');
+            this.activeDropdown = id;
+        }
+    },
+
+    closeAllDropdowns() {
+        ['especialidade', 'tema'].forEach(id => {
+            const menu = document.getElementById('menu-' + id);
+            const trigger = document.getElementById('trigger-' + id);
+            if (menu) menu.classList.add('hidden');
+            if (trigger) trigger.classList.remove('open');
+        });
+        this.activeDropdown = null;
+    },
+
+    selectDropdownOption(id, value, label) {
+        this.filtros[id] = value;
+        document.getElementById('label-' + id).textContent = label;
+
+        // Mark selected in menu
+        const menu = document.getElementById('menu-' + id);
+        menu.querySelectorAll('.dropdown-option').forEach(opt => {
+            opt.classList.toggle('selected', opt.dataset.value === value);
+        });
+
+        this.closeAllDropdowns();
+
+        if (id === 'especialidade') this.popularTemas();
+        this.atualizarTudo();
+    },
+
+    buildDropdownMenu(id, options) {
+        const menu = document.getElementById('menu-' + id);
+        menu.innerHTML = options.map(opt => `
+            <div class="dropdown-option ${this.filtros[id] === opt.value ? 'selected' : ''}"
+                 data-value="${opt.value}"
+                 onclick="App.selectDropdownOption('${id}', '${opt.value.replace(/'/g,"\\'")}', '${opt.label.replace(/'/g,"\\'")}')">
+                ${opt.label}
+            </div>
+        `).join('');
+    },
+
+    // ====== FILTERS ======
+    popularFiltros() {
+        const especialidades = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
+        const opts = [{ value: 'todas', label: 'Todas as Especialidades' }, ...especialidades.map(e => ({ value: e, label: e }))];
+        this.buildDropdownMenu('especialidade', opts);
+        this.popularTemas();
+    },
+
+    popularTemas() {
+        const esp = this.filtros.especialidade;
+        const filtered = esp === 'todas' ? this.banco : this.banco.filter(q => q.especialidade === esp);
+        const temas = [...new Set(filtered.map(q => q.tema_especifico).filter(Boolean))].sort();
+        
+        // Reset tema if current selection not available
+        if (this.filtros.tema !== 'todos' && !temas.includes(this.filtros.tema)) {
+            this.filtros.tema = 'todos';
+            document.getElementById('label-tema').textContent = 'Todos os Temas';
+        }
+
+        const opts = [{ value: 'todos', label: 'Todos os Temas' }, ...temas.map(t => ({ value: t, label: t }))];
+        this.buildDropdownMenu('tema', opts);
+    },
+
+    setModo(modo, btn) {
+        // Toggle tabs
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        this.filtros.modo = modo;
+        // If switching to ineditas, turn off erradas toggle
+        if (modo === 'ineditas') {
+            this.filtros.erradas = false;
+            this.syncToggle(false);
+        }
+        this.atualizarTudo();
+    },
+
+    toggleErradas(el) {
+        this.filtros.erradas = !this.filtros.erradas;
+        this.syncToggle(this.filtros.erradas);
+        if (this.filtros.erradas) {
+            // Switch to "todas" tab since we're combining
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-todas').classList.add('active');
+            this.filtros.modo = 'todas';
+        }
+        this.atualizarTudo();
+    },
+
+    syncToggle(active) {
+        const track = document.getElementById('toggle-erradas');
+        const knob = document.getElementById('toggle-knob');
+        if (active) {
+            track.style.background = 'var(--accent)';
+            knob.style.left = '21px';
+            knob.style.background = 'white';
+        } else {
+            track.style.background = 'var(--surface-3)';
+            knob.style.left = '3px';
+            knob.style.background = 'var(--text-3)';
+        }
+    },
+
+    filtrarQuestoes() {
+        const { especialidade, tema, modo } = this.filtros;
+        return this.banco.filter(q => {
+            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (tema !== 'todos' && q.tema_especifico !== tema) return false;
+            if (modo === 'ineditas' && this.historico[q.id]) return false;
+            if (this.filtros.erradas && this.historico[q.id] !== 'errada') return false;
+            return true;
+        });
+    },
+
+    atualizarTudo() {
+        const validas = this.filtrarQuestoes();
+        const total = this.banco.filter(q => {
+            const { especialidade, tema } = this.filtros;
+            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (tema !== 'todos' && q.tema_especifico !== tema) return false;
+            return true;
+        }).length;
+
+        const respondidas = Object.keys(this.historico).filter(id => {
+            const q = this.banco.find(q => q.id === id);
+            if (!q) return false;
+            const { especialidade, tema } = this.filtros;
+            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (tema !== 'todos' && q.tema_especifico !== tema) return false;
+            return true;
+        }).length;
+
+        const erradas = Object.keys(this.historico).filter(id => {
+            if (this.historico[id] !== 'errada') return false;
+            const q = this.banco.find(q => q.id === id);
+            if (!q) return false;
+            const { especialidade, tema } = this.filtros;
+            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (tema !== 'todos' && q.tema_especifico !== tema) return false;
+            return true;
+        }).length;
+
+        // Update counter
+        const counterEl = document.getElementById('question-counter');
+        const numEl = document.getElementById('counter-value');
+        numEl.textContent = validas.length;
+        numEl.parentElement.classList.toggle('animating', false);
+        void numEl.parentElement.offsetWidth;
+        numEl.parentElement.classList.toggle('animating', true);
+
+        counterEl.classList.toggle('zero', validas.length === 0);
+
+        document.getElementById('tag-total').textContent = `${total} no banco`;
+        document.getElementById('tag-done').textContent = `${respondidas} respondidas`;
+        document.getElementById('tag-errors').textContent = `${erradas} com erro`;
+
+        // Update qty
+        const qtyInput = document.getElementById('qtd-questoes');
+        qtyInput.max = validas.length;
+        if (parseInt(qtyInput.value) > validas.length) qtyInput.value = validas.length || 1;
+        document.getElementById('qty-max').textContent = validas.length;
+
+        // Update start button
+        const btn = document.getElementById('btn-start');
+        const countBadge = document.getElementById('start-count');
+        if (validas.length === 0) {
+            btn.disabled = true;
+            countBadge.textContent = '0';
+        } else {
+            btn.disabled = false;
+            countBadge.textContent = Math.min(parseInt(qtyInput.value) || 1, validas.length);
+        }
+    },
+
+    onQtyInput() {
+        const input = document.getElementById('qtd-questoes');
+        const max = parseInt(input.max) || 0;
+        let val = parseInt(input.value) || 1;
+        if (val < 1) val = 1;
+        if (val > max) val = max;
+        input.value = val;
+        document.getElementById('start-count').textContent = val;
+    },
+
+    adjustQty(delta) {
+        const input = document.getElementById('qtd-questoes');
+        const max = parseInt(input.max) || 0;
+        let val = (parseInt(input.value) || 0) + delta;
+        val = Math.max(1, Math.min(val, max));
+        input.value = val;
+        document.getElementById('start-count').textContent = val;
+    },
+
+    // ====== SESSION ======
+    iniciarSessao() {
+        const validas = this.filtrarQuestoes();
+        if (!validas.length) return;
+        const qtd = Math.min(parseInt(document.getElementById('qtd-questoes').value) || 10, validas.length);
+        this.fila = validas.sort(() => Math.random() - 0.5).slice(0, qtd);
+        this.indice = 0;
+        this.sessao = { respostas: [], startTime: Date.now() };
+
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('start-bar').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        document.getElementById('quiz-bar').classList.remove('hidden');
+
+        this.carregarQuestao();
+    },
+
+    carregarQuestao() {
+        this.estado = 'RESPONDENDO';
+        const q = this.fila[this.indice];
+        const total = this.fila.length;
+        const num = this.indice + 1;
+        const pct = Math.round(((num - 1) / total) * 100);
+
+        document.getElementById('progress-text').textContent = `${num} / ${total}`;
+        document.getElementById('progress-pct').textContent = pct + '%';
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('question-id').textContent = q.id;
+
+        // Meta badges
+        const metaEl = document.getElementById('question-meta');
+        metaEl.innerHTML = '';
+        if (q.especialidade) {
+            metaEl.innerHTML += `<span class="meta-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>${q.especialidade}</span>`;
+        }
+        if (q.tema_especifico) {
+            metaEl.innerHTML += `<span class="meta-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${q.tema_especifico}</span>`;
+        }
+        if (q.ano || q.banca) {
+            metaEl.innerHTML += `<span class="meta-badge">${[q.banca, q.ano].filter(Boolean).join(' · ')}</span>`;
+        }
+
+        document.getElementById('enunciado').textContent = q.enunciado;
+
+        // Build options
+        const container = document.getElementById('opcoes-container');
+        container.innerHTML = '';
+        ['a','b','c','d','e'].forEach(letra => {
+            if (q[letra] && q[letra].trim()) {
+                const label = document.createElement('label');
+                label.className = 'option-label';
+                label.onclick = () => this.selecionarOpcao(label);
+                label.innerHTML = `
+                    <input type="radio" name="opcao" value="${letra}">
+                    <div class="option-bubble">${letra.toUpperCase()}</div>
+                    <div class="option-text">${q[letra]}</div>
+                `;
+                container.appendChild(label);
+            }
+        });
+
+        document.getElementById('feedback-section').classList.add('hidden');
+        const btn = document.getElementById('btn-action');
+        btn.textContent = 'Selecione uma Alternativa';
+        btn.disabled = true;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    selecionarOpcao(labelClicada) {
+        if (this.estado !== 'RESPONDENDO') return;
+        document.querySelectorAll('.option-label').forEach(el => el.classList.remove('selected'));
+        labelClicada.classList.add('selected');
+        labelClicada.querySelector('input').checked = true;
+
+        const btn = document.getElementById('btn-action');
+        btn.textContent = 'Confirmar Resposta';
+        btn.disabled = false;
+    },
+
+    handleAction() {
+        switch (this.estado) {
+            case 'RESPONDENDO': this.confirmarResposta(); break;
+            case 'FEEDBACK': this.proximaQuestao(); break;
+            case 'FIM': location.reload(); break;
+        }
+    },
+
+    confirmarResposta() {
+        const q = this.fila[this.indice];
+        const input = document.querySelector('input[name="opcao"]:checked');
+        if (!input) return;
+
+        this.estado = 'FEEDBACK';
+        const marcada = input.value.toLowerCase();
+        const correta = (q.correta || '').toLowerCase().trim();
+        const isCerta = marcada === correta;
+
+        this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
+        this.historico[q.id] = isCerta ? 'correta' : 'errada';
+        localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+
+        // Style options
+        document.querySelectorAll('.option-label').forEach(label => {
+            label.style.pointerEvents = 'none';
+            const val = label.querySelector('input').value;
+            if (val === correta) label.classList.add('correct-answer');
+            else if (val === marcada && !isCerta) label.classList.add('wrong-answer');
+        });
+
+        // Feedback section
+        const feedbackIcon = document.getElementById('feedback-icon');
+        const feedbackLabel = document.getElementById('resultado-texto');
+
+        if (isCerta) {
+            feedbackIcon.className = 'feedback-icon correct';
+            feedbackIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--correct)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`;
+            feedbackLabel.className = 'feedback-label correct';
+            feedbackLabel.textContent = 'Resposta Correta';
+        } else {
+            feedbackIcon.className = 'feedback-icon wrong';
+            feedbackIcon.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--wrong)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
+            feedbackLabel.className = 'feedback-label wrong';
+            feedbackLabel.textContent = 'Resposta Incorreta';
+        }
+
+        document.getElementById('comentario-texto').textContent = q.comentario || 'Gabarito oficial, sem comentários adicionais disponíveis.';
+        document.getElementById('feedback-section').classList.remove('hidden');
+
+        const btn = document.getElementById('btn-action');
+        const isLast = this.indice === this.fila.length - 1;
+        btn.textContent = isLast ? 'Ver Resultados' : 'Próxima Questão →';
+
+        setTimeout(() => {
+            document.getElementById('feedback-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    },
+
+    proximaQuestao() {
+        this.indice++;
+        if (this.indice < this.fila.length) this.carregarQuestao();
+        else this.gerarDashboard();
+    },
+
+    gerarDashboard() {
+        this.estado = 'FIM';
+        const endTime = Date.now();
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('quiz-bar').classList.remove('hidden');
+
+        const total = this.fila.length;
+        const acertos = this.sessao.respostas.filter(r => r.acertou).length;
+        const pct = Math.round((acertos / total) * 100);
+        const tempoTot = Math.floor((endTime - this.sessao.startTime) / 1000);
+        const avgSeg = Math.round(tempoTot / total);
+        const tempoStr = avgSeg >= 60 ? `${Math.floor(avgSeg/60)}m${avgSeg%60}s` : `${avgSeg}s`;
+
+        document.getElementById('dash-acertos').textContent = acertos;
+        document.getElementById('dash-total-end').textContent = total;
+        document.getElementById('dash-tempo').textContent = tempoStr;
+        document.getElementById('dash-pct').textContent = pct + '%';
+
+        const msg = document.getElementById('dash-feedback-msg');
+        if (pct >= 80) msg.textContent = 'Desempenho excelente! Continue assim.';
+        else if (pct >= 50) msg.textContent = 'Bom trabalho. Revise os pontos abaixo.';
+        else msg.textContent = 'É importante revisar os temas com baixo rendimento.';
+
+        // Ring animation
+        const ring = document.getElementById('score-ring-fill');
+        const circumference = 264;
+        const offset = circumference - (pct / 100) * circumference;
+        const ringColor = pct >= 70 ? 'var(--correct)' : pct >= 50 ? 'var(--warn)' : 'var(--wrong)';
+        ring.style.stroke = ringColor;
+        setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+
+        // Theme analysis
+        const themeStats = {};
+        this.sessao.respostas.forEach(r => {
+            const k = r.questao.tema_especifico || r.questao.especialidade || 'Geral';
+            if (!themeStats[k]) themeStats[k] = { total: 0, acertos: 0 };
+            themeStats[k].total++;
+            if (r.acertou) themeStats[k].acertos++;
+        });
+
+        const container = document.getElementById('themes-container');
+        container.innerHTML = '';
+        Object.entries(themeStats)
+            .sort((a, b) => (b[1].acertos / b[1].total) - (a[1].acertos / a[1].total))
+            .forEach(([tema, stats]) => {
+                const p = Math.round((stats.acertos / stats.total) * 100);
+                const color = p >= 70 ? 'var(--correct)' : p < 50 ? 'var(--wrong)' : 'var(--warn)';
+                container.innerHTML += `
+                    <div class="theme-item">
+                        <div class="theme-header">
+                            <span class="theme-name">${tema}</span>
+                            <span class="theme-stat" style="color:${color}">${stats.acertos}/${stats.total} · ${p}%</span>
+                        </div>
+                        <div class="theme-bar-bg">
+                            <div class="theme-bar-fill" style="width:${p}%; background:${color};"></div>
+                        </div>
+                    </div>`;
+            });
+
+        // Errors
+        const erros = this.sessao.respostas.filter(r => !r.acertou);
+        if (erros.length > 0) {
+            document.getElementById('errors-block').classList.remove('hidden');
+            const errorList = document.getElementById('error-list');
+            errorList.innerHTML = erros.map(r => `
+                <div class="error-item">
+                    <div class="error-topic">${r.questao.tema_especifico || r.questao.especialidade || 'Geral'}</div>
+                    <div class="error-detail">ID: ${r.questao.id} &nbsp;·&nbsp; Sua resp.: ${r.marcada.toUpperCase()} &nbsp;·&nbsp; Gabarito: ${(r.questao.correta || '?').toUpperCase()}</div>
+                </div>`).join('');
+        }
+
+        document.getElementById('end-screen').classList.remove('hidden');
+        const btn = document.getElementById('btn-action');
+        btn.textContent = 'Voltar ao Início';
+        btn.disabled = false;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+};
+
+window.addEventListener('DOMContentLoaded', () => App.init());
+</script>
 </body>
 </html>
