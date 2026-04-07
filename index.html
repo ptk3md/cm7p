@@ -4,17 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0d0d0d">
-    <!-- CSP: Content Security Policy para mitigar XSS -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://gc.zgo.at https://cm7p.goatcounter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://docs.google.com https://cm7p.goatcounter.com https://gc.zgo.at;">
     <title>Banco de Questões</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-    <!-- SRI: Subresource Integrity para verificar integridade do script -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" integrity="sha512-dqXqD7BhKPoHkCW0i+8k0V9Jk5K2K5Y0J2K4qL0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0V0......" crossorigin="anonymous"></script>
-    <!-- GoatCounter: removido script duplicado -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-
     <style>
         :root {
             --bg: #0d0d0d; --surface: #181818; --surface-2: #222; --surface-3: #2a2a2a;
@@ -31,7 +27,6 @@
         body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; max-width: 680px; margin: 0 auto; padding: 0 0 calc(100px + var(--safe-bottom)) 0; min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; }
         .hidden { display: none !important; }
 
-        /* ── SETUP ── */
         #setup-screen { padding: 28px 20px 0; }
         .top-bar { display: flex; align-items: center; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
         .top-bar-title { font-size: 1rem; font-weight: 700; }
@@ -48,7 +43,10 @@
         .ctag-d { background: rgba(62,207,142,0.1); color: var(--correct); }
         .ctag-e { background: rgba(240,96,96,0.1); color: var(--wrong); }
 
-        .section-label { font-size: 0.7rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+        .section-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .section-label { font-size: 0.7rem; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.08em; }
+        .clear-btn { font-size: 0.72rem; font-weight: 700; color: var(--accent); background: none; border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; visibility: hidden; }
+        .clear-btn:hover { background: var(--accent-bg); border-color: var(--accent); }
 
         .mode-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 14px; }
         .mode-tab { padding: 10px 8px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-2); font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 600; cursor: pointer; text-align: center; transition: all 0.15s; }
@@ -57,7 +55,6 @@
 
         .filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 14px; overflow: visible; }
         .filter-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; position: relative; user-select: none; }
-        .filter-row:last-child { border-bottom: none; }
         .filter-row:hover { background: var(--surface-2); }
         .filter-row-left { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
         .filter-row-key { font-size: 0.7rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
@@ -77,7 +74,7 @@
         .dd-check-mark { display: none; }
         .dd-option.selected .dd-check-mark { display: block; }
 
-        .tema-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px 14px; }
+        .tema-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px 14px; border-top: 1px solid var(--border); }
         .tema-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 4px; border: 1px solid var(--accent); background: var(--accent-bg); font-size: 0.78rem; color: var(--accent); font-weight: 500; }
         .tema-chip-x { cursor: pointer; font-size: 1rem; line-height: 1; opacity: 0.7; }
         .tema-chip-x:hover { opacity: 1; }
@@ -112,7 +109,6 @@
         .quiz-body { padding: 20px 20px 0; }
         .q-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
         .q-badge { padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border); font-size: 0.72rem; font-weight: 600; color: var(--text-3); background: var(--surface); }
-
         #enunciado { font-size: 1rem; line-height: 1.7; color: var(--text); margin-bottom: 22px; }
 
         .option-label { display: flex; align-items: flex-start; padding: 13px 14px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; background: var(--surface); transition: all 0.15s; gap: 12px; }
@@ -212,39 +208,45 @@
             </div>
         </div>
 
-        <div class="section-label">Modo de Questões</div>
+        <div class="section-label" style="margin-bottom:8px;">Modo de Questões</div>
         <div class="mode-tabs" style="margin-bottom:14px;">
             <button class="mode-tab active" onclick="App.setModo('todas',this)">Todas</button>
             <button class="mode-tab" onclick="App.setModo('ineditas',this)">Inéditas</button>
             <button class="mode-tab" onclick="App.setModo('erradas',this)">Meus Erros</button>
         </div>
 
-        <div class="section-label">Filtros</div>
+        <div class="section-bar">
+            <span class="section-label">Filtros</span>
+            <button class="clear-btn" id="btn-clear" onclick="App.limparFiltros()">Limpar filtros</button>
+        </div>
         <div class="filter-card">
-            <!-- Especialidade dropdown -->
-            <div class="filter-row" onclick="App.toggleDD('esp')" id="row-esp">
-                <div class="filter-row-left">
-                    <span class="filter-row-key">Especialidade</span>
-                    <span class="filter-row-val" id="label-esp">Todas as Especialidades</span>
-                </div>
-                <svg class="filter-chevron" id="chev-esp" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                <div class="dropdown-menu hidden" id="menu-esp" onclick="event.stopPropagation()"></div>
-            </div>
-            <!-- Tema multi-select dropdown -->
+            <!-- Especialidade multi-select -->
             <div>
-                <div class="filter-row" onclick="App.toggleDD('tema')" id="row-tema" style="border-bottom:none;">
+                <div class="filter-row" id="row-esp" onclick="App.toggleDD('esp')">
+                    <div class="filter-row-left">
+                        <span class="filter-row-key">Especialidade (múltipla seleção)</span>
+                        <span class="filter-row-val" id="label-esp">Todas as Especialidades</span>
+                    </div>
+                    <svg class="filter-chevron" id="chev-esp" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    <div class="dropdown-menu hidden" id="menu-esp"></div>
+                </div>
+                <div id="esp-chips-wrap" class="hidden"></div>
+            </div>
+            <!-- Tema multi-select -->
+            <div style="border-top:1px solid var(--border);">
+                <div class="filter-row" id="row-tema" onclick="App.toggleDD('tema')" style="border-bottom:none;">
                     <div class="filter-row-left">
                         <span class="filter-row-key">Temas (múltipla seleção)</span>
                         <span class="filter-row-val" id="label-tema">Todos os Temas</span>
                     </div>
                     <svg class="filter-chevron" id="chev-tema" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-                    <div class="dropdown-menu hidden" id="menu-tema" onclick="event.stopPropagation()"></div>
+                    <div class="dropdown-menu hidden" id="menu-tema"></div>
                 </div>
                 <div id="tema-chips-wrap" class="hidden"></div>
             </div>
         </div>
 
-        <div class="section-label">Quantidade</div>
+        <div class="section-label" style="margin-bottom:8px;">Quantidade</div>
         <div class="filter-card">
             <div class="qty-wrap">
                 <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:14px;">
@@ -342,32 +344,30 @@ const App = {
     historico: JSON.parse(localStorage.getItem('apex_historico') || '{}'),
     estado: 'SETUP',
     sessao: { respostas: [], startTime: 0 },
-    filtros: { especialidade: 'todas', temas: [], modo: 'todas' },
+    filtros: { especialidades: [], temas: [], modo: 'todas' },
 
-    // 🔐 Função para escapar HTML e prevenir XSS
     escapeHtml(text) {
-        if (typeof text !== 'string') return text;
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        if (typeof text !== 'string') return String(text || '');
+        const d = document.createElement('div');
+        d.textContent = text;
+        return d.innerHTML;
     },
 
-    // 🔧 Função para normalizar IDs (remove espaços, padroniza maiúsculas)
     normalizeId(id) {
         return String(id || '').trim().toUpperCase();
+    },
+
+    _checkSvg() {
+        return `<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
     },
 
     init() {
         Papa.parse(this.url, {
             download: true, header: true, skipEmptyLines: true,
             complete: (r) => {
-                // 🔧 Normalizar IDs ao carregar do CSV
                 this.banco = r.data
                     .filter(q => q.id && q.enunciado)
-                    .map(q => ({
-                        ...q,
-                        id: this.normalizeId(q.id)
-                    }));
+                    .map(q => ({ ...q, id: this.normalizeId(q.id) }));
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('setup-form').classList.remove('hidden');
                 document.getElementById('btn-start').classList.remove('hidden');
@@ -393,7 +393,7 @@ const App = {
     },
 
     closeAllDD() {
-        ['esp','tema'].forEach(id => {
+        ['esp', 'tema'].forEach(id => {
             const m = document.getElementById('menu-' + id);
             const c = document.getElementById('chev-' + id);
             if (m) m.classList.add('hidden');
@@ -401,32 +401,61 @@ const App = {
         });
     },
 
+    // ── ESPECIALIDADE (multi-select) ──────────────────────────
     buildEspMenu() {
         const esps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
-        const opts = [{ v: 'todas', l: 'Todas as Especialidades' }, ...esps.map(e => ({ v: e, l: e }))];
-        document.getElementById('menu-esp').innerHTML = opts.map(o => {
-            // 🔐 Usar JSON.stringify para interpolação segura em onclick
-            const valJs = JSON.stringify(o.v);
-            const labelJs = JSON.stringify(o.l);
-            return `<div class="dd-option ${this.filtros.especialidade === o.v ? 'selected' : ''}" data-val="${this.escapeHtml(o.v)}" onclick="App.selectEsp(${valJs}, ${labelJs})">
-                ${this.escapeHtml(o.l)}
-            </div>`;
+        const menu = document.getElementById('menu-esp');
+        if (!esps.length) {
+            menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-3);">Nenhuma especialidade disponível</div>';
+            return;
+        }
+        // innerHTML sem onclick inline — listeners adicionados via JS abaixo
+        menu.innerHTML = esps.map(e => {
+            const sel = this.filtros.especialidades.includes(e);
+            return `<div class="dd-option${sel ? ' selected' : ''}" data-val="${this.escapeHtml(e)}"><span>${this.escapeHtml(e)}</span>${this._checkSvg()}</div>`;
         }).join('');
+        menu.querySelectorAll('.dd-option').forEach(el => {
+            el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleEsp(el.dataset.val); });
+        });
     },
 
-    selectEsp(val, label) {
-        this.filtros.especialidade = val;
+    toggleEsp(val) {
+        const idx = this.filtros.especialidades.indexOf(val);
+        if (idx === -1) this.filtros.especialidades.push(val);
+        else this.filtros.especialidades.splice(idx, 1);
         this.filtros.temas = [];
-        document.getElementById('label-esp').textContent = label;
-        document.querySelectorAll('#menu-esp .dd-option').forEach(el => el.classList.toggle('selected', el.dataset.val === val));
-        this.closeAllDD();
+        this.buildEspMenu();
         this.buildTemaMenu();
+        this.renderEspChips();
         this.renderTemaChips();
+        this.updateEspLabel();
+        this.updateTemaLabel();
         this.atualizarTudo();
     },
 
+    updateEspLabel() {
+        const el = document.getElementById('label-esp');
+        const n = this.filtros.especialidades.length;
+        el.textContent = n === 0 ? 'Todas as Especialidades' : n === 1 ? this.filtros.especialidades[0] : n + ' especialidades';
+    },
+
+    renderEspChips() {
+        const wrap = document.getElementById('esp-chips-wrap');
+        if (!this.filtros.especialidades.length) { wrap.className = 'hidden'; wrap.innerHTML = ''; return; }
+        wrap.className = 'tema-chips';
+        wrap.innerHTML = this.filtros.especialidades.map(e =>
+            `<span class="tema-chip">${this.escapeHtml(e)}<span class="tema-chip-x" data-val="${this.escapeHtml(e)}">×</span></span>`
+        ).join('');
+        wrap.querySelectorAll('.tema-chip-x').forEach(el => {
+            el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleEsp(el.dataset.val); });
+        });
+    },
+
+    // ── TEMA (multi-select) ────────────────────────────────────
     buildTemaMenu() {
-        const pool = this.filtros.especialidade === 'todas' ? this.banco : this.banco.filter(q => q.especialidade === this.filtros.especialidade);
+        const pool = this.filtros.especialidades.length === 0
+            ? this.banco
+            : this.banco.filter(q => this.filtros.especialidades.includes(q.especialidade));
         const temas = [...new Set(pool.map(q => q.tema_especifico).filter(Boolean))].sort();
         const menu = document.getElementById('menu-tema');
         if (!temas.length) {
@@ -435,25 +464,18 @@ const App = {
         }
         menu.innerHTML = temas.map(t => {
             const sel = this.filtros.temas.includes(t);
-            const safe = t.replace(/"/g,'&quot;');
-            // 🔐 JSON.stringify para onclick seguro
-            const temaJs = JSON.stringify(t);
-            return `<div class="dd-option ${sel ? 'selected' : ''}" data-val="${safe}" onclick="App.toggleTema(${temaJs})">
-                <span>${this.escapeHtml(t)}</span>
-                <div class="dd-check">
-                    <svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none">
-                        <polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            </div>`;
+            return `<div class="dd-option${sel ? ' selected' : ''}" data-val="${this.escapeHtml(t)}"><span>${this.escapeHtml(t)}</span>${this._checkSvg()}</div>`;
         }).join('');
+        menu.querySelectorAll('.dd-option').forEach(el => {
+            el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleTema(el.dataset.val); });
+        });
     },
 
     toggleTema(tema) {
         const idx = this.filtros.temas.indexOf(tema);
         if (idx === -1) this.filtros.temas.push(tema);
         else this.filtros.temas.splice(idx, 1);
-        document.querySelectorAll('#menu-tema .dd-option').forEach(el => el.classList.toggle('selected', this.filtros.temas.includes(el.dataset.val)));
+        this.buildTemaMenu();
         this.renderTemaChips();
         this.updateTemaLabel();
         this.atualizarTudo();
@@ -461,21 +483,33 @@ const App = {
 
     updateTemaLabel() {
         const el = document.getElementById('label-tema');
-        if (!this.filtros.temas.length) el.textContent = 'Todos os Temas';
-        else if (this.filtros.temas.length === 1) el.textContent = this.filtros.temas[0];
-        else el.textContent = this.filtros.temas.length + ' temas selecionados';
+        const n = this.filtros.temas.length;
+        el.textContent = n === 0 ? 'Todos os Temas' : n === 1 ? this.filtros.temas[0] : n + ' temas selecionados';
     },
 
     renderTemaChips() {
         const wrap = document.getElementById('tema-chips-wrap');
         if (!this.filtros.temas.length) { wrap.className = 'hidden'; wrap.innerHTML = ''; return; }
         wrap.className = 'tema-chips';
-        wrap.innerHTML = this.filtros.temas.map(t => {
-            const safe = t.replace(/"/g,'&quot;');
-            // 🔐 JSON.stringify para onclick seguro
-            const temaJs = JSON.stringify(t);
-            return `<span class="tema-chip">${this.escapeHtml(t)}<span class="tema-chip-x" data-tema="${safe}" onclick="App.toggleTema(${temaJs});event.stopPropagation()">×</span></span>`;
-        }).join('');
+        wrap.innerHTML = this.filtros.temas.map(t =>
+            `<span class="tema-chip">${this.escapeHtml(t)}<span class="tema-chip-x" data-val="${this.escapeHtml(t)}">×</span></span>`
+        ).join('');
+        wrap.querySelectorAll('.tema-chip-x').forEach(el => {
+            el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleTema(el.dataset.val); });
+        });
+    },
+
+    // ── LIMPAR ────────────────────────────────────────────────
+    limparFiltros() {
+        this.filtros.especialidades = [];
+        this.filtros.temas = [];
+        this.buildEspMenu();
+        this.buildTemaMenu();
+        this.renderEspChips();
+        this.renderTemaChips();
+        this.updateEspLabel();
+        this.updateTemaLabel();
+        this.atualizarTudo();
     },
 
     setModo(modo, btn) {
@@ -486,11 +520,10 @@ const App = {
     },
 
     filtrarQuestoes() {
-        const { especialidade, temas, modo } = this.filtros;
+        const { especialidades, temas, modo } = this.filtros;
         return this.banco.filter(q => {
-            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (especialidades.length && !especialidades.includes(q.especialidade)) return false;
             if (temas.length && !temas.includes(q.tema_especifico)) return false;
-            // 🔧 Usar ID normalizado para comparação com histórico
             const idNorm = this.normalizeId(q.id);
             if (modo === 'ineditas' && this.historico[idNorm]) return false;
             if (modo === 'erradas' && this.historico[idNorm] !== 'errada') return false;
@@ -500,24 +533,23 @@ const App = {
 
     atualizarTudo() {
         const validas = this.filtrarQuestoes();
-        const { especialidade, temas } = this.filtros;
+        const { especialidades, temas } = this.filtros;
         const inScope = q => {
-            if (especialidade !== 'todas' && q.especialidade !== especialidade) return false;
+            if (especialidades.length && !especialidades.includes(q.especialidade)) return false;
             if (temas.length && !temas.includes(q.tema_especifico)) return false;
             return true;
         };
         const total = this.banco.filter(inScope).length;
-        // 🔧 Contar respondidas/erradas com ID normalizado e suporte a formato antigo
-        const respondidas = Object.keys(this.historico).filter(idNorm => { 
-            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm); 
-            return q && inScope(q); 
+        const respondidas = Object.keys(this.historico).filter(idNorm => {
+            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm);
+            return q && inScope(q);
         }).length;
-        const erradas = Object.keys(this.historico).filter(idNorm => { 
+        const erradas = Object.keys(this.historico).filter(idNorm => {
             const h = this.historico[idNorm];
             const isErr = typeof h === 'string' ? h === 'errada' : h?.correct === false;
             if (!isErr) return false;
-            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm); 
-            return q && inScope(q); 
+            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm);
+            return q && inScope(q);
         }).length;
 
         document.getElementById('counter-value').textContent = validas.length;
@@ -529,16 +561,15 @@ const App = {
         const max = validas.length || 1;
         const numInput = document.getElementById('qtd-questoes');
         const slider = document.getElementById('qty-slider');
-        numInput.max = max;
-        slider.max = max;
-        slider.min = 1;
+        numInput.max = max; slider.max = max; slider.min = 1;
         if (parseInt(numInput.value) > max) { numInput.value = max; slider.value = max; }
         if (!numInput.value || parseInt(numInput.value) < 1) { numInput.value = 1; slider.value = 1; }
         document.getElementById('qty-max').textContent = max + ' máx';
-
-        const btn = document.getElementById('btn-start');
         document.getElementById('start-count').textContent = Math.min(parseInt(numInput.value) || 1, max);
-        btn.disabled = validas.length === 0;
+        document.getElementById('btn-start').disabled = validas.length === 0;
+
+        const hasFilters = especialidades.length > 0 || temas.length > 0;
+        document.getElementById('btn-clear').style.visibility = hasFilters ? 'visible' : 'hidden';
     },
 
     onQtyInput() {
@@ -546,11 +577,7 @@ const App = {
         const slider = document.getElementById('qty-slider');
         const max = parseInt(slider.max) || 1;
         let v = parseInt(numInput.value);
-        if (isNaN(v) || numInput.value === '') {
-            slider.value = 1;
-            document.getElementById('start-count').textContent = 1;
-            return;
-        }
+        if (isNaN(v) || numInput.value === '') { slider.value = 1; document.getElementById('start-count').textContent = 1; return; }
         v = Math.max(1, Math.min(v, max));
         slider.value = v;
         document.getElementById('start-count').textContent = v;
@@ -558,9 +585,8 @@ const App = {
 
     onSliderInput() {
         const slider = document.getElementById('qty-slider');
-        const numInput = document.getElementById('qtd-questoes');
         const v = parseInt(slider.value);
-        numInput.value = v;
+        document.getElementById('qtd-questoes').value = v;
         document.getElementById('start-count').textContent = v;
     },
 
@@ -587,14 +613,11 @@ const App = {
         document.getElementById('progress-pct').textContent = pct + '%';
         document.getElementById('progress-fill').style.width = pct + '%';
         document.getElementById('question-id').textContent = q.id;
-
         const meta = document.getElementById('question-meta');
         meta.innerHTML = '';
-        // 🔐 Escapar dados da planilha antes de inserir via innerHTML
         if (q.especialidade) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.especialidade) + '</span>';
         if (q.tema_especifico) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.tema_especifico) + '</span>';
         if (q.banca || q.ano) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml([q.banca, q.ano].filter(Boolean).join(' · ')) + '</span>';
-
         document.getElementById('enunciado').textContent = q.enunciado;
         const container = document.getElementById('opcoes-container');
         container.innerHTML = '';
@@ -603,11 +626,9 @@ const App = {
             const lbl = document.createElement('label');
             lbl.className = 'option-label';
             lbl.onclick = () => this.selecionarOpcao(lbl);
-            // 🔐 Escapar texto da alternativa antes de innerHTML
             lbl.innerHTML = '<input type="radio" name="opcao" value="' + l + '"><div class="option-bubble">' + l.toUpperCase() + '</div><div class="option-text">' + this.escapeHtml(q[l]) + '</div>';
             container.appendChild(lbl);
         });
-
         document.getElementById('feedback-section').classList.add('hidden');
         const btn = document.getElementById('btn-action');
         btn.textContent = 'Selecione uma Alternativa';
@@ -640,12 +661,9 @@ const App = {
         const correta = (q.correta || '').toLowerCase().trim();
         const isCerta = marcada === correta;
         this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
-        
-        // 🔧 Salvar com ID normalizado para garantir correspondência futura
         const idNorm = this.normalizeId(q.id);
         this.historico[idNorm] = isCerta ? 'correta' : 'errada';
         localStorage.setItem('apex_historico', JSON.stringify(this.historico));
-        
         document.querySelectorAll('.option-label').forEach(lbl => {
             lbl.style.pointerEvents = 'none';
             const v = lbl.querySelector('input').value;
@@ -705,21 +723,18 @@ const App = {
         Object.entries(stats).sort((a,b) => (b[1].acertos/b[1].total) - (a[1].acertos/a[1].total)).forEach(([tema, s]) => {
             const p = Math.round((s.acertos / s.total) * 100);
             const col = p >= 70 ? 'var(--correct)' : p < 50 ? 'var(--wrong)' : 'var(--warn)';
-            // 🔐 Escapar nome do tema antes de innerHTML
             tc.innerHTML += '<div class="theme-item"><div class="theme-row"><span class="theme-name">' + this.escapeHtml(tema) + '</span><span class="theme-stat" style="color:' + col + '">' + s.acertos + '/' + s.total + ' · ' + p + '%</span></div><div class="theme-bar-bg"><div class="theme-bar-fill" style="width:' + p + '%;background:' + col + ';"></div></div></div>';
         });
         const erros = this.sessao.respostas.filter(r => !r.acertou);
         if (erros.length) {
             document.getElementById('errors-block').classList.remove('hidden');
-            // 🔐 Escapar dados antes de innerHTML
             document.getElementById('error-list').innerHTML = erros.map(r =>
                 '<div class="error-item"><div class="error-topic">' + this.escapeHtml(r.questao.tema_especifico || r.questao.especialidade || 'Geral') + '</div><div class="error-detail">ID: ' + this.escapeHtml(r.questao.id) + ' · Sua resp.: ' + this.escapeHtml(r.marcada.toUpperCase()) + ' · Gabarito: ' + this.escapeHtml((r.questao.correta || '?').toUpperCase()) + '</div></div>'
             ).join('');
         }
         document.getElementById('end-screen').classList.remove('hidden');
-        const btn = document.getElementById('btn-action');
-        btn.textContent = 'Voltar ao Início';
-        btn.disabled = false;
+        document.getElementById('btn-action').textContent = 'Voltar ao Início';
+        document.getElementById('btn-action').disabled = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 };
