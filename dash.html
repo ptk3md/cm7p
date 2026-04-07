@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#0d0d0d">
-    <title>Dashboard • Banco de Questões</title>
+    <title>Dashboard Analítico • Banco de Questões</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,7 +45,7 @@
             display: inline-flex; align-items: center; gap: 6px; 
             padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); 
             border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; 
-            transition: all 0.15s; 
+            transition: all 0.15s; cursor: pointer; color: var(--text);
         }
         .back-link:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -56,7 +56,7 @@
         }
         .card-title { 
             font-size: 0.75rem; font-weight: 700; color: var(--text-3); 
-            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; 
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; display: flex; align-items: center; gap: 6px;
         }
 
         /* Stats Grid */
@@ -65,32 +65,82 @@
         }
         .stat-box { 
             background: var(--surface-2); border: 1px solid var(--border); 
-            border-radius: var(--radius); padding: 14px; text-align: center; 
+            border-radius: var(--radius); padding: 16px 14px; text-align: center; 
         }
-        .stat-val { font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
-        .stat-val.rating { color: var(--accent); }
+        .stat-val { font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: 6px; }
+        .stat-val.accent { color: var(--accent); }
         .stat-val.correct { color: var(--correct); }
+        .stat-val.wrong { color: var(--wrong); }
         .stat-lbl { font-size: 0.7rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        /* Curva de Aprendizagem */
+        .chart-container {
+            display: flex; align-items: flex-end; justify-content: space-between; gap: 4px;
+            height: 120px; padding-top: 20px; margin-top: 10px; border-bottom: 1px solid var(--border-light);
+        }
+        .chart-bar-group { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; flex: 1; height: 100%; position: relative; }
+        .chart-bar { width: 100%; max-width: 32px; background: var(--surface-3); border-radius: 4px 4px 0 0; transition: height 0.8s ease; position: relative; }
+        .chart-bar.good { background: var(--correct); }
+        .chart-bar.bad { background: var(--wrong); }
+        .chart-bar.mid { background: var(--warn); }
+        .chart-label { font-size: 0.65rem; color: var(--text-3); margin-top: 6px; font-weight: 600; }
+        .chart-tooltip {
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+            background: var(--surface-2); border: 1px solid var(--border-light); font-size: 0.65rem; font-weight: 700;
+            padding: 2px 6px; border-radius: 4px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
+        }
+        .chart-bar-group:hover .chart-tooltip { opacity: 1; }
 
         /* Diagnosis List */
         .diag-list { display: flex; flex-direction: column; gap: 10px; }
         .diag-item { 
             display: flex; align-items: center; justify-content: space-between; 
-            padding: 12px; background: var(--surface-2); border: 1px solid var(--border); 
-            border-radius: var(--radius); 
+            padding: 14px; background: var(--surface-2); border: 1px solid var(--border); 
+            border-radius: var(--radius); border-left: 3px solid transparent;
         }
-        .diag-info { min-width: 0; flex: 1; }
-        .diag-topic { font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .diag-meta { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
-        .diag-meta strong { color: var(--wrong); }
+        .diag-item.critical { border-left-color: var(--wrong); }
+        .diag-item.warning { border-left-color: var(--warn); }
         
-        .diag-acc { 
-            font-size: 1.1rem; font-weight: 700; margin-left: 12px; flex-shrink: 0; text-align: right;
-        }
-        .diag-acc-lbl { font-size: 0.6rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
+        .diag-info { min-width: 0; flex: 1; }
+        .diag-topic { font-size: 0.95rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .diag-meta { font-size: 0.75rem; color: var(--text-3); display: flex; gap: 10px; align-items: center; }
+        .error-badge { color: var(--wrong); font-weight: 700; background: var(--wrong-bg); padding: 2px 6px; border-radius: 4px; }
+        
+        .diag-actions { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+        .diag-acc { font-size: 1.2rem; font-weight: 700; text-align: right; }
+        .diag-acc-lbl { font-size: 0.65rem; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 2px; }
         .diag-acc.low { color: var(--wrong); }
         .diag-acc.mid { color: var(--warn); }
-        .diag-acc.high { color: var(--correct); }
+        
+        .btn-prescription {
+            background: var(--surface-3); border: 1px solid var(--border-light); color: var(--text);
+            padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .btn-prescription:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+        /* Modal Prescription */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000;
+            display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg);
+            width: 100%; max-width: 500px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; transform: scale(0.95); transition: transform 0.2s;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-weight: 700; font-size: 1rem; }
+        .modal-close { background: none; border: none; color: var(--text-3); cursor: pointer; font-size: 1.2rem; }
+        .modal-close:hover { color: var(--text); }
+        .modal-body { padding: 20px; overflow-y: auto; flex: 1; font-family: monospace; font-size: 0.85rem; color: var(--text-2); background: var(--surface-2); white-space: pre-wrap; line-height: 1.5; }
+        .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+        .btn-copy {
+            background: var(--accent); color: white; border: none; padding: 10px 16px; border-radius: var(--radius);
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: opacity 0.2s;
+        }
+        .btn-copy:hover { opacity: 0.9; }
 
         /* Empty & Loading */
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-3); }
@@ -110,8 +160,8 @@
 
 <header class="dash-header">
     <div>
-        <div class="dash-title">Dashboard Analítico</div>
-        <div class="dash-subtitle">Sua evolução e diagnóstico de lacunas</div>
+        <div class="dash-title">Análise de Desempenho</div>
+        <div class="dash-subtitle">Métricas diretas baseadas no seu histórico</div>
     </div>
     <a href="./" class="back-link">← Voltar ao Quiz</a>
 </header>
@@ -119,13 +169,13 @@
 <main id="dash-content">
     <div id="dash-loading" class="card" style="text-align: center; padding: 40px;">
         <div class="spinner"></div>
-        <span style="color:var(--text-2);font-size:0.9rem;">Sincronizando banco de questões...</span>
+        <span style="color:var(--text-2);font-size:0.9rem;">Processando dados e cruzando com o banco...</span>
     </div>
 
     <div id="dash-empty" class="card hidden">
         <div class="empty-state">
-            <div class="empty-state-title">Nenhuma questão registrada</div>
-            <div class="empty-state-text">Responda questões no quiz para mapearmos seu desempenho.</div>
+            <div class="empty-state-title">Histórico Vazio</div>
+            <div class="empty-state-text">Responda algumas questões no quiz para gerarmos seus dados.</div>
             <div style="margin-top:16px;">
                 <a href="./" class="back-link" style="padding:10px 20px;">Ir para o Quiz →</a>
             </div>
@@ -135,25 +185,41 @@
     <div id="dash-data" class="hidden">
         
         <div class="card">
-            <div class="card-title">Desempenho Geral</div>
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Visão Global
+            </div>
             <div class="stats-grid">
                 <div class="stat-box">
-                    <div class="stat-val rating" id="stat-rating">0</div>
-                    <div class="stat-lbl">Apex Rating</div>
+                    <div class="stat-val accent" id="stat-total">0</div>
+                    <div class="stat-lbl">Questões Resolvidas</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-val correct" id="stat-accuracy">0%</div>
-                    <div class="stat-lbl">Precisão</div>
+                    <div class="stat-val correct" id="stat-acertos">0%</div>
+                    <div class="stat-lbl">Taxa de Acerto</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-val" id="stat-total">0</div>
-                    <div class="stat-lbl">Questões</div>
+                    <div class="stat-val wrong" id="stat-erros">0%</div>
+                    <div class="stat-lbl">Taxa de Erro</div>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title" style="color: var(--wrong);">Pontos de Atenção (Urgência)</div>
+            <div class="card-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                Curva de Aprendizagem (Evolução por Blocos)
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-3); margin-top:-10px;">Progressão da sua taxa de acerto nas questões respondidas, divididas cronologicamente em 10 blocos.</p>
+            <div class="chart-container" id="learning-curve-chart">
+                </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title" style="color: var(--wrong);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Onde estão suas taxas de erro? (Diagnóstico de Precisão)
+            </div>
             <div class="diag-list" id="diag-list">
                 </div>
         </div>
@@ -161,37 +227,26 @@
     </div>
 </main>
 
+<div class="modal-overlay" id="prescription-modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div class="modal-title">📋 Prescrição de Estudos Markdown</div>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="markdown-content"></div>
+        <div class="modal-footer">
+            <button class="btn-copy" id="btn-copy" onclick="copyMarkdown()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copiar Markdown
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
-const CONFIG = {
-    BASE_RATING: 500, MIN_RATING: 0, MAX_RATING: 3000, K_FACTOR: 20, BLOCK_SIZE: 10,
-    BEGINNER_THRESHOLD: 100, BEGINNER_BONUS: 5, NORMAL_BONUS: 1
-};
-
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv';
-
-// Algoritmo de Rating
-const calculateRating = (historyArray) => {
-    if (!historyArray.length) return CONFIG.BASE_RATING;
-    let rating = CONFIG.BASE_RATING;
-
-    for (let i = 0; i < historyArray.length; i += CONFIG.BLOCK_SIZE) {
-        const block = historyArray.slice(i, i + CONFIG.BLOCK_SIZE);
-        const correctInBlock = block.filter(item => item.correct).length;
-        const p = correctInBlock / block.length;
-        
-        const B = (i + block.length) <= CONFIG.BEGINNER_THRESHOLD ? CONFIG.BEGINNER_BONUS : CONFIG.NORMAL_BONUS;
-        let delta = CONFIG.K_FACTOR * (p - 0.5) * B;
-
-        if (delta > 0) {
-            delta *= Math.max(0.1, (CONFIG.MAX_RATING - rating) / 2500);
-        } else if (rating < CONFIG.BASE_RATING) {
-            delta *= 0.3;
-        }
-
-        rating = Math.max(CONFIG.MIN_RATING, Math.min(CONFIG.MAX_RATING, rating + delta));
-    }
-    return Math.round(rating);
-};
+let globalDiagnosisData = []; // Para armazenar os dados e gerar o markdown
+let currentMarkdownString = "";
 
 document.addEventListener('DOMContentLoaded', () => {
     const historicoRaw = localStorage.getItem('apex_historico');
@@ -207,14 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const historico = JSON.parse(historicoRaw);
 
-    // Baixa a planilha para cruzar com os IDs salvos
     Papa.parse(SHEET_URL, {
         download: true,
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
-            const banco = results.data;
-            processDashboardData(banco, historico);
+            processDashboardData(results.data, historico);
         },
         error: function() {
             loading.innerHTML = '<div style="color:var(--wrong);padding:20px;">Erro ao carregar o banco de dados. Verifique a conexão.</div>';
@@ -226,28 +279,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const topicStats = {};
         let totalQuestions = 0;
         let totalCorrect = 0;
+        let totalErrors = 0;
 
-        // Processa o localStorage cruzando com a planilha
+        // Processa o histórico cronologicamente (presumindo ordem de inserção do objeto)
         Object.entries(historico).forEach(([id, status]) => {
             const questao = banco.find(q => q.id === id);
-            if (!questao) return; // Se a questão não existe mais no banco, ignora
+            if (!questao) return;
 
             const isCorrect = status === 'correta';
-            const topic = questao.tema_especifico || questao.especialidade || 'Geral';
+            
+            // Extrai as áreas conforme a estrutura típica da sua planilha / TSX
+            const grande_area = questao.grande_area || questao.categoria || 'Sem Área';
+            const especialidade = questao.especialidade || 'Geral';
+            const tema = questao.tema_especifico || questao.tema || 'Geral';
+            const competencia = questao.competencia || 'Revisão Geral';
+
+            // Chave única para o mapa
+            const mapKey = `${grande_area}|${especialidade}|${tema}|${competencia}`;
 
             historyArray.push({ correct: isCorrect });
             totalQuestions++;
+            
             if (isCorrect) totalCorrect++;
+            else totalErrors++;
 
-            if (!topicStats[topic]) {
-                topicStats[topic] = { total: 0, correct: 0, errors: 0 };
+            if (!topicStats[mapKey]) {
+                topicStats[mapKey] = { 
+                    grande_area, especialidade, tema, competencia,
+                    total: 0, correct: 0, errors: 0 
+                };
             }
-            topicStats[topic].total++;
-            if (isCorrect) {
-                topicStats[topic].correct++;
-            } else {
-                topicStats[topic].errors++;
-            }
+            
+            topicStats[mapKey].total++;
+            if (isCorrect) topicStats[mapKey].correct++;
+            else topicStats[mapKey].errors++;
         });
 
         if (totalQuestions === 0) {
@@ -256,51 +321,63 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Renderiza Estatísticas Gerais
-        const globalAccuracy = Math.round((totalCorrect / totalQuestions) * 100);
-        const apexRating = calculateRating(historyArray);
+        // 1. Visão Global
+        const accRate = Math.round((totalCorrect / totalQuestions) * 100);
+        const errRate = Math.round((totalErrors / totalQuestions) * 100);
 
-        document.getElementById('stat-rating').textContent = apexRating;
-        document.getElementById('stat-accuracy').textContent = globalAccuracy + '%';
         document.getElementById('stat-total').textContent = totalQuestions;
+        document.getElementById('stat-acertos').textContent = accRate + '%';
+        document.getElementById('stat-erros').textContent = errRate + '%';
 
-        // Calcula Diagnóstico (Ordenado por Urgência)
+        // 2. Curva de Aprendizagem (Divide o histórico em até 10 blocos)
+        renderLearningCurve(historyArray);
+
+        // 3. Diagnóstico de Precisão (Ordena pelos que têm mais erros absolutos + menor precisão)
         const errorNodes = [];
-        Object.entries(topicStats).forEach(([tema, stats]) => {
+        Object.values(topicStats).forEach(stats => {
             if (stats.errors > 0) {
-                const accuracy = stats.correct / stats.total;
-                // Urgência = (Taxa de Erro) x Log10(Tentativas). 
-                // Prioriza tópicos que o usuário erra muito E tenta muito.
-                const urgency = (1 - accuracy) * Math.log10(stats.total + 1) * 100;
-                
+                const accuracy = Math.round((stats.correct / stats.total) * 100);
                 errorNodes.push({
-                    topic: tema,
-                    acc: Math.round(accuracy * 100),
-                    errors: stats.errors,
-                    total: stats.total,
-                    urgency: urgency
+                    ...stats,
+                    acc: accuracy,
+                    urgencyScore: stats.errors + (100 - accuracy) // Peso simples: qtd erros + inverso da precisão
                 });
             }
         });
 
-        errorNodes.sort((a, b) => b.urgency - a.urgency);
-        const topDiagnoses = errorNodes.slice(0, 10);
+        // Ordena por Urgência Descendente
+        errorNodes.sort((a, b) => b.urgencyScore - a.urgencyScore);
+        globalDiagnosisData = errorNodes; // Salva para o Markdown
+
+        const topDiagnoses = errorNodes.slice(0, 5); // Mostra os top 5 piores
         const diagList = document.getElementById('diag-list');
 
         if (topDiagnoses.length === 0) {
-            diagList.innerHTML = '<div style="color:var(--text-3);font-size:0.85rem;text-align:center;padding:20px;">Nenhum erro registrado ainda. Ótimo trabalho!</div>';
+            diagList.innerHTML = '<div style="color:var(--correct);font-size:0.85rem;text-align:center;padding:20px;">Você não possui erros registrados. Excelente!</div>';
         } else {
-            diagList.innerHTML = topDiagnoses.map(t => {
+            diagList.innerHTML = topDiagnoses.map((t, index) => {
                 const accClass = t.acc < 50 ? 'low' : t.acc < 75 ? 'mid' : 'high';
+                const severity = t.acc < 50 ? 'critical' : 'warning';
+                
+                // Apenas o problema #1 (ou os listados) ganha botão de gerar markdown
+                const isTop = index === 0;
+
                 return `
-                    <div class="diag-item">
+                    <div class="diag-item ${severity}">
                         <div class="diag-info">
-                            <div class="diag-topic">${t.topic}</div>
-                            <div class="diag-meta"><strong>${t.errors} erros</strong> em ${t.total} tentativas</div>
+                            <div class="diag-topic">${t.tema}</div>
+                            <div class="diag-meta">
+                                <span class="error-badge">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>
+                                <span>de ${t.total} tentativas</span>
+                                <span>• ${t.competencia}</span>
+                            </div>
                         </div>
-                        <div>
-                            <span class="diag-acc-lbl">Precisão</span>
-                            <div class="diag-acc ${accClass}">${t.acc}%</div>
+                        <div class="diag-actions">
+                            ${isTop ? `<button class="btn-prescription" onclick="openPrescription()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg> Gerar Prescrição</button>` : ''}
+                            <div>
+                                <span class="diag-acc-lbl">Precisão</span>
+                                <div class="diag-acc ${accClass}">${t.acc}%</div>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -310,7 +387,115 @@ document.addEventListener('DOMContentLoaded', () => {
         loading.classList.add('hidden');
         dataPanel.classList.remove('hidden');
     }
+
+    function renderLearningCurve(history) {
+        const container = document.getElementById('learning-curve-chart');
+        const numChunks = 10;
+        const chunkSize = Math.ceil(history.length / numChunks);
+        
+        // Se houver pouquíssimas questões, reduz os blocos
+        const actualChunks = history.length < 10 ? history.length : numChunks;
+        const chunks = [];
+
+        for (let i = 0; i < actualChunks; i++) {
+            const start = i * chunkSize;
+            const end = start + chunkSize;
+            const slice = history.slice(start, end);
+            if (slice.length === 0) break;
+
+            const correct = slice.filter(q => q.correct).length;
+            const acc = Math.round((correct / slice.length) * 100);
+            chunks.push(acc);
+        }
+
+        container.innerHTML = chunks.map((acc, i) => {
+            let colorClass = acc >= 75 ? 'good' : acc >= 50 ? 'mid' : 'bad';
+            let barHeight = Math.max(10, acc); // mínimo 10% de altura visual
+            return `
+                <div class="chart-bar-group">
+                    <div class="chart-tooltip">Bloco ${i+1}: ${acc}%</div>
+                    <div class="chart-bar ${colorClass}" style="height: ${barHeight}%;"></div>
+                    <div class="chart-label">${i+1}</div>
+                </div>
+            `;
+        }).join('');
+    }
 });
+
+// -- Lógica do Modal e Markdown --
+
+function openPrescription() {
+    if (globalDiagnosisData.length === 0) return;
+
+    const main = globalDiagnosisData[0];
+    const others = globalDiagnosisData.slice(1, 4); // Pega os próximos 3
+    
+    // Formata a data atual
+    const hoje = new Date();
+    const dataFormatada = hoje.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    // Constrói o texto do Markdown exato
+    currentMarkdownString = `# 🩺 Prescrição de Estudos — QuestBank
+> Gerada em ${dataFormatada}
+
+---
+
+## 📊 Diagnóstico Principal
+
+**Desempenho:** ${main.acc}% em **${main.tema}** (Meta: 70%)
+**Amostra:** ${main.correct} acertos em ${main.total} questões
+
+---
+
+## 🎯 Foco de Estudo
+
+* **Grande Área:** ${main.grande_area}
+* **Especialidade:** ${main.especialidade}
+* **Tema:** ${main.tema}
+* **Competência (Tipo de questão):** ${main.competencia}
+
+---
+
+## 📝 Recomendações
+
+1. Revisar a teoria de **${main.tema}** com foco em **${main.competencia}**.
+2. Criar um filtro de questões contendo apenas **${main.especialidade}** e **${main.tema}**.
+3. Após a revisão teórica, resolver pelo menos 15–20 questões filtradas para consolidar.
+4. Reavaliar o desempenho no próximo ciclo do Dashboard.
+
+---
+
+## ⚠️ Outros Pontos de Atenção
+
+${others.length > 0 ? others.map((o, i) => `${i+1}. **${o.tema}** (${o.competencia}) — Precisão: ${o.acc}%`).join('\n') : "_Nenhum outro ponto crítico mapeado no momento._"}
+
+---
+
+_Prescrição gerada automaticamente por QuestBank. Use como guia de revisão teórica._`;
+
+    document.getElementById('markdown-content').textContent = currentMarkdownString;
+    document.getElementById('prescription-modal').classList.add('active');
+    
+    // Reseta botão
+    const btn = document.getElementById('btn-copy');
+    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copiar Markdown`;
+    btn.style.background = 'var(--accent)';
+}
+
+function closeModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('prescription-modal').classList.remove('active');
+}
+
+function copyMarkdown() {
+    navigator.clipboard.writeText(currentMarkdownString).then(() => {
+        const btn = document.getElementById('btn-copy');
+        btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado!`;
+        btn.style.background = 'var(--correct)';
+    }).catch(() => {
+        alert("Falha ao copiar. Selecione o texto e copie manualmente.");
+    });
+}
 </script>
 </body>
 </html>
