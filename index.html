@@ -2,9 +2,9 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#000000">
-    <title>Resolução de Questões</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0a">
+    <title>Questões Clínica Médica</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,591 +13,966 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
+        /* ==========================================================================
+           1. VARIÁVEIS DE TEMA E RESETS
+           ========================================================================== */
         :root {
-            --bg-base: #000000;
-            --surface: #121212;
-            --surface-hover: #1e1e1e;
-            --border: #262626;
-            --text-main: #ffffff;
-            --text-muted: #a1a1aa;
+            /* Cores de Fundo */
+            --bg-base: #0a0a0a;          /* Fundo principal mais escuro */
+            --bg-surface: #141414;       /* Fundo de cards e inputs */
+            --bg-surface-hover: #1e1e1e; /* Hover states */
+            --bg-elevated: #1f1f1f;      /* Dropdowns */
             
-            --correct: #22c55e;
-            --correct-bg: rgba(34, 197, 94, 0.1);
-            --wrong: #ef4444;
-            --wrong-bg: rgba(239, 68, 68, 0.1);
+            /* Bordas */
+            --border-color: #27272a;
+            --border-focus: #3f3f46;
             
-            --btn-bg: #ffffff;
-            --btn-text: #000000;
-            --btn-disabled: #333333;
-            --btn-disabled-text: #777777;
+            /* Textos */
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-tertiary: #71717a;
             
+            /* Cores de Marca / Ação */
+            --brand-primary: #dc2626;    /* Vermelho Apex */
+            --brand-primary-hover: #b91c1c;
+            --brand-secondary: #2563eb;  /* Azul (opcional) */
+            
+            /* Feedback */
+            --color-correct: #10b981;
+            --bg-correct: rgba(16, 185, 129, 0.1);
+            --color-wrong: #ef4444;
+            --bg-wrong: rgba(239, 68, 68, 0.1);
+            
+            /* SafeArea para Mobile */
+            --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 20px);
         }
 
-        *, *::before, *::after { 
-            box-sizing: border-box; 
-            margin: 0; 
-            padding: 0; 
-            font-family: 'Atkinson Hyperlegible', sans-serif !important; 
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Atkinson Hyperlegible', sans-serif !important;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background-color: var(--bg-base);
-            color: var(--text-main);
-            max-width: 768px;
-            margin: 0 auto;
-            padding: 24px 24px calc(120px + var(--safe-bottom)) 24px;
-            line-height: 1.6;
+            color: var(--text-primary);
+            line-height: 1.5;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        h1, h2, h3, h4 { color: var(--text-main); font-weight: 700; }
-        h1 { font-size: 2rem; text-align: center; margin-bottom: 40px; }
-        
-        .card { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Formulários e Inputs */
-        .form-group { margin-bottom: 24px; }
-        label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-
-        select, input[type="number"] {
+        /* Container Limitador (Mobile First / Tablet max) */
+        .app-container {
             width: 100%;
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 1rem;
-            background-color: var(--surface);
-            color: var(--text-main);
-            transition: border-color 0.2s;
-            appearance: none;
-            cursor: pointer;
-        }
-        select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a1a1aa' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            padding-right: 48px;
-        }
-        select:focus, input:focus { outline: none; border-color: var(--text-main); }
-
-        /* Status da Questão (Pílulas do Cabeçalho) */
-        .header-bar {
+            max-width: 600px; /* Layout focado em mobile/tablet vertical */
+            position: relative;
+            min-height: 100vh;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 32px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 16px;
+            flex-direction: column;
+            background-color: var(--bg-base);
         }
-        
-        .pill-badge {
-            background-color: var(--surface);
-            border: 1px solid var(--border);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+
+        /* Oculta elementos genéricos */
+        .hidden { display: none !important; }
+
+        /* Ícones SVG Gerais */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* ==========================================================================
+           2. VIEW 1: SETUP (DASHBOARD INICIAL)
+           ========================================================================== */
+        .view-setup {
+            padding: calc(24px + var(--safe-top)) 24px calc(100px + var(--safe-bottom)) 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* Logo e Header */
+        .setup-header { text-align: center; margin-bottom: 8px; }
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
             font-weight: 700;
-            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 24px;
         }
-
-        #enunciado { font-size: 1.15rem; font-weight: 400; margin-bottom: 32px; line-height: 1.7; }
-
-        /* Alternativas */
-        .option-label {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            cursor: pointer;
-            background-color: var(--surface);
-            transition: all 0.2s ease;
-        }
-
-        .option-label:hover { background-color: var(--surface-hover); }
-        .option-label.selected { border-color: var(--text-main); }
-        .option-label input { display: none; }
+        .logo-icon { color: var(--brand-primary); }
         
-        .option-bubble {
+        .greeting { font-size: 2.2rem; font-weight: 700; letter-spacing: -0.5px; }
+        .greeting span { color: var(--brand-primary); }
+        .subtitle { color: var(--text-secondary); font-size: 0.95rem; margin-top: 4px; }
+
+        /* Segmented Control (Inéditas / Erros) */
+        .segmented-control {
+            display: flex;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+        .segment-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
-            border: 1px solid var(--text-muted);
-            border-radius: 50%;
-            margin-right: 16px;
-            font-weight: 700;
-            color: var(--text-muted);
-            flex-shrink: 0;
+            gap: 8px;
             transition: all 0.2s;
         }
+        .segment-btn.active {
+            background-color: var(--bg-elevated);
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
-        .option-label.selected .option-bubble { border-color: var(--text-main); color: var(--text-main); }
-        .option-text { font-size: 1.05rem; flex: 1; }
-
-        /* Cores de Feedback */
-        .option-label.correct-answer { border-color: var(--correct); background-color: var(--correct-bg); }
-        .option-label.correct-answer .option-bubble { border-color: var(--correct); background-color: var(--correct); color: var(--bg-base); }
-        
-        .option-label.wrong-answer { border-color: var(--wrong); background-color: var(--wrong-bg); opacity: 0.7; }
-        .option-label.wrong-answer .option-bubble { border-color: var(--wrong); background-color: var(--wrong); color: var(--text-main); }
-
-        /* Barra Inferior (Bottom Action Bar) */
-        .bottom-action-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(to top, var(--bg-base) 70%, transparent);
-            padding: 24px 0 calc(24px + var(--safe-bottom)) 0;
+        /* Agrupamento de Filtros (Card) */
+        .filter-card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
             display: flex;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 100;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .btn-main {
-            background-color: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
-            padding: 16px 40px;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            pointer-events: auto;
-            width: 90%;
-            max-width: 400px;
-            transition: opacity 0.2s, transform 0.1s;
-        }
-        
-        .btn-main:hover { opacity: 0.9; }
-        .btn-main:active { transform: scale(0.98); }
-        .btn-main:disabled { background-color: var(--btn-disabled); color: var(--btn-disabled-text); cursor: not-allowed; }
-
-        /* Seção de Feedback da Questão */
-        #feedback-section {
-            margin-top: 32px;
-            padding: 24px;
+        /* Search Input */
+        .search-wrapper { position: relative; }
+        .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); }
+        .search-input {
+            width: 100%;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
-            background-color: var(--surface);
-            border: 1px solid var(--border);
+            padding: 16px 16px 16px 44px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
         }
-        #resultado-texto { font-size: 1.3rem; margin-bottom: 12px; }
-        .comment-text { color: var(--text-muted); font-size: 1rem; line-height: 1.6; }
+        .search-input:focus { border-color: var(--text-secondary); }
+        .search-input::placeholder { color: var(--text-tertiary); }
+        .search-btn-plus {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.1); border: none; border-radius: 6px;
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            color: var(--text-secondary); cursor: pointer;
+        }
 
-        /* Dashboard Otimizado */
-        .dash-header { text-align: center; margin-bottom: 32px; }
-        .dash-header p { color: var(--text-muted); font-size: 1.1rem; }
+        /* Custom Dropdown UI */
+        .form-group label {
+            display: block; font-size: 0.8rem; font-weight: 700;
+            color: var(--text-secondary); margin-bottom: 8px;
+        }
+        .custom-select-wrapper { position: relative; user-select: none; }
+        .custom-select-trigger {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: var(--bg-base); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 16px; color: var(--text-primary);
+            font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+        }
+        .custom-select-trigger.open { border-color: var(--text-secondary); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+        .custom-options {
+            position: absolute; top: 100%; left: 0; right: 0;
+            background-color: var(--bg-elevated); border: 1px solid var(--border-color);
+            border-top: none; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;
+            max-height: 250px; overflow-y: auto; z-index: 10;
+            display: none; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .custom-select-wrapper.open .custom-options { display: block; }
+        .custom-option {
+            padding: 14px 16px; cursor: pointer; font-size: 0.95rem;
+            color: var(--text-secondary); transition: background 0.2s;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .custom-option:last-child { border-bottom: none; }
+        .custom-option:hover { background-color: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .custom-option.selected { color: var(--text-primary); font-weight: 700; background-color: rgba(255,255,255,0.02); }
+
+        /* Accordions */
+        .accordion {
+            background-color: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 16px; display: flex; align-items: center;
+            justify-content: space-between; color: var(--text-secondary); font-size: 0.95rem;
+            cursor: pointer; margin-bottom: 12px;
+        }
+        .accordion-content { display: flex; align-items: center; gap: 12px; }
+        .badge-red { background-color: var(--brand-primary); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; }
+
+        /* Botões de Ação Setup */
+        .btn-clear {
+            width: 100%; background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-secondary); padding: 16px; border-radius: 12px;
+            font-size: 1rem; font-weight: 700; display: flex; justify-content: center;
+            align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+        }
+        .btn-clear:hover { background: rgba(255,255,255,0.05); }
         
-        .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
-        .dash-metric { background: var(--surface); padding: 20px 10px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-        .dash-val { font-size: 2rem; font-weight: 700; margin-bottom: 4px; line-height: 1; }
-        .dash-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;}
+        .btn-primary {
+            width: 100%; background-color: var(--brand-primary); color: #fff;
+            border: none; padding: 16px; border-radius: 12px; font-size: 1.05rem;
+            font-weight: 700; display: flex; justify-content: center; align-items: center;
+            gap: 12px; cursor: pointer; transition: all 0.2s; margin-top: 12px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        .btn-primary:hover { background-color: var(--brand-primary-hover); transform: translateY(-2px); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:disabled { background-color: var(--border-focus); color: var(--text-tertiary); cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* Análise Direcionada (Por Tema) */
-        .analysis-section { margin-top: 40px; border-top: 1px solid var(--border); padding-top: 32px; }
-        .analysis-title { font-size: 1.3rem; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+        /* Barra de Navegação Inferior */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 600px; background-color: var(--bg-surface);
+            border-top: 1px solid var(--border-color); display: flex; justify-content: space-around;
+            padding: 12px 0 calc(12px + var(--safe-bottom)) 0; z-index: 50;
+        }
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            color: var(--text-tertiary); cursor: pointer; transition: color 0.2s;
+        }
+        .nav-item.active { color: var(--brand-primary); }
+
+        /* ==========================================================================
+           3. VIEW 2: SIMULADO (QUIZ)
+           ========================================================================== */
+        .view-quiz {
+            display: flex; flex-direction: column; min-height: 100vh;
+            padding-bottom: calc(100px + var(--safe-bottom));
+            animation: slideInRight 0.3s ease;
+        }
         
-        .theme-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
-        .theme-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 700; }
-        .theme-name { color: var(--text-main); }
-        .theme-stats { color: var(--text-muted); font-size: 0.9rem; }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Top Bar Quiz */
+        .quiz-topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: calc(16px + var(--safe-top)) 24px 16px 24px;
+            border-bottom: 1px solid var(--border-color); background-color: var(--bg-base);
+            position: sticky; top: 0; z-index: 20;
+        }
+        .quiz-title { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 12px; }
+        .quiz-timer { background-color: var(--bg-surface); padding: 4px 12px; border-radius: 16px; font-size: 0.85rem; color: var(--text-secondary); font-family: monospace !important; }
+        .btn-close { background: none; border: none; color: var(--brand-primary); cursor: pointer; display: flex; align-items: center; }
+
+        /* Quiz Header (Progress & Actions) */
+        .quiz-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 24px;
+        }
+        .quiz-progress {
+            background-color: var(--bg-surface); border: 1px solid var(--border-color);
+            padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 700;
+        }
+        .quiz-actions {
+            display: flex; gap: 8px; background-color: var(--bg-surface);
+            border: 1px solid var(--border-color); border-radius: 20px; padding: 4px;
+        }
+        .action-btn {
+            background: none; border: none; color: var(--text-secondary);
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border-radius: 50%;
+        }
+        .action-btn:hover { background-color: var(--bg-elevated); color: var(--text-primary); }
+
+        /* Tags da Questão */
+        .quiz-tags {
+            display: flex; gap: 12px; padding: 0 24px; margin-bottom: 24px;
+            align-items: center; flex-wrap: wrap;
+        }
+        .quiz-tag {
+            display: flex; align-items: center; gap: 6px; font-size: 0.8rem;
+            color: var(--text-secondary); font-weight: 700; text-transform: uppercase;
+        }
+        .quiz-tag-dot { width: 4px; height: 4px; background-color: var(--border-focus); border-radius: 50%; }
+
+        /* Enunciado */
+        .question-text {
+            padding: 0 24px; font-size: 1.2rem; line-height: 1.7;
+            font-weight: 400; margin-bottom: 32px; color: var(--text-primary);
+        }
+
+        /* Alternativas */
+        .options-container { padding: 0 24px; display: flex; flex-direction: column; gap: 16px; }
+        .option-card {
+            background-color: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 20px; display: flex; align-items: flex-start;
+            gap: 16px; cursor: pointer; transition: all 0.2s;
+        }
+        .option-card:hover { border-color: var(--border-focus); background-color: var(--bg-surface-hover); }
+        .option-card.selected { border-color: var(--text-primary); }
         
-        .theme-progress-bg { width: 100%; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-        .theme-progress-fill { height: 100%; border-radius: 3px; transition: width 1s ease-out; }
+        .option-letter {
+            width: 32px; height: 32px; border: 1px solid var(--text-secondary);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: var(--text-secondary); flex-shrink: 0; font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .option-card.selected .option-letter { border-color: var(--text-primary); color: var(--text-primary); }
+        
+        .option-text { font-size: 1.05rem; line-height: 1.5; color: var(--text-secondary); }
+        .option-card.selected .option-text { color: var(--text-primary); }
 
-        .error-list { margin-top: 16px; }
-        .error-item { border-left: 3px solid var(--wrong); padding-left: 12px; margin-bottom: 12px; font-size: 0.9rem; }
-        .error-id { color: var(--text-muted); font-family: monospace; }
+        /* Feedback States */
+        .option-card.correct { border-color: var(--color-correct); background-color: var(--bg-correct); }
+        .option-card.correct .option-letter { border-color: var(--color-correct); background-color: var(--color-correct); color: var(--bg-base); }
+        .option-card.correct .option-text { color: var(--text-primary); }
+        
+        .option-card.wrong { border-color: var(--color-wrong); background-color: var(--bg-wrong); opacity: 0.7; pointer-events: none;}
+        .option-card.wrong .option-letter { border-color: var(--color-wrong); background-color: var(--color-wrong); color: var(--text-primary); }
 
-        .hidden { display: none !important; }
-        #loading { text-align: center; color: var(--text-muted); font-weight: 700; font-size: 1.2rem; margin-top: 60px; }
+        /* Floating Responder Button */
+        .floating-action {
+            position: fixed; bottom: var(--safe-bottom); left: 50%; transform: translateX(-50%);
+            width: 100%; max-width: 600px; padding: 24px;
+            background: linear-gradient(to top, var(--bg-base) 60%, transparent);
+            pointer-events: none; z-index: 40; display: flex; justify-content: center;
+        }
+        .btn-floating {
+            pointer-events: auto; background-color: var(--text-secondary); color: var(--bg-base);
+            border: none; padding: 16px 48px; border-radius: 30px; font-size: 1.1rem;
+            font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .btn-floating.active { background-color: var(--text-primary); }
+        .btn-floating:hover { transform: translateY(-2px); }
+        .btn-floating:active { transform: translateY(0); }
+
+        /* Feedback Comentário */
+        .comment-section {
+            margin: 24px; padding: 24px; background-color: var(--bg-surface);
+            border: 1px solid var(--border-color); border-radius: 16px; display: none;
+        }
+        .comment-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .comment-title.correct { color: var(--color-correct); }
+        .comment-title.wrong { color: var(--color-wrong); }
+        .comment-body { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+
+        /* ==========================================================================
+           4. VIEW 3: DASHBOARD FINAL (ANALYSIS)
+           ========================================================================== */
+        .view-end {
+            padding: calc(32px + var(--safe-top)) 24px calc(100px + var(--safe-bottom)) 24px;
+            display: flex; flex-direction: column; gap: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .end-header { text-align: center; }
+        .end-title { font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+        .end-subtitle { color: var(--text-secondary); }
+
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .metric-card {
+            background-color: var(--bg-surface); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 24px; text-align: center;
+        }
+        .metric-val { font-size: 2.5rem; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+        .metric-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+        .weak-points-title { font-size: 1.2rem; margin-top: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        .error-list { display: flex; flex-direction: column; gap: 12px; }
+        .error-item {
+            background-color: var(--bg-surface); border-left: 4px solid var(--color-wrong);
+            padding: 16px; border-radius: 8px;
+        }
+        .error-theme { font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+        .error-id { font-size: 0.85rem; color: var(--text-secondary); font-family: monospace; }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: var(--bg-base); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid var(--border-color);
+            border-top-color: var(--brand-primary); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <main id="app-container">
+    <div class="app-container">
         
-        <div id="setup-screen" class="card">
-            <h1>Configuração</h1>
-            
-            <div id="loading">Sincronizando banco...</div>
-            
-            <div id="setup-form" class="hidden">
+        <div id="loading" class="loading-overlay">
+            <div class="spinner"></div>
+            <p style="color: var(--text-secondary); font-weight: 700;">Sincronizando banco de questões...</p>
+        </div>
+
+        <div id="view-setup" class="view-setup hidden">
+            <div class="setup-header">
+                <div class="logo-container">
+                    <svg class="icon logo-icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" fill="currentColor"/><path d="M12 8l-6 14h12L12 8z" fill="#0a0a0a"/></svg>
+                    Apex Premium
+                </div>
+                <h1 class="greeting">E aí, <span>Patrick</span>?</h1>
+                <p class="subtitle">Metade do dia já foi. Como estão as metas?</p>
+            </div>
+
+            <div class="segmented-control">
+                <button class="segment-btn active" onclick="App.setMode('ineditas', this)">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Inéditas
+                </button>
+                <button class="segment-btn" onclick="App.setMode('erradas', this)">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    Meus Erros
+                </button>
+                <button class="segment-btn hidden" id="btn-todas" onclick="App.setMode('todas', this)">Todas</button>
+            </div>
+
+            <div class="filter-card">
+                <div class="search-wrapper">
+                    <svg class="icon search-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input type="text" class="search-input" placeholder="Digite um trecho da questão ou tema...">
+                    <button class="search-btn-plus"><svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                </div>
+
                 <div class="form-group">
-                    <label>Especialidade</label>
-                    <select id="filtro-especialidade" onchange="App.onEspecialidadeChange()"></select>
+                    <label>Disciplina (Grande Área)</label>
+                    <div class="custom-select-wrapper" id="dropdown-esp">
+                        <div class="custom-select-trigger" onclick="App.toggleDropdown('dropdown-esp')">
+                            <span id="label-esp">Todas as disciplinas</span>
+                            <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="custom-options" id="options-esp"></div>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label>Tema Específico</label>
-                    <select id="filtro-tema" onchange="App.atualizarDisponiveis()"></select>
+                    <div class="custom-select-wrapper" id="dropdown-tema">
+                        <div class="custom-select-trigger" onclick="App.toggleDropdown('dropdown-tema')">
+                            <span id="label-tema">Todos os temas</span>
+                            <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div class="custom-options" id="options-tema"></div>
+                    </div>
                 </div>
-
+                
                 <div class="form-group">
-                    <label>Filtro de Histórico</label>
-                    <select id="modo-filtro" onchange="App.atualizarDisponiveis()">
-                        <option value="todas">Todas as questões</option>
-                        <option value="ineditas">Apenas Inéditas</option>
-                        <option value="erradas">Apenas Erradas</option>
-                    </select>
+                    <label>Quantidade de Questões (Simulado)</label>
+                    <input type="number" id="input-qtd" value="10" min="1" max="100" style="background-color: var(--bg-base); border: 1px solid var(--border-color); border-radius: 12px; padding: 16px; color: var(--text-primary); width: 100%; font-size: 1rem; outline: none;">
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label>Quantidade de Questões</label>
-                    <input type="number" id="qtd-questoes" value="10" min="1" oninput="App.validarInput()">
+            <div>
+                <div class="accordion">
+                    <div class="accordion-content">
+                        <svg class="icon" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg> Filtros avançados
+                    </div>
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
+                <div class="accordion">
+                    <div class="accordion-content">
+                        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Histórico de Provas
+                    </div>
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+                <div class="accordion">
+                    <div class="accordion-content">
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Meus Simulados
+                        <span class="badge-red">1</span>
+                    </div>
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
+            </div>
+
+            <div>
+                <button class="btn-clear" onclick="App.limparFiltros()">
+                    <svg class="icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    Limpar filtros
+                </button>
+                <button class="btn-primary" id="btn-iniciar" onclick="App.iniciarSessao()">
+                    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span id="btn-iniciar-text">Calculando...</span>
+                </button>
+            </div>
+
+            <div class="bottom-nav">
+                <div class="nav-item active"><svg class="icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg></div>
+                <div class="nav-item"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
             </div>
         </div>
 
-        <div id="quiz-screen" class="card hidden">
-            <div class="header-bar">
-                <div class="pill-badge" id="progress-text">01 / 10</div>
-                <div class="pill-badge">ID: <span id="question-id"></span></div>
-            </div>
+        <div id="view-quiz" class="view-quiz hidden">
             
-            <h3 id="enunciado"></h3>
-            <div id="opcoes-container"></div>
+            <div class="quiz-topbar">
+                <div class="quiz-title">Simulado <span class="quiz-timer" id="timer-display">00:00</span></div>
+                <button class="btn-close" onclick="location.reload()"><svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
 
-            <div id="feedback-section" class="hidden">
-                <h4 id="resultado-texto"></h4>
-                <div class="comment-text">
-                    <strong style="color: var(--text-main);">Comentário:</strong> <span id="comentario-texto"></span>
+            <div class="quiz-header">
+                <div class="quiz-progress" id="quiz-progress-text">01 / 10</div>
+                <div class="quiz-actions">
+                    <button class="action-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+                    <button class="action-btn"><svg class="icon" style="width:16px;height:16px" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></button>
                 </div>
             </div>
+
+            <div class="quiz-tags" id="quiz-tags">
+                </div>
+
+            <div class="question-text" id="question-text"></div>
+
+            <div class="options-container" id="options-container">
+                </div>
+
+            <div class="comment-section" id="comment-section">
+                <div class="comment-title" id="comment-title"><svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Resposta Correta</div>
+                <div class="comment-body" id="comment-body"></div>
+            </div>
+
+            <div class="floating-action">
+                <button class="btn-floating" id="btn-quiz-action" onclick="App.handleQuizAction()">Responder</button>
+            </div>
+
         </div>
 
-        <div id="end-screen" class="card hidden">
-            <div class="dash-header">
-                <h2>Sessão Concluída</h2>
-                <p id="dash-feedback-msg">Calculando desempenho...</p>
-            </div>
+        <div id="view-end" class="view-end hidden">
             
-            <div class="dash-grid">
-                <div class="dash-metric">
-                    <div class="dash-val" id="dash-pct">0%</div>
-                    <div class="dash-label">Precisão</div>
+            <div class="end-header">
+                <h1 class="end-title">Sessão Finalizada</h1>
+                <p class="end-subtitle" id="end-subtitle">Ótimo trabalho. Confira seu desempenho.</p>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-val" id="res-pct" style="color: var(--color-correct)">0%</div>
+                    <div class="metric-label">Precisão</div>
                 </div>
-                <div class="dash-metric">
-                    <div class="dash-val" id="dash-acertos">0</div>
-                    <div class="dash-label">Acertos de <span id="dash-total">0</span></div>
+                <div class="metric-card">
+                    <div class="metric-val" id="res-acertos">0</div>
+                    <div class="metric-label">Acertos de <span id="res-total">0</span></div>
                 </div>
-                <div class="dash-metric">
-                    <div class="dash-val" id="dash-tempo">0s</div>
-                    <div class="dash-label">Tempo/Q.</div>
+                <div class="metric-card" style="grid-column: 1 / -1;">
+                    <div class="metric-val" id="res-tempo" style="font-size: 2rem;">00:00</div>
+                    <div class="metric-label">Tempo Total</div>
                 </div>
             </div>
 
-            <div class="analysis-section" id="targeted-analysis">
-                <div class="analysis-title">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                    Desempenho por Tema
-                </div>
-                <div id="themes-container"></div>
+            <div id="erros-container" class="hidden">
+                <h3 class="weak-points-title">Gabarito das Incorretas</h3>
+                <div class="error-list" id="error-list"></div>
             </div>
 
-            <div class="analysis-section hidden" id="weak-points">
-                <div class="analysis-title" style="color: var(--wrong);">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    Gabarito dos Erros
-                </div>
-                <div id="error-list" class="error-list"></div>
-            </div>
+            <button class="btn-primary" style="margin-top: 24px;" onclick="location.reload()">
+                Nova Sessão
+            </button>
+            
         </div>
-    </main>
 
-    <div class="bottom-action-bar">
-        <button id="btn-action" class="btn-main hidden" onclick="App.handleAction()"></button>
     </div>
 
     <script>
         const App = {
             url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
-            banco: [],
-            fila: [],
-            indice: 0,
-            historico: JSON.parse(localStorage.getItem('apex_historico')) || {},
-            estado: 'SETUP', 
-            sessao: { respostas: [], startTime: 0, endTime: 0 },
-            elementos: {},
+            db: [],
+            history: JSON.parse(localStorage.getItem('apex_history')) || {},
+            
+            // Filters State
+            state: {
+                mode: 'ineditas', // ineditas, erradas, todas
+                esp: 'todas',
+                tema: 'todos',
+                qtdDisponivel: 0
+            },
 
-            init() {
-                this.mapearElementos();
+            // Session State
+            session: {
+                questions: [],
+                currentIndex: 0,
+                answered: false,
+                startTime: null,
+                timerInterval: null,
+                timeElapsed: 0,
+                stats: { correct: 0, wrong: [] }
+            },
+
+            async init() {
+                // Fetch & Parse CSV
                 Papa.parse(this.url, {
                     download: true, header: true, skipEmptyLines: true,
                     complete: (results) => {
-                        this.banco = results.data.filter(q => q.id && q.enunciado);
-                        this.elementos.loading.classList.add('hidden');
-                        this.elementos.setupForm.classList.remove('hidden');
-                        this.elementos.btnAction.classList.remove('hidden');
-                        this.popularFiltros();
+                        // Limpa lixo do CSV
+                        this.db = results.data.filter(q => q.id && q.enunciado);
+                        
+                        document.getElementById('loading').classList.add('hidden');
+                        document.getElementById('view-setup').classList.remove('hidden');
+                        
+                        this.buildFilterOptions();
+                        this.updateFilterCount();
                     },
-                    error: () => this.elementos.loading.innerText = "Erro ao conectar com a planilha."
+                    error: () => alert("Erro crítico de conexão com o banco de questões.")
                 });
+
+                // Global Click Listener para fechar dropdowns
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.custom-select-wrapper')) {
+                        document.querySelectorAll('.custom-select-wrapper.open').forEach(el => {
+                            el.classList.remove('open');
+                        });
+                    }
+                });
+
+                // Listeners de Input
+                document.getElementById('input-qtd').addEventListener('input', () => this.updateFilterCount());
             },
 
-            mapearElementos() {
-                const ids = ['setup-screen', 'quiz-screen', 'end-screen', 'setup-form', 'loading', 
-                             'filtro-especialidade', 'filtro-tema', 'modo-filtro', 'qtd-questoes',
-                             'progress-text', 'question-id', 'enunciado', 'opcoes-container',
-                             'feedback-section', 'resultado-texto', 'comentario-texto', 'btn-action'];
-                ids.forEach(id => {
-                    const camel = id.replace(/-([a-z])/g, g => g[1].toUpperCase());
-                    this.elementos[camel] = document.getElementById(id);
-                });
+            // ==========================================
+            // SETUP DASHBOARD LOGIC
+            // ==========================================
+            
+            setMode(mode, btnElement) {
+                this.state.mode = mode;
+                document.querySelectorAll('.segment-btn').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+                this.updateFilterCount();
             },
 
-            popularFiltros() {
-                const especialidades = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
-                this.elementos.filtroEspecialidade.innerHTML = `<option value="todas">Todas Especialidades</option>`;
-                especialidades.forEach(esp => {
-                    this.elementos.filtroEspecialidade.innerHTML += `<option value="${esp}">${esp}</option>`;
-                });
-                this.onEspecialidadeChange();
-            },
-
-            onEspecialidadeChange() {
-                const esp = this.elementos.filtroEspecialidade.value;
-                const filtered = esp === 'todas' ? this.banco : this.banco.filter(q => q.especialidade === esp);
-                const temas = [...new Set(filtered.map(q => q.tema_especifico).filter(Boolean))].sort();
+            limparFiltros() {
+                this.state.esp = 'todas';
+                this.state.tema = 'todos';
+                document.getElementById('label-esp').innerText = 'Todas as disciplinas';
+                document.getElementById('label-tema').innerText = 'Todos os temas';
                 
-                this.elementos.filtroTema.innerHTML = `<option value="todos">Todos os Temas</option>`;
-                temas.forEach(tema => {
-                    this.elementos.filtroTema.innerHTML += `<option value="${tema}">${tema}</option>`;
+                // Show 'Todas' button temporarily if cleared
+                document.getElementById('btn-todas').classList.remove('hidden');
+                this.setMode('todas', document.getElementById('btn-todas'));
+                
+                this.buildFilterOptions();
+            },
+
+            toggleDropdown(id) {
+                const wrapper = document.getElementById(id);
+                const isOpen = wrapper.classList.contains('open');
+                // close all others
+                document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
+                if (!isOpen) wrapper.classList.add('open');
+            },
+
+            buildFilterOptions() {
+                // Especialidades (Disciplinas)
+                const espSet = [...new Set(this.db.map(q => q.especialidade).filter(Boolean))].sort();
+                const optEsp = document.getElementById('options-esp');
+                optEsp.innerHTML = `<div class="custom-option ${this.state.esp === 'todas' ? 'selected' : ''}" onclick="App.selectOption('esp', 'todas', 'Todas as disciplinas')">Todas as disciplinas</div>`;
+                
+                espSet.forEach(e => {
+                    optEsp.innerHTML += `<div class="custom-option ${this.state.esp === e ? 'selected' : ''}" onclick="App.selectOption('esp', '${e}', '${e}')">${e}</div>`;
                 });
-                this.atualizarDisponiveis();
+
+                // Temas baseados na especialidade
+                let filtered = this.state.esp === 'todas' ? this.db : this.db.filter(q => q.especialidade === this.state.esp);
+                const temaSet = [...new Set(filtered.map(q => q.tema_especifico).filter(Boolean))].sort();
+                const optTema = document.getElementById('options-tema');
+                optTema.innerHTML = `<div class="custom-option ${this.state.tema === 'todos' ? 'selected' : ''}" onclick="App.selectOption('tema', 'todos', 'Todos os temas')">Todos os temas</div>`;
+                
+                temaSet.forEach(t => {
+                    optTema.innerHTML += `<div class="custom-option ${this.state.tema === t ? 'selected' : ''}" onclick="App.selectOption('tema', '${t}', '${t}')">${t}</div>`;
+                });
             },
 
-            atualizarDisponiveis() {
-                const validas = this.filtrarQuestoes();
-                const btn = this.elementos.btnAction;
-                const input = this.elementos.qtdQuestoes;
-
-                if (validas.length === 0) {
-                    btn.innerText = '0 Questões Encontradas';
-                    btn.disabled = true;
-                } else {
-                    input.max = validas.length;
-                    if (parseInt(input.value) > validas.length) input.value = validas.length;
-                    btn.innerText = `Iniciar Sessão (${input.value})`;
-                    btn.disabled = false;
+            selectOption(type, value, label) {
+                if (type === 'esp') {
+                    this.state.esp = value;
+                    this.state.tema = 'todos'; // reset tema
+                    document.getElementById('label-esp').innerText = label;
+                    document.getElementById('label-tema').innerText = 'Todos os temas';
+                    this.buildFilterOptions();
+                } else if (type === 'tema') {
+                    this.state.tema = value;
+                    document.getElementById('label-tema').innerText = label;
+                    this.buildFilterOptions(); // Re-render to show selected state
                 }
+                document.querySelectorAll('.custom-select-wrapper').forEach(el => el.classList.remove('open'));
+                this.updateFilterCount();
             },
 
-            validarInput() { this.atualizarDisponiveis(); },
-
-            filtrarQuestoes() {
-                const esp = this.elementos.filtroEspecialidade.value;
-                const tema = this.elementos.filtroTema.value;
-                const modo = this.elementos.modoFiltro.value;
-
-                return this.banco.filter(q => {
-                    if (esp !== 'todas' && q.especialidade !== esp) return false;
-                    if (tema !== 'todos' && q.tema_especifico !== tema) return false;
-                    if (modo === 'ineditas' && this.historico[q.id]) return false;
-                    if (modo === 'erradas' && this.historico[q.id] !== 'errada') return false;
+            getFilteredQuestions() {
+                return this.db.filter(q => {
+                    // Categoria
+                    if (this.state.esp !== 'todas' && q.especialidade !== this.state.esp) return false;
+                    if (this.state.tema !== 'todos' && q.tema_especifico !== this.state.tema) return false;
+                    
+                    // Histórico
+                    if (this.state.mode === 'ineditas' && this.history[q.id]) return false;
+                    if (this.state.mode === 'erradas' && this.history[q.id] !== 'wrong') return false;
+                    
                     return true;
                 });
             },
 
-            handleAction() {
-                switch(this.estado) {
-                    case 'SETUP': this.iniciarSessao(); break;
-                    case 'RESPONDENDO': this.confirmarResposta(); break;
-                    case 'FEEDBACK': this.proximaQuestao(); break;
-                    case 'FIM': location.reload(); break;
+            updateFilterCount() {
+                const validQs = this.getFilteredQuestions();
+                this.state.qtdDisponivel = validQs.length;
+                
+                const btn = document.getElementById('btn-iniciar');
+                const btnText = document.getElementById('btn-iniciar-text');
+                const input = document.getElementById('input-qtd');
+
+                if (this.state.qtdDisponivel === 0) {
+                    btnText.innerText = '0 questões encontradas';
+                    btn.disabled = true;
+                } else {
+                    let desired = parseInt(input.value) || 10;
+                    if (desired > this.state.qtdDisponivel) {
+                        desired = this.state.qtdDisponivel;
+                        input.value = desired;
+                    }
+                    btnText.innerText = `Iniciar com ${desired} questões`;
+                    btn.disabled = false;
                 }
             },
 
+            // ==========================================
+            // QUIZ LOGIC
+            // ==========================================
+            
             iniciarSessao() {
-                const validas = this.filtrarQuestoes();
-                if (!validas.length) return;
+                let validQs = this.getFilteredQuestions();
+                if (validQs.length === 0) return;
 
-                const qtd = parseInt(this.elementos.qtdQuestoes.value);
-                this.fila = validas.sort(() => Math.random() - 0.5).slice(0, qtd);
-                this.indice = 0;
-                this.sessao = { respostas: [], startTime: Date.now(), endTime: null };
+                const qtd = parseInt(document.getElementById('input-qtd').value);
+                
+                // Shuffle & Slice
+                this.session.questions = validQs.sort(() => Math.random() - 0.5).slice(0, qtd);
+                this.session.currentIndex = 0;
+                this.session.stats = { correct: 0, wrong: [] };
+                this.session.timeElapsed = 0;
+                
+                document.getElementById('view-setup').classList.add('hidden');
+                document.getElementById('view-quiz').classList.remove('hidden');
 
-                this.elementos.setupScreen.classList.add('hidden');
-                this.elementos.quizScreen.classList.remove('hidden');
-                this.carregarQuestao();
+                this.startTimer();
+                this.renderQuestion();
             },
 
-            carregarQuestao() {
-                this.estado = 'RESPONDENDO';
-                const q = this.fila[this.indice];
+            startTimer() {
+                this.session.startTime = Date.now();
+                this.session.timerInterval = setInterval(() => {
+                    this.session.timeElapsed++;
+                    const m = String(Math.floor(this.session.timeElapsed / 60)).padStart(2, '0');
+                    const s = String(this.session.timeElapsed % 60).padStart(2, '0');
+                    document.getElementById('timer-display').innerText = `${m}:${s}`;
+                }, 1000);
+            },
 
-                const numAtual = String(this.indice + 1).padStart(2, '0');
-                const numTotal = String(this.fila.length).padStart(2, '0');
-                this.elementos.progressText.innerText = `${numAtual} / ${numTotal}`;
-                this.elementos.questionId.innerText = q.id;
-                this.elementos.enunciado.innerText = q.enunciado;
+            renderQuestion() {
+                this.session.answered = false;
+                const q = this.session.questions[this.session.currentIndex];
+                const total = this.session.questions.length;
+                const currentStr = String(this.session.currentIndex + 1).padStart(2, '0');
+                const totalStr = String(total).padStart(2, '0');
 
-                const fragment = document.createDocumentFragment();
+                // Header
+                document.getElementById('quiz-progress-text').innerText = `${currentStr} / ${totalStr}`;
+                
+                // Tags
+                const tagsContainer = document.getElementById('quiz-tags');
+                tagsContainer.innerHTML = '';
+                const tag1 = q.especialidade || 'Geral';
+                const tag2 = q.id;
+                tagsContainer.innerHTML = `
+                    <div class="quiz-tag"><svg class="icon" style="width:14px;height:14px" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> ${tag1}</div>
+                    <div class="quiz-tag-dot"></div>
+                    <div class="quiz-tag">ID: ${tag2}</div>
+                `;
+
+                // Text
+                document.getElementById('question-text').innerText = q.enunciado;
+
+                // Options
+                const optContainer = document.getElementById('options-container');
+                optContainer.innerHTML = '';
+                
                 ['a', 'b', 'c', 'd', 'e'].forEach(letra => {
                     if (q[letra] && q[letra].trim()) {
-                        const label = document.createElement('label');
-                        label.className = 'option-label';
-                        label.onclick = () => this.selecionarOpcao(label);
+                        const div = document.createElement('div');
+                        div.className = 'option-card';
+                        div.dataset.value = letra;
+                        div.onclick = () => this.selectAnswerOption(div);
                         
-                        label.innerHTML = `
-                            <input type="radio" name="opcao" value="${letra}">
-                            <div class="option-bubble">${letra.toUpperCase()}</div>
+                        div.innerHTML = `
+                            <div class="option-letter">${letra.toUpperCase()}</div>
                             <div class="option-text">${q[letra]}</div>
                         `;
-                        fragment.appendChild(label);
+                        optContainer.appendChild(div);
                     }
                 });
+
+                // Reset Floating Button
+                const btnAction = document.getElementById('btn-quiz-action');
+                btnAction.innerText = 'Responder';
+                btnAction.classList.remove('active');
                 
-                this.elementos.opcoesContainer.innerHTML = '';
-                this.elementos.opcoesContainer.appendChild(fragment);
-                this.elementos.feedbackSection.classList.add('hidden');
+                // Reset Comment
+                document.getElementById('comment-section').style.display = 'none';
                 
-                this.elementos.btnAction.innerText = 'Selecione uma Alternativa';
-                this.elementos.btnAction.disabled = true;
                 window.scrollTo(0, 0);
             },
 
-            selecionarOpcao(labelClicada) {
-                if (this.estado !== 'RESPONDENDO') return;
-                document.querySelectorAll('.option-label').forEach(el => el.classList.remove('selected'));
-                labelClicada.classList.add('selected');
-                labelClicada.querySelector('input').checked = true;
+            selectAnswerOption(selectedDiv) {
+                if (this.session.answered) return; // bloqueia se já respondeu
                 
-                this.elementos.btnAction.innerText = 'Confirmar Resposta';
-                this.elementos.btnAction.disabled = false;
+                document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+                selectedDiv.classList.add('selected');
+                
+                document.getElementById('btn-quiz-action').classList.add('active');
             },
 
-            confirmarResposta() {
-                const q = this.fila[this.indice];
-                const inputSel = document.querySelector('input[name="opcao"]:checked');
-                if (!inputSel) return;
-
-                this.estado = 'FEEDBACK';
-                const marcada = inputSel.value.toLowerCase();
-                const correta = (q.correta || '').toLowerCase().trim();
-                const isCerta = (marcada === correta);
-
-                // Registra na sessão atual e no histórico local
-                this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada: marcada });
-                this.historico[q.id] = isCerta ? 'correta' : 'errada';
-                localStorage.setItem('apex_historico', JSON.stringify(this.historico));
-
-                // Atualiza UI
-                document.querySelectorAll('.option-label').forEach(label => {
-                    label.style.pointerEvents = 'none';
-                    const val = label.querySelector('input').value;
-                    if (val === correta) label.classList.add('correct-answer');
-                    else if (val === marcada && !isCerta) label.classList.add('wrong-answer');
-                });
-
-                this.elementos.resultadoTexto.innerText = isCerta ? 'Resposta Correta' : 'Resposta Incorreta';
-                this.elementos.resultadoTexto.style.color = isCerta ? 'var(--correct)' : 'var(--wrong)';
-                this.elementos.comentarioTexto.innerText = q.comentario || 'Gabarito oficial, sem comentários adicionais disponíveis.';
+            handleQuizAction() {
+                const btnAction = document.getElementById('btn-quiz-action');
                 
-                this.elementos.feedbackSection.classList.remove('hidden');
-                this.elementos.btnAction.innerText = this.indice === this.fila.length - 1 ? 'Finalizar Sessão' : 'Próxima Questão';
-                
-                setTimeout(() => this.elementos.feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
-            },
+                if (!this.session.answered) {
+                    // Tentando confirmar resposta
+                    const selected = document.querySelector('.option-card.selected');
+                    if (!selected) return; // Nenhuma selecionada
 
-            proximaQuestao() {
-                this.indice++;
-                if (this.indice < this.fila.length) this.carregarQuestao();
-                else this.gerarDashboard();
-            },
+                    this.session.answered = true;
+                    const q = this.session.questions[this.session.currentIndex];
+                    const marcada = selected.dataset.value.toLowerCase();
+                    const correta = (q.correta || '').toLowerCase().trim();
+                    const isCorrect = (marcada === correta);
 
-            gerarDashboard() {
-                this.estado = 'FIM';
-                this.sessao.endTime = Date.now();
-                this.elementos.quizScreen.classList.add('hidden');
-                
-                const total = this.fila.length;
-                const acertos = this.sessao.respostas.filter(r => r.acertou).length;
-                const pct = Math.round((acertos / total) * 100);
-                
-                // Métrica de tempo
-                const tempoTotalSeg = Math.floor((this.sessao.endTime - this.sessao.startTime) / 1000);
-                const avgSeg = Math.round(tempoTotalSeg / total);
-                const tempoStr = avgSeg > 60 ? `${Math.floor(avgSeg/60)}m ${avgSeg%60}s` : `${avgSeg}s`;
+                    // Atualiza Stats & Historico
+                    if (isCorrect) this.session.stats.correct++;
+                    else this.session.stats.wrong.push(q);
 
-                // Cabeçalho do Dashboard
-                document.getElementById('dash-total').innerText = total;
-                document.getElementById('dash-acertos').innerText = acertos;
-                document.getElementById('dash-tempo').innerText = tempoStr;
-                
-                const pctEl = document.getElementById('dash-pct');
-                pctEl.innerText = `${pct}%`;
-                
-                const msgEl = document.getElementById('dash-feedback-msg');
-                if (pct >= 80) { pctEl.style.color = 'var(--correct)'; msgEl.innerText = 'Desempenho excelente, continue assim!'; }
-                else if (pct >= 50) { pctEl.style.color = 'var(--text-main)'; msgEl.innerText = 'Bom trabalho, mas há espaço para revisão.'; }
-                else { pctEl.style.color = 'var(--wrong)'; msgEl.innerText = 'É importante revisar os pontos de atenção abaixo.'; }
+                    this.history[q.id] = isCorrect ? 'correct' : 'wrong';
+                    localStorage.setItem('apex_history', JSON.stringify(this.history));
 
-                // Análise Direcionada (Agrupamento por Tema/Especialidade)
-                const themeStats = {};
-                this.sessao.respostas.forEach(r => {
-                    const tema = r.questao.tema_especifico || r.questao.especialidade || 'Outros Temas';
-                    if (!themeStats[tema]) themeStats[tema] = { total: 0, acertos: 0 };
-                    themeStats[tema].total++;
-                    if (r.acertou) themeStats[tema].acertos++;
-                });
+                    // UI Feedback Options
+                    document.querySelectorAll('.option-card').forEach(card => {
+                        const val = card.dataset.value;
+                        if (val === correta) card.classList.add('correct');
+                        else if (val === marcada && !isCorrect) card.classList.add('wrong');
+                        card.style.pointerEvents = 'none';
+                    });
 
-                const themesContainer = document.getElementById('themes-container');
-                themesContainer.innerHTML = '';
-                
-                Object.keys(themeStats).forEach(tema => {
-                    const stats = themeStats[tema];
-                    const temaPct = Math.round((stats.acertos / stats.total) * 100);
-                    const color = temaPct >= 70 ? 'var(--correct)' : (temaPct < 50 ? 'var(--wrong)' : 'var(--text-main)');
+                    // UI Feedback Comment
+                    const commSec = document.getElementById('comment-section');
+                    const commTitle = document.getElementById('comment-title');
                     
-                    themesContainer.innerHTML += `
-                        <div class="theme-item">
-                            <div class="theme-header">
-                                <span class="theme-name">${tema}</span>
-                                <span class="theme-stats" style="color: ${color};">${stats.acertos}/${stats.total} (${temaPct}%)</span>
-                            </div>
-                            <div class="theme-progress-bg">
-                                <div class="theme-progress-fill" style="width: ${temaPct}%; background-color: ${color};"></div>
-                            </div>
-                        </div>
-                    `;
-                });
+                    if (isCorrect) {
+                        commTitle.className = 'comment-title correct';
+                        commTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Você Acertou`;
+                    } else {
+                        commTitle.className = 'comment-title wrong';
+                        commTitle.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Você Errou`;
+                    }
+                    
+                    document.getElementById('comment-body').innerText = q.comentario || 'A base de dados não contém comentários para esta questão.';
+                    commSec.style.display = 'block';
+
+                    // Update Button
+                    const isLast = (this.session.currentIndex === this.session.questions.length - 1);
+                    btnAction.innerText = isLast ? 'Finalizar Sessão' : 'Próxima Questão';
+                    
+                    // Scroll down to see feedback
+                    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
+
+                } else {
+                    // Indo para a próxima
+                    this.session.currentIndex++;
+                    if (this.session.currentIndex < this.session.questions.length) {
+                        this.renderQuestion();
+                    } else {
+                        this.finishSession();
+                    }
+                }
+            },
+
+            // ==========================================
+            // END DASHBOARD LOGIC
+            // ==========================================
+            
+            finishSession() {
+                clearInterval(this.session.timerInterval);
+                
+                document.getElementById('view-quiz').classList.add('hidden');
+                document.getElementById('view-end').classList.remove('hidden');
+
+                const total = this.session.questions.length;
+                const acertos = this.session.stats.correct;
+                const pct = Math.round((acertos / total) * 100);
+
+                document.getElementById('res-total').innerText = total;
+                document.getElementById('res-acertos').innerText = acertos;
+                document.getElementById('res-pct').innerText = `${pct}%`;
+                
+                const pctEl = document.getElementById('res-pct');
+                if (pct >= 70) pctEl.style.color = 'var(--color-correct)';
+                else if (pct < 50) pctEl.style.color = 'var(--color-wrong)';
+                else pctEl.style.color = 'var(--text-primary)';
+
+                // Formatar Tempo Total
+                const m = String(Math.floor(this.session.timeElapsed / 60)).padStart(2, '0');
+                const s = String(this.session.timeElapsed % 60).padStart(2, '0');
+                document.getElementById('res-tempo').innerText = `${m}:${s}`;
 
                 // Lista de Erros
-                const erros = this.sessao.respostas.filter(r => !r.acertou);
-                if (erros.length > 0) {
-                    document.getElementById('weak-points').classList.remove('hidden');
-                    const errorList = document.getElementById('error-list');
-                    errorList.innerHTML = '';
-                    
-                    erros.forEach(r => {
-                        const gabarito = r.questao.correta ? r.questao.correta.toUpperCase() : '?';
-                        const tema = r.questao.tema_especifico || r.questao.especialidade || 'Geral';
-                        errorList.innerHTML += `
+                const errSec = document.getElementById('erros-container');
+                const errList = document.getElementById('error-list');
+                errList.innerHTML = '';
+
+                if (this.session.stats.wrong.length > 0) {
+                    this.session.stats.wrong.forEach(q => {
+                        const tema = q.tema_especifico || q.especialidade || 'Sem Tema Definido';
+                        const gabarito = q.correta ? q.correta.toUpperCase() : '?';
+                        errList.innerHTML += `
                             <div class="error-item">
-                                <strong style="color: var(--text-main);">${tema}</strong><br>
-                                <span class="error-id">Questão ID: ${r.questao.id} | Gabarito: ${gabarito}</span>
+                                <div class="error-theme">${tema}</div>
+                                <div class="error-id">ID: ${q.id} • Gabarito: ${gabarito}</div>
                             </div>
                         `;
                     });
+                    errSec.classList.remove('hidden');
+                } else {
+                    errSec.classList.add('hidden');
                 }
-
-                this.elementos.endScreen.classList.remove('hidden');
-                this.elementos.btnAction.innerText = 'Voltar para Início';
+                
                 window.scrollTo(0, 0);
             }
         };
 
-        window.addEventListener('DOMContentLoaded', () => App.init());
+        // Initialize App on DOM Load
+        document.addEventListener('DOMContentLoaded', () => App.init());
     </script>
 </body>
 </html>
