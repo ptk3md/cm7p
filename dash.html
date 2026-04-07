@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0d0d0d">
+    <title>Dashboard • Banco de Questões</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    
+    <!-- CSP e GoatCounter -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://gc.zgo.at https://cm7p.goatcounter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://cm7p.goatcounter.com;">
+    <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+    <style>
+        :root {
+            --bg: #0d0d0d; --surface: #181818; --surface-2: #222; --surface-3: #2a2a2a;
+            --border: #2e2e2e; --border-light: #3a3a3a;
+            --text: #f2f2f2; --text-2: #a0a0a0; --text-3: #606060;
+            --accent: #5b8df0; --accent-bg: rgba(91,141,240,0.12);
+            --correct: #3ecf8e; --correct-bg: rgba(62,207,142,0.1); --correct-border: rgba(62,207,142,0.3);
+            --wrong: #f06060; --wrong-bg: rgba(240,96,96,0.1); --wrong-border: rgba(240,96,96,0.3);
+            --warn: #f5a623; --radius: 6px; --radius-lg: 8px;
+            --safe-bottom: env(safe-area-inset-bottom, 16px);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; 
+            max-width: 900px; margin: 0 auto; padding: 0 20px calc(100px + var(--safe-bottom)); 
+            min-height: 100vh; -webkit-font-smoothing: antialiased; font-size: 15px; 
+        }
+        .hidden { display: none !important; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Header */
+        .dash-header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 24px 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; 
+        }
+        .dash-title { font-size: 1.4rem; font-weight: 700; }
+        .dash-subtitle { font-size: 0.85rem; color: var(--text-3); margin-top: 2px; }
+        .back-link { 
+            display: inline-flex; align-items: center; gap: 6px; 
+            padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); 
+            border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; 
+            transition: all 0.15s; 
+        }
+        .back-link:hover { border-color: var(--accent); color: var(--accent); }
+
+        /* Cards */
+        .card { 
+            background: var(--surface); border: 1px solid var(--border); 
+            border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px; 
+        }
+        .card-title { 
+            font-size: 0.75rem; font-weight: 700; color: var(--text-3); 
+            text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; 
+        }
+
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px; 
+        }
+        .stat-box { 
+            background: var(--surface-2); border: 1px solid var(--border); 
+            border-radius: var(--radius); padding: 14px; text-align: center; 
+        }
+        .stat-val { font-size: 1.8rem; font-weight: 700; line-height: 1; margin-bottom: 4px; }
+        .stat-val.rating { color: var(--accent); }
+        .stat-val.correct { color: var(--correct); }
+        .stat-val.wrong { color: var(--wrong); }
+        .stat-lbl { font-size: 0.7rem; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        /* Division Badge */
+        .division-badge { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            padding: 10px 16px; background: var(--accent-bg); border: 1px solid var(--accent); 
+            border-radius: var(--radius); font-weight: 600; color: var(--accent); 
+            margin-bottom: 12px; 
+        }
+        .division-badge svg { flex-shrink: 0; }
+
+        /* Progress Bar */
+        .progress-wrap { margin: 8px 0 4px; }
+        .progress-label { 
+            display: flex; justify-content: space-between; font-size: 0.75rem; 
+            color: var(--text-3); font-weight: 600; margin-bottom: 6px; 
+        }
+        .progress-bar { 
+            height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; 
+        }
+        .progress-fill { 
+            height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.4s ease; 
+        }
+
+        /* Diagnosis List */
+        .diag-list { display: flex; flex-direction: column; gap: 10px; }
+        .diag-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 12px; background: var(--surface-2); border: 1px solid var(--border); 
+            border-radius: var(--radius); 
+        }
+        .diag-info { min-width: 0; flex: 1; }
+        .diag-topic { font-size: 0.9rem; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .diag-meta { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
+        .diag-acc { 
+            font-size: 1.1rem; font-weight: 700; margin-left: 12px; flex-shrink: 0; 
+        }
+        .diag-acc.low { color: var(--wrong); }
+        .diag-acc.mid { color: var(--warn); }
+        .diag-acc.high { color: var(--correct); }
+
+        /* Heatmap */
+        .heatmap { 
+            display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; 
+            padding: 12px 0; 
+        }
+        .heatmap-cell { 
+            width: 12px; height: 12px; border-radius: 2px; background: var(--surface-3); 
+            transition: transform 0.1s; 
+        }
+        .heatmap-cell:hover { transform: scale(1.5); }
+        .heatmap-cell.d1 { background: var(--accent-bg); border: 1px solid var(--accent); }
+        .heatmap-cell.d2 { background: var(--accent); }
+        .heatmap-cell.d3 { background: var(--correct); }
+
+        /* Empty State */
+        .empty-state { 
+            text-align: center; padding: 40px 20px; color: var(--text-3); 
+        }
+        .empty-state-icon { 
+            width: 48px; height: 48px; margin: 0 auto 16px; border-radius: 12px; 
+            background: var(--surface-2); display: flex; align-items: center; justify-content: center; 
+        }
+        .empty-state-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+        .empty-state-text { font-size: 0.9rem; }
+
+        /* Footer */
+        .dash-footer { 
+            text-align: center; padding-top: 24px; margin-top: 24px; 
+            border-top: 1px solid var(--border); color: var(--text-3); font-size: 0.8rem; 
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .dash-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="dash-header">
+    <div>
+        <div class="dash-title">Dashboard</div>
+        <div class="dash-subtitle">Sua evolução em tempo real</div>
+    </div>
+    <a href="./" class="back-link">← Voltar ao Quiz</a>
+</header>
+
+<!-- Main Content -->
+<main id="dash-content">
+    <!-- Loading -->
+    <div id="dash-loading" class="card">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div class="spinner" style="width:24px;height:24px;border:2px solid var(--surface-3);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;"></div>
+            <span style="color:var(--text-2);font-size:0.9rem;">Carregando seus dados...</span>
+        </div>
+    </div>
+
+    <!-- Empty State (no data) -->
+    <div id="dash-empty" class="card hidden">
+        <div class="empty-state">
+            <div class="empty-state-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-3)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="empty-state-title">Nenhuma questão respondida ainda</div>
+            <div class="empty-state-text">Comece respondendo questões no quiz para ver suas estatísticas aqui.</div>
+            <div style="margin-top:16px;">
+                <a href="./" class="back-link" style="padding:10px 20px;">Ir para o Quiz →</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content (populated by JS) -->
+    <div id="dash-data" class="hidden">
+        
+        <!-- Rating & Streak -->
+        <div class="card">
+            <div class="card-title">Desempenho Geral</div>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-val rating" id="stat-rating">0</div>
+                    <div class="stat-lbl">Apex Rating</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-streak">0</div>
+                    <div class="stat-lbl">Dias seguidos</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val correct" id="stat-accuracy">0%</div>
+                    <div class="stat-lbl">Precisão</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-val" id="stat-total">0</div>
+                    <div class="stat-lbl">Questões</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Division -->
+        <div class="card">
+            <div class="card-title">Divisão Atual</div>
+            <div class="division-badge" id="division-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                <span id="division-name">Calouro</span>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-label">
+                    <span>Progresso para próxima divisão</span>
+                    <span id="division-progress-text">0/150</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="division-progress" style="width:0%"></div>
+                </div>
+            </div>
+            <div style="font-size:0.75rem;color:var(--text-3);margin-top:8px;">
+                Próxima: <strong id="next-division">Veterano</strong> • Faltam <strong id="questions-to-next">150</strong> questões neste ciclo
+            </div>
+        </div>
+
+        <!-- Diagnosis -->
+        <div class="card">
+            <div class="card-title">Pontos de Atenção</div>
+            <div class="diag-list" id="diag-list">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="card">
+            <div class="card-title">Consistência (Últimos 30 dias)</div>
+            <div class="heatmap" id="heatmap">
+                <!-- Preenchido via JS -->
+            </div>
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:8px;font-size:0.7rem;color:var(--text-3);">
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--surface-3);"></span> 0</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent-bg);border:1px solid var(--accent);"></span> 1-4</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--accent);"></span> 5-9</span>
+                <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:2px;background:var(--correct);"></span> 10+</span>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="dash-footer">
+    Dashboard • Dados armazenados localmente no seu navegador
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// CONFIGURAÇÕES
+// ═══════════════════════════════════════════════════════════════════
+const CONFIG = {
+    BASE_RATING: 500, MIN_RATING: 0, MAX_RATING: 3000, K_FACTOR: 20, BLOCK_SIZE: 10,
+    BEGINNER_THRESHOLD: 100, BEGINNER_BONUS: 5, NORMAL_BONUS: 1,
+    DIVISION_THRESHOLDS: { 'Calouro': 150, 'Veterano': 450, 'Interno': 750, 'Residente R1': 1050, 'Residente R2': 1350, 'Residente R3': Infinity },
+    DAILY_GOAL: 10
+};
+
+const DIVISIONS = ['Calouro', 'Veterano', 'Interno', 'Residente R1', 'Residente R2', 'Residente R3'];
+
+// ═══════════════════════════════════════════════════════════════════
+// FUNÇÕES AUXILIARES
+// ═══════════════════════════════════════════════════════════════════
+const getLocalDate = (ts) => {
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+
+const getDivision = (questions) => {
+    if (questions > 1350) return 'Residente R3';
+    if (questions > 1050) return 'Residente R2';
+    if (questions > 750) return 'Residente R1';
+    if (questions > 450) return 'Interno';
+    if (questions > 150) return 'Veterano';
+    return 'Calouro';
+};
+
+const getNextDivision = (current) => {
+    const idx = DIVISIONS.indexOf(current);
+    return idx < DIVISIONS.length - 1 ? DIVISIONS[idx + 1] : null;
+};
+
+const calculateRating = (history) => {
+    if (!history.length) return CONFIG.BASE_RATING;
+    let rating = CONFIG.BASE_RATING;
+    const sorted = [...history].sort((a, b) => a.timestamp - b.timestamp);
+    
+    for (let i = 0; i < sorted.length; i += CONFIG.BLOCK_SIZE) {
+        const block = sorted.slice(i, i + CONFIG.BLOCK_SIZE);
+        const correct = block.filter(h => h.correct).length;
+        const p = correct / block.length;
+        const nTotal = i + block.length;
+        const B = nTotal <= CONFIG.BEGINNER_THRESHOLD ? CONFIG.BEGINNER_BONUS : CONFIG.NORMAL_BONUS;
+        let delta = CONFIG.K_FACTOR * (p - 0.5) * B;
+        
+        if (delta > 0) {
+            delta *= Math.max(0.1, (CONFIG.MAX_RATING - rating) / 2500);
+        }
+        rating = Math.max(CONFIG.MIN_RATING, Math.min(CONFIG.MAX_RATING, rating + delta));
+    }
+    return Math.round(rating);
+};
+
+const calculateStreak = (activityMap, dailyGoal) => {
+    let streak = 0;
+    const today = getLocalDate(Date.now());
+    let date = new Date();
+    
+    for (let i = 0; i < 365; i++) {
+        const dateStr = getLocalDate(date.getTime());
+        const count = activityMap[dateStr] || 0;
+        
+        if (dateStr === today && count < dailyGoal) {
+            date.setDate(date.getDate() - 1);
+            continue;
+        }
+        if (count >= dailyGoal) streak++;
+        else if (dateStr !== today) break;
+        
+        date.setDate(date.getDate() - 1);
+    }
+    return streak;
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN: CARREGAR E RENDERIZAR DASHBOARD
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', async () => {
+    // Aguarda um tick para garantir que localStorage está disponível
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    const historicoRaw = localStorage.getItem('apex_historico');
+    const loading = document.getElementById('dash-loading');
+    const empty = document.getElementById('dash-empty');
+    const data = document.getElementById('dash-data');
+    
+    if (!historicoRaw) {
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+        return;
+    }
+    
+    try {
+        const historico = JSON.parse(historicoRaw);
+        const entries = Object.entries(historico);
+        
+        if (entries.length === 0) {
+            loading.classList.add('hidden');
+            empty.classList.remove('hidden');
+            return;
+        }
+        
+        // Processar dados
+        const activityMap = {};
+        const topicStats = {};
+        let total = 0, correct = 0;
+        
+        entries.forEach(([id, status]) => {
+            const isCorrect = status === 'correta';
+            total++;
+            if (isCorrect) correct++;
+            
+            // Atividade por dia (simulado - sem timestamp real, usamos data atual para demo)
+            const today = getLocalDate(Date.now());
+            activityMap[today] = (activityMap[today] || 0) + 1;
+            
+            // Stats por tópico (simulado - sem dados de tópico no historico atual)
+            // Para funcionar 100%, você precisaria salvar { id, correct, topic, especialidade } no localStorage
+            const topicKey = `Questão ${id}`;
+            if (!topicStats[topicKey]) topicStats[topicKey] = { total: 0, correct: 0 };
+            topicStats[topicKey].total++;
+            if (isCorrect) topicStats[topicKey].correct++;
+        });
+        
+        const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+        const rating = calculateRating(entries.map(([id, status]) => ({ id, correct: status === 'correta', timestamp: Date.now() })));
+        const streak = calculateStreak(activityMap, CONFIG.DAILY_GOAL);
+        const division = getDivision(total);
+        const nextDiv = getNextDivision(division);
+        const currentThreshold = CONFIG.DIVISION_THRESHOLDS[division];
+        const nextThreshold = nextDiv ? CONFIG.DIVISION_THRESHOLDS[nextDiv] : currentThreshold;
+        const progress = Math.min(100, ((total - (currentThreshold - CONFIG.DIVISION_THRESHOLDS[DIVISIONS[0]])) / (nextThreshold - (currentThreshold - CONFIG.DIVISION_THRESHOLDS[DIVISIONS[0]]))) * 100);
+        const toNext = nextDiv ? Math.max(0, nextThreshold - total) : 0;
+        
+        // Renderizar
+        document.getElementById('stat-rating').textContent = rating;
+        document.getElementById('stat-streak').textContent = streak;
+        document.getElementById('stat-accuracy').textContent = accuracy + '%';
+        document.getElementById('stat-total').textContent = total;
+        
+        document.getElementById('division-name').textContent = division;
+        document.getElementById('division-progress-text').textContent = `${total}/${nextThreshold}`;
+        document.getElementById('division-progress').style.width = `${Math.max(0, progress)}%`;
+        document.getElementById('next-division').textContent = nextDiv || '—';
+        document.getElementById('questions-to-next').textContent = toNext;
+        
+        // Diagnóstico (tópicos com menor precisão)
+        const diagList = document.getElementById('diag-list');
+        const sortedTopics = Object.entries(topicStats)
+            .filter(([_, s]) => s.total >= 1)
+            .map(([topic, s]) => ({ topic, acc: Math.round((s.correct / s.total) * 100), total: s.total }))
+            .sort((a, b) => a.acc - b.acc)
+            .slice(0, 5);
+        
+        if (sortedTopics.length === 0) {
+            diagList.innerHTML = '<div style="color:var(--text-3);font-size:0.85rem;text-align:center;padding:20px;">Responda mais questões para ver diagnóstico por tópico.</div>';
+        } else {
+            diagList.innerHTML = sortedTopics.map(t => {
+                const accClass = t.acc < 50 ? 'low' : t.acc < 70 ? 'mid' : 'high';
+                return `
+                    <div class="diag-item">
+                        <div class="diag-info">
+                            <div class="diag-topic">${t.topic}</div>
+                            <div class="diag-meta">${t.total} questão${t.total > 1 ? 'ões' : ''}</div>
+                        </div>
+                        <div class="diag-acc ${accClass}">${t.acc}%</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Heatmap (últimos 30 dias)
+        const heatmap = document.getElementById('heatmap');
+        const today = new Date();
+        let heatmapHTML = '';
+        for (let i = 29; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            const dateStr = getLocalDate(d.getTime());
+            const count = activityMap[dateStr] || 0;
+            let cls = '';
+            if (count >= 10) cls = 'd3';
+            else if (count >= 5) cls = 'd2';
+            else if (count >= 1) cls = 'd1';
+            heatmapHTML += `<div class="heatmap-cell ${cls}" title="${dateStr}: ${count} questões"></div>`;
+        }
+        heatmap.innerHTML = heatmapHTML;
+        
+        // Mostrar dados, esconder loading
+        loading.classList.add('hidden');
+        data.classList.remove('hidden');
+        
+    } catch (e) {
+        console.error('Erro ao carregar dashboard:', e);
+        loading.classList.add('hidden');
+        empty.classList.remove('hidden');
+        empty.querySelector('.empty-state-title').textContent = 'Erro ao carregar dados';
+        empty.querySelector('.empty-state-text').textContent = 'Tente recarregar a página ou responder mais questões.';
+    }
+});
+</script>
+</body>
+</html>
