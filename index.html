@@ -79,7 +79,6 @@
         .tema-chip-x { cursor: pointer; font-size: 1rem; line-height: 1; opacity: 0.7; }
         .tema-chip-x:hover { opacity: 1; }
 
-        /* ── QUANTITY SLIDER ── */
         .qty-wrap { padding: 18px 16px 16px; }
         .qty-big-num { font-size: 3rem; font-weight: 700; color: var(--accent); background: transparent; border: none; text-align: center; width: 100%; outline: none; font-family: 'DM Sans', sans-serif; line-height: 1; font-variant-numeric: tabular-nums; }
         .qty-big-num::-webkit-inner-spin-button, .qty-big-num::-webkit-outer-spin-button { -webkit-appearance: none; }
@@ -97,7 +96,6 @@
         .btn-primary:disabled { background: var(--surface-2); color: var(--text-3); cursor: not-allowed; transform: none; opacity: 1; }
         .btn-badge { background: rgba(255,255,255,0.22); padding: 2px 9px; border-radius: 4px; font-size: 0.82rem; }
 
-        /* ── QUIZ ── */
         #quiz-screen { padding: 0; }
         .quiz-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
         .quiz-prog-wrap { flex: 1; }
@@ -143,7 +141,6 @@
         .quiz-action-btn:active { transform: scale(0.98); }
         .quiz-action-btn:disabled { background: var(--surface-2); color: var(--text-3); cursor: not-allowed; }
 
-        /* ── END ── */
         #end-screen { padding: 28px 20px 0; }
         .end-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
         .end-sub { font-size: 0.85rem; color: var(--text-3); margin-bottom: 24px; }
@@ -220,7 +217,6 @@
             <button class="clear-btn" id="btn-clear" onclick="App.limparFiltros()">Limpar filtros</button>
         </div>
         <div class="filter-card">
-            <!-- Especialidade multi-select -->
             <div>
                 <div class="filter-row" id="row-esp" onclick="App.toggleDD('esp')">
                     <div class="filter-row-left">
@@ -232,7 +228,6 @@
                 </div>
                 <div id="esp-chips-wrap" class="hidden"></div>
             </div>
-            <!-- Tema multi-select -->
             <div style="border-top:1px solid var(--border);">
                 <div class="filter-row" id="row-tema" onclick="App.toggleDD('tema')" style="border-bottom:none;">
                     <div class="filter-row-left">
@@ -341,7 +336,7 @@
 const App = {
     url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
     banco: [], fila: [], indice: 0,
-    historico: JSON.parse(localStorage.getItem('apex_historico') || '{}'),
+    historico: {},
     estado: 'SETUP',
     sessao: { respostas: [], startTime: 0 },
     filtros: { especialidades: [], temas: [], modo: 'todas' },
@@ -357,11 +352,27 @@ const App = {
         return String(id || '').trim().toUpperCase();
     },
 
+    // Carrega o histórico do localStorage normalizando TODAS as chaves para
+    // maiúsculas, corrigindo entradas gravadas por versões anteriores do código
+    // que salvavam o id sem normalizar (bug que causava repetição no modo inéditas).
+    _loadHistorico() {
+        const raw = JSON.parse(localStorage.getItem('apex_historico') || '{}');
+        const normalized = {};
+        for (const [k, v] of Object.entries(raw)) {
+            const key = this.normalizeId(k);
+            // Se a chave já existir normalizada, preferir 'errada' (mais restritivo)
+            if (normalized[key] === 'errada') continue;
+            normalized[key] = v;
+        }
+        return normalized;
+    },
+
     _checkSvg() {
         return `<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
     },
 
     init() {
+        this.historico = this._loadHistorico();
         Papa.parse(this.url, {
             download: true, header: true, skipEmptyLines: true,
             complete: (r) => {
@@ -401,7 +412,6 @@ const App = {
         });
     },
 
-    // ── ESPECIALIDADE (multi-select) ──────────────────────────
     buildEspMenu() {
         const esps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
         const menu = document.getElementById('menu-esp');
@@ -409,7 +419,6 @@ const App = {
             menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-3);">Nenhuma especialidade disponível</div>';
             return;
         }
-        // innerHTML sem onclick inline — listeners adicionados via JS abaixo
         menu.innerHTML = esps.map(e => {
             const sel = this.filtros.especialidades.includes(e);
             return `<div class="dd-option${sel ? ' selected' : ''}" data-val="${this.escapeHtml(e)}"><span>${this.escapeHtml(e)}</span>${this._checkSvg()}</div>`;
@@ -451,7 +460,6 @@ const App = {
         });
     },
 
-    // ── TEMA (multi-select) ────────────────────────────────────
     buildTemaMenu() {
         const pool = this.filtros.especialidades.length === 0
             ? this.banco
@@ -499,7 +507,6 @@ const App = {
         });
     },
 
-    // ── LIMPAR ────────────────────────────────────────────────
     limparFiltros() {
         this.filtros.especialidades = [];
         this.filtros.temas = [];
@@ -524,9 +531,9 @@ const App = {
         return this.banco.filter(q => {
             if (especialidades.length && !especialidades.includes(q.especialidade)) return false;
             if (temas.length && !temas.includes(q.tema_especifico)) return false;
-            const idNorm = this.normalizeId(q.id);
-            if (modo === 'ineditas' && this.historico[idNorm]) return false;
-            if (modo === 'erradas' && this.historico[idNorm] !== 'errada') return false;
+            // q.id já está normalizado; historico também tem chaves normalizadas
+            if (modo === 'ineditas' && this.historico[q.id]) return false;
+            if (modo === 'erradas' && this.historico[q.id] !== 'errada') return false;
             return true;
         });
     },
@@ -541,14 +548,14 @@ const App = {
         };
         const total = this.banco.filter(inScope).length;
         const respondidas = Object.keys(this.historico).filter(idNorm => {
-            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm);
+            const q = this.banco.find(q => q.id === idNorm);
             return q && inScope(q);
         }).length;
         const erradas = Object.keys(this.historico).filter(idNorm => {
             const h = this.historico[idNorm];
             const isErr = typeof h === 'string' ? h === 'errada' : h?.correct === false;
             if (!isErr) return false;
-            const q = this.banco.find(q => this.normalizeId(q.id) === idNorm);
+            const q = this.banco.find(q => q.id === idNorm);
             return q && inScope(q);
         }).length;
 
@@ -661,8 +668,8 @@ const App = {
         const correta = (q.correta || '').toLowerCase().trim();
         const isCerta = marcada === correta;
         this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
-        const idNorm = this.normalizeId(q.id);
-        this.historico[idNorm] = isCerta ? 'correta' : 'errada';
+        // q.id já normalizado; salvar diretamente garante consistência
+        this.historico[q.id] = isCerta ? 'correta' : 'errada';
         localStorage.setItem('apex_historico', JSON.stringify(this.historico));
         document.querySelectorAll('.option-label').forEach(lbl => {
             lbl.style.pointerEvents = 'none';
