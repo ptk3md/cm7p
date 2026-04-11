@@ -32,6 +32,18 @@
         .top-bar-title { font-size: 1rem; font-weight: 700; }
         .top-bar-sub { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
 
+        /* NAV ICONS */
+        .top-bar-nav { display: flex; align-items: center; gap: 6px; }
+        .nav-icon-btn {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 7px 11px; background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); color: var(--text-2); text-decoration: none;
+            font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 600;
+            transition: all 0.15s; cursor: pointer; white-space: nowrap;
+        }
+        .nav-icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+        .nav-icon-btn svg { flex-shrink: 0; }
+
         .counter-block { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; transition: border-color 0.2s; }
         .counter-block.zero { border-color: var(--wrong-border); }
         .counter-block.zero .counter-num { color: var(--wrong); }
@@ -87,7 +99,6 @@
         .qty-slider { width: 100%; height: 4px; background: var(--surface-3); border-radius: 2px; appearance: none; -webkit-appearance: none; cursor: pointer; accent-color: var(--accent); outline: none; }
         .qty-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--accent); }
         .qty-slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg); }
-        .qty-range-labels { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: var(--text-3); margin-top: 5px; }
 
         .fixed-bottom { position: fixed; bottom: 0; left: 0; right: 0; padding: 12px 20px calc(12px + var(--safe-bottom)); background: linear-gradient(to top, var(--bg) 65%, transparent); display: flex; justify-content: center; z-index: 200; pointer-events: none; }
         .btn-primary { width: 100%; max-width: 400px; padding: 15px 28px; border-radius: var(--radius-lg); border: none; background: var(--accent); color: white; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; pointer-events: auto; transition: all 0.15s; display: flex; align-items: center; justify-content: center; gap: 10px; }
@@ -186,6 +197,16 @@
             <div class="top-bar-title">Banco de Questões</div>
             <div class="top-bar-sub">Configure e inicie sua sessão</div>
         </div>
+        <div class="top-bar-nav">
+            <a href="dash.html" class="nav-icon-btn" title="Dashboard Analítico">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Análise
+            </a>
+            <a href="transfer.html" class="nav-icon-btn" title="Transferência de Dados">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+                Dados
+            </a>
+        </div>
     </div>
     <div id="loading">
         <div class="spinner"></div>
@@ -250,7 +271,7 @@
                 </div>
                 <div class="qty-slider-wrap">
                     <input type="range" id="qty-slider" class="qty-slider" min="1" max="100" value="10" step="1" oninput="App.onSliderInput()">
-                    <div class="qty-range-labels"><span>1</span><span id="qty-max">0</span></div>
+                    <div style="display:flex;justify-content:space-between;font-size:0.72rem;font-weight:600;color:var(--text-3);margin-top:5px;"><span>1</span><span id="qty-max">0</span></div>
                 </div>
             </div>
         </div>
@@ -352,15 +373,11 @@ const App = {
         return String(id || '').trim().toUpperCase();
     },
 
-    // Carrega o histórico do localStorage normalizando TODAS as chaves para
-    // maiúsculas, corrigindo entradas gravadas por versões anteriores do código
-    // que salvavam o id sem normalizar (bug que causava repetição no modo inéditas).
     _loadHistorico() {
         const raw = JSON.parse(localStorage.getItem('apex_historico') || '{}');
         const normalized = {};
         for (const [k, v] of Object.entries(raw)) {
             const key = this.normalizeId(k);
-            // Se a chave já existir normalizada, preferir 'errada' (mais restritivo)
             if (normalized[key] === 'errada') continue;
             normalized[key] = v;
         }
@@ -433,12 +450,9 @@ const App = {
         if (idx === -1) this.filtros.especialidades.push(val);
         else this.filtros.especialidades.splice(idx, 1);
         this.filtros.temas = [];
-        this.buildEspMenu();
-        this.buildTemaMenu();
-        this.renderEspChips();
-        this.renderTemaChips();
-        this.updateEspLabel();
-        this.updateTemaLabel();
+        this.buildEspMenu(); this.buildTemaMenu();
+        this.renderEspChips(); this.renderTemaChips();
+        this.updateEspLabel(); this.updateTemaLabel();
         this.atualizarTudo();
     },
 
@@ -483,10 +497,8 @@ const App = {
         const idx = this.filtros.temas.indexOf(tema);
         if (idx === -1) this.filtros.temas.push(tema);
         else this.filtros.temas.splice(idx, 1);
-        this.buildTemaMenu();
-        this.renderTemaChips();
-        this.updateTemaLabel();
-        this.atualizarTudo();
+        this.buildTemaMenu(); this.renderTemaChips();
+        this.updateTemaLabel(); this.atualizarTudo();
     },
 
     updateTemaLabel() {
@@ -508,14 +520,10 @@ const App = {
     },
 
     limparFiltros() {
-        this.filtros.especialidades = [];
-        this.filtros.temas = [];
-        this.buildEspMenu();
-        this.buildTemaMenu();
-        this.renderEspChips();
-        this.renderTemaChips();
-        this.updateEspLabel();
-        this.updateTemaLabel();
+        this.filtros.especialidades = []; this.filtros.temas = [];
+        this.buildEspMenu(); this.buildTemaMenu();
+        this.renderEspChips(); this.renderTemaChips();
+        this.updateEspLabel(); this.updateTemaLabel();
         this.atualizarTudo();
     },
 
@@ -531,7 +539,6 @@ const App = {
         return this.banco.filter(q => {
             if (especialidades.length && !especialidades.includes(q.especialidade)) return false;
             if (temas.length && !temas.includes(q.tema_especifico)) return false;
-            // q.id já está normalizado; historico também tem chaves normalizadas
             if (modo === 'ineditas' && this.historico[q.id]) return false;
             if (modo === 'erradas' && this.historico[q.id] !== 'errada') return false;
             return true;
@@ -667,10 +674,13 @@ const App = {
         const marcada = input.value.toLowerCase();
         const correta = (q.correta || '').toLowerCase().trim();
         const isCerta = marcada === correta;
-        this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada });
-        // q.id já normalizado; salvar diretamente garante consistência
+        const tempoMs = Date.now() - (this._qStartTime || this.sessao.startTime);
+        this._qStartTime = Date.now();
+
+        this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada, tempoMs });
         this.historico[q.id] = isCerta ? 'correta' : 'errada';
         localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+
         document.querySelectorAll('.option-label').forEach(lbl => {
             lbl.style.pointerEvents = 'none';
             const v = lbl.querySelector('input').value;
@@ -696,8 +706,16 @@ const App = {
 
     proximaQuestao() {
         this.indice++;
-        if (this.indice < this.fila.length) this.carregarQuestao();
+        if (this.indice < this.fila.length) { this._qStartTime = Date.now(); this.carregarQuestao(); }
         else this.gerarDashboard();
+    },
+
+    _salvarSessao(sessaoData) {
+        const sessions = JSON.parse(localStorage.getItem('apex_sessions') || '[]');
+        sessions.push(sessaoData);
+        // Manter até 100 sessões
+        if (sessions.length > 100) sessions.splice(0, sessions.length - 100);
+        localStorage.setItem('apex_sessions', JSON.stringify(sessions));
     },
 
     gerarDashboard() {
@@ -710,6 +728,27 @@ const App = {
         const pct = Math.round((acertos / total) * 100);
         const avgSeg = Math.round((endTime - this.sessao.startTime) / 1000 / total);
         const tempoStr = avgSeg >= 60 ? Math.floor(avgSeg/60) + 'm' + (avgSeg%60) + 's' : avgSeg + 's';
+
+        // Salvar sessão no histórico de sessões
+        const sessaoRecord = {
+            date: new Date().toISOString(),
+            total, acertos, pct,
+            duracao: endTime - this.sessao.startTime,
+            avgSegPorQ: avgSeg,
+            respostas: this.sessao.respostas.map(r => ({
+                id: r.questao.id,
+                especialidade: r.questao.especialidade || '',
+                tema: r.questao.tema_especifico || '',
+                competencia: r.questao.competencia || '',
+                grande_area: r.questao.grande_area || '',
+                acertou: r.acertou,
+                marcada: r.marcada,
+                correta: r.questao.correta,
+                tempoMs: r.tempoMs || 0
+            }))
+        };
+        this._salvarSessao(sessaoRecord);
+
         document.getElementById('dash-acertos').textContent = acertos;
         document.getElementById('dash-total-end').textContent = total;
         document.getElementById('dash-tempo').textContent = tempoStr;
@@ -745,7 +784,7 @@ const App = {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 };
-window.addEventListener('DOMContentLoaded', () => App.init());
+window.addEventListener('DOMContentLoaded', () => { App._qStartTime = Date.now(); App.init(); });
 </script>
 </body>
 </html>
