@@ -104,7 +104,7 @@
             <div>
                 <span class="step-badge" style="background: rgba(62,207,142,0.15); color: var(--correct);">Dispositivo Novo</span>
                 <div class="card-title" style="margin-top: 4px;">Importar Dados</div>
-                <div class="card-desc">Cole o código copiado aqui para restaurar seu progresso. <br/><strong style="color: var(--wrong);">Atenção: Isso substituirá os dados atuais deste dispositivo.</strong></div>
+                <div class="card-desc">Cole o código copiado aqui para restaurar seu progresso. <br/><strong style="color: var(--correct);">Atenção: Os dados importados serão mesclados aos atuais.</strong></div>
             </div>
         </div>
 
@@ -122,7 +122,6 @@
     <script>
         const STORAGE_KEY = 'apex_historico';
 
-        // Ao carregar a página, preenche o campo de exportação se houver dados
         document.addEventListener('DOMContentLoaded', () => {
             const currentData = localStorage.getItem(STORAGE_KEY);
             const exportField = document.getElementById('export-data');
@@ -137,14 +136,13 @@
             }
         });
 
-        // Função para Copiar
         function copyData() {
             const exportField = document.getElementById('export-data');
             if (!exportField.value) return;
 
             navigator.clipboard.writeText(exportField.value).then(() => {
                 const btn = document.getElementById('btn-copy');
-                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado com sucesso!';
+                btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiado com sucesso';
                 btn.style.background = 'var(--correct)';
                 btn.style.color = '#0d0d0d';
                 
@@ -154,49 +152,55 @@
                     btn.style.color = 'white';
                 }, 3000);
             }).catch(err => {
-                alert('Erro ao copiar. Por favor, selecione todo o texto e copie manualmente.');
+                alert('Erro ao copiar. Selecione o texto e copie manualmente.');
             });
         }
 
-        // Função para Importar
         function importData() {
             const importField = document.getElementById('import-data');
             const alertBox = document.getElementById('import-alert');
             const rawData = importField.value.trim();
 
-            // Reseta alerta
             alertBox.className = 'alert';
             alertBox.textContent = '';
 
             if (!rawData) {
-                showAlert('Por favor, cole o código na caixa de texto.', 'error');
+                showAlert('Insira o código na caixa de texto.', 'error');
                 return;
             }
 
             try {
-                // Tenta fazer o parse para garantir que o formato JSON é válido
-                // Isso impede que um código quebrado corrompa a aplicação
                 const parsedData = JSON.parse(rawData);
 
                 if (typeof parsedData !== 'object' || Array.isArray(parsedData)) {
                     throw new Error("Formato inválido.");
                 }
 
-                // Apaga os dados antigos e salva os novos
-                localStorage.removeItem(STORAGE_KEY);
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
+                const currentDataRaw = localStorage.getItem(STORAGE_KEY);
+                let mergedData = {};
 
-                showAlert('Histórico restaurado com sucesso! Redirecionando...', 'success');
+                if (currentDataRaw) {
+                    try {
+                        mergedData = JSON.parse(currentDataRaw);
+                    } catch (e) {
+                        console.error("Erro ao ler os dados existentes.");
+                    }
+                }
+
+                mergedData = { ...mergedData, ...parsedData };
+
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedData));
+
+                showAlert('Histórico atualizado com sucesso. Redirecionando...', 'success');
                 importField.value = '';
 
-                // Redireciona de volta ao index após 1.5s
                 setTimeout(() => {
                     window.location.href = './';
                 }, 1500);
 
             } catch (error) {
-                showAlert('Erro: Código inválido. Certifique-se de ter copiado o código inteiro do outro dispositivo.', 'error');
-                console.error("Erro no Parse do JSON:", error);
+                showAlert('Código inválido. Verifique o conteúdo copiado.', 'error');
+                console.error("Erro na conversão do JSON:", error);
             }
         }
 
