@@ -32,7 +32,6 @@
         .top-bar-title { font-size: 1rem; font-weight: 700; }
         .top-bar-sub { font-size: 0.75rem; color: var(--text-3); margin-top: 2px; }
 
-        /* NAV ICONS */
         .top-bar-nav { display: flex; align-items: center; gap: 6px; }
         .nav-icon-btn {
             display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -228,9 +227,9 @@
 
         <div class="section-label" style="margin-bottom:8px;">Modo de Questões</div>
         <div class="mode-tabs" style="margin-bottom:14px;">
-            <button class="mode-tab active" onclick="App.setModo('todas',this)">Todas</button>
-            <button class="mode-tab" onclick="App.setModo('ineditas',this)">Inéditas</button>
-            <button class="mode-tab" onclick="App.setModo('erradas',this)">Meus Erros</button>
+            <button class="mode-tab active" id="tab-todas" onclick="App.setModo('todas',this)">Todas</button>
+            <button class="mode-tab" id="tab-ineditas" onclick="App.setModo('ineditas',this)">Inéditas</button>
+            <button class="mode-tab" id="tab-erradas" onclick="App.setModo('erradas',this)">Meus Erros</button>
         </div>
 
         <div class="section-bar">
@@ -362,6 +361,219 @@ const App = {
     sessao: { respostas: [], startTime: 0 },
     filtros: { especialidades: [], temas: [], modo: 'todas' },
 
+    // ─────────────────────────────────────────────────────────────
+    // NORMALIZAÇÃO DE TEMAS – PEDIATRIA
+    // ─────────────────────────────────────────────────────────────
+    PEDIATRIA_TEMAS_MAP: [
+        {
+            canonical: 'Reanimação Neonatal',
+            keywords: ['reanimação neonatal', 'reanimacao neonatal', 'rcp neonatal', 'ressuscitação neonatal']
+        },
+        {
+            canonical: 'Circulação Fetal e Neonatal e Asfixia Perinatal',
+            keywords: ['circulação fetal', 'circulacao fetal', 'circulação neonatal', 'circulacao neonatal', 'asfixia perinatal', 'transição circulatória', 'transicao circulatoria']
+        },
+        {
+            canonical: 'HIV na infância',
+            keywords: ['hiv na infância', 'hiv na infancia', 'hiv infantil', 'aids pediátrica', 'aids pediatrica', 'hiv criança', 'hiv crianca']
+        },
+        {
+            canonical: 'Infecções Congênitas: Sífilis, Toxoplasmose, Rubéola, Citomegalovírus',
+            keywords: ['infecções congênitas', 'infeccoes congenitas', 'infecção congênita', 'infeccao congenita',
+                       'sífilis congênita', 'sifilis congenita', 'toxoplasmose congênita', 'toxoplasmose congenita',
+                       'rubéola congênita', 'rubeola congenita', 'citomegalovírus', 'citomegalovirus', 'torch']
+        },
+        {
+            canonical: 'Infecções de Vias Aéreas Superiores: Resfriado comum, Amigdalites, Sinusites, Otites, Mastoidites, Laringites',
+            keywords: ['vias aéreas superiores', 'vias aereas superiores', 'resfriado comum',
+                       'amigdalite', 'tonsilite', 'sinusite', 'otite', 'mastoidite', 'laringite',
+                       'ivas', 'infecção respiratória alta', 'infeccao respiratoria alta',
+                       'faringoamigdalite', 'rinofaringite']
+        },
+        {
+            canonical: 'Bronquiolite e suas complicações / Lactente sibilante',
+            keywords: ['bronquiolite', 'lactente sibilante', 'sibilância recorrente', 'sibilancia recorrente',
+                       'vsr', 'vírus sincicial', 'virus sincicial']
+        },
+        {
+            canonical: 'Distúrbios metabólicos do RN',
+            keywords: ['distúrbios metabólicos', 'disturbios metabolicos', 'metabólico do rn', 'metabolico do rn',
+                       'hipoglicemia neonatal', 'hipocalcemia neonatal', 'hipomagnesemia neonatal',
+                       'distúrbio metabólico neonatal', 'disturbio metabolico neonatal']
+        },
+        {
+            canonical: 'Hiperbilirrubinemia e Colestase Neonatal',
+            keywords: ['hiperbilirrubinemia', 'colestase neonatal', 'icterícia neonatal', 'ictericia neonatal',
+                       'icterícia do rn', 'ictericia do rn', 'bilirrubina neonatal', 'fototerapia neonatal']
+        },
+        {
+            canonical: 'Estafilococcias e Estreptococcias',
+            keywords: ['estafilococcia', 'estreptococcia', 'estafilococ', 'estreptococ',
+                       'staphylococ', 'streptococ', 'impetigo', 'escarlatina',
+                       'síndrome do choque tóxico', 'sindrome do choque toxico']
+        },
+        {
+            canonical: 'Constipação Intestinal – Dor abdominal Crônica',
+            keywords: ['constipação intestinal', 'constipacao intestinal', 'dor abdominal crônica', 'dor abdominal cronica',
+                       'obstipação', 'obstipacao', 'constipação', 'constipacao', 'encoprese']
+        },
+        {
+            canonical: 'Diagnóstico Diferencial das dificuldades respiratórias no período Neonatal',
+            keywords: ['dificuldades respiratórias', 'dificuldades respiratorias', 'dificuldade respiratória neonatal',
+                       'dificuldade respiratoria neonatal', 'desconforto respiratório neonatal', 'desconforto respiratorio neonatal',
+                       'ttrn', 'taquipneia transitória', 'taquipneia transitoria', 'síndrome do desconforto respiratório',
+                       'sindrome do desconforto respiratorio', 'membrana hialina', 'sdra neonatal']
+        },
+        {
+            canonical: 'Afecções Cirúrgicas em Neonatologia: Hérnia diafragmática, Atresia de esôfago, Obstruções duodenais congênitas, Íleo meconial, Onfalocele e Gastrosquise',
+            keywords: ['afecções cirúrgicas', 'afeccoes cirurgicas', 'cirurgia neonatal',
+                       'hérnia diafragmática', 'hernia diafragmatica', 'atresia de esôfago', 'atresia de esofago',
+                       'obstrução duodenal', 'obstrucao duodenal', 'íleo meconial', 'ileo meconial',
+                       'onfalocele', 'gastrosquise', 'atresia duodenal']
+        },
+        {
+            canonical: 'Urgências cirúrgicas abdominais em Pediatria: Apendicite, Estenose hipertrófica do piloro, Invaginação intestinal',
+            keywords: ['urgências cirúrgicas', 'urgencias cirurgicas', 'cirurgia abdominal pediátrica', 'cirurgia abdominal pediatrica',
+                       'apendicite', 'estenose hipertrófica do piloro', 'estenose hipertrofica do piloro',
+                       'invaginação intestinal', 'invaginacao intestinal', 'intussuscepção', 'intussuscepcao',
+                       'piloro estenose']
+        },
+        {
+            canonical: 'Pneumonias Complicadas',
+            keywords: ['pneumonias complicadas', 'pneumonia complicada', 'derrame parapneumônico', 'derrame parapneumonico',
+                       'empiema', 'abscesso pulmonar', 'pneumonia necrosante']
+        },
+        {
+            canonical: 'Convulsões na Infância',
+            keywords: ['convulsões na infância', 'convulsoes na infancia', 'convulsão infantil', 'convulsao infantil',
+                       'crise convulsiva', 'epilepsia', 'convulsão febril', 'convulsao febril',
+                       'status epilepticus', 'estado de mal epiléptico']
+        },
+        {
+            canonical: 'Meningoencefalites',
+            keywords: ['meningoencefalite', 'meningite', 'encefalite', 'meningismo',
+                       'meningococcemia', 'neisseria meningitidis', 'meningite bacteriana', 'meningite viral']
+        },
+        {
+            canonical: 'Doenças Exantemáticas: Rubéola, Eritema Infeccioso, Exantema súbito, Kawasaki, Varicela Zoster, Mononucleose Infecciosa',
+            keywords: ['doenças exantemáticas', 'doencas exantematicas', 'exantema', 'kawasaki',
+                       'varicela', 'mononucleose', 'eritema infeccioso', 'exantema súbito', 'exantema subito',
+                       'roséola', 'roseola', 'rubéola', 'rubeola', 'quinta doença', 'sexta doença',
+                       'quinta doenca', 'sexta doenca', 'epstein-barr', 'ebv']
+        }
+    ],
+
+    normalizePediatriaTema(tema) {
+        if (!tema) return tema;
+        const t = tema.toLowerCase().trim();
+        for (const entry of this.PEDIATRIA_TEMAS_MAP) {
+            if (entry.keywords.some(kw => t.includes(kw))) {
+                return entry.canonical;
+            }
+        }
+        return tema;
+    },
+
+    isPediatria(especialidade) {
+        if (!especialidade) return false;
+        return especialidade.toLowerCase().includes('pediatr');
+    },
+
+    // ─────────────────────────────────────────────────────────────
+    // MEMÓRIA DE FILTROS (localStorage)
+    // ─────────────────────────────────────────────────────────────
+    _saveFilters() {
+        const toSave = {
+            especialidades: this.filtros.especialidades,
+            temas: this.filtros.temas,
+            modo: this.filtros.modo,
+            qtd: document.getElementById('qtd-questoes').value
+        };
+        localStorage.setItem('apex_filtros', JSON.stringify(toSave));
+    },
+
+    _loadFilters() {
+        try {
+            const raw = localStorage.getItem('apex_filtros');
+            if (!raw) return null;
+            return JSON.parse(raw);
+        } catch (e) {
+            return null;
+        }
+    },
+
+    _restoreFilters() {
+        const saved = this._loadFilters();
+        if (!saved) return;
+
+        // Restore mode tab
+        if (saved.modo && ['todas', 'ineditas', 'erradas'].includes(saved.modo)) {
+            this.filtros.modo = saved.modo;
+            document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+            const tabId = 'tab-' + saved.modo;
+            const tabEl = document.getElementById(tabId);
+            if (tabEl) tabEl.classList.add('active');
+        }
+
+        // Restore especialidades — only keep ones that still exist in banco
+        if (Array.isArray(saved.especialidades) && saved.especialidades.length) {
+            const validEsps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))];
+            this.filtros.especialidades = saved.especialidades.filter(e => validEsps.includes(e));
+        }
+
+        // Restore temas — only keep ones valid under current especialidades filter
+        if (Array.isArray(saved.temas) && saved.temas.length) {
+            const pool = this.filtros.especialidades.length === 0
+                ? this.banco
+                : this.banco.filter(q => this.filtros.especialidades.includes(q.especialidade));
+            const validTemas = [...new Set(pool.map(q => q.tema_especifico).filter(Boolean))];
+            this.filtros.temas = saved.temas.filter(t => validTemas.includes(t));
+        }
+
+        // Rebuild menus and chips with restored state
+        this.buildEspMenu(); this.buildTemaMenu();
+        this.renderEspChips(); this.renderTemaChips();
+        this.updateEspLabel(); this.updateTemaLabel();
+
+        // Restore quantity
+        if (saved.qtd) {
+            const qtyInput = document.getElementById('qtd-questoes');
+            const slider = document.getElementById('qty-slider');
+            const v = parseInt(saved.qtd);
+            if (!isNaN(v) && v >= 1) {
+                qtyInput.value = v;
+                slider.value = v;
+            }
+        }
+    },
+
+    // ─────────────────────────────────────────────────────────────
+    // VOLTAR AO SETUP (sem reload, mantendo estado)
+    // ─────────────────────────────────────────────────────────────
+    voltarSetup() {
+        this.estado = 'SETUP';
+        this.historico = this._loadHistorico();
+
+        document.getElementById('end-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('quiz-bar').classList.add('hidden');
+
+        document.getElementById('setup-screen').classList.remove('hidden');
+        document.getElementById('start-bar').classList.remove('hidden');
+        document.getElementById('btn-start').classList.remove('hidden');
+
+        // Rebuild menus to reflect current state (historico may have changed)
+        this.buildEspMenu(); this.buildTemaMenu();
+        this.renderEspChips(); this.renderTemaChips();
+        this.updateEspLabel(); this.updateTemaLabel();
+        this.atualizarTudo();
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+
+    // ─────────────────────────────────────────────────────────────
+    // UTILITÁRIOS
+    // ─────────────────────────────────────────────────────────────
     escapeHtml(text) {
         if (typeof text !== 'string') return String(text || '');
         const d = document.createElement('div');
@@ -388,6 +600,9 @@ const App = {
         return `<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
     },
 
+    // ─────────────────────────────────────────────────────────────
+    // INIT
+    // ─────────────────────────────────────────────────────────────
     init() {
         this.historico = this._loadHistorico();
         Papa.parse(this.url, {
@@ -395,12 +610,25 @@ const App = {
             complete: (r) => {
                 this.banco = r.data
                     .filter(q => q.id && q.enunciado)
-                    .map(q => ({ ...q, id: this.normalizeId(q.id) }));
+                    .map(q => {
+                        const normalized = { ...q, id: this.normalizeId(q.id) };
+                        // Aplicar normalização de temas para Pediatria
+                        if (this.isPediatria(normalized.especialidade)) {
+                            normalized.tema_especifico = this.normalizePediatriaTema(normalized.tema_especifico) || normalized.tema_especifico;
+                        }
+                        return normalized;
+                    });
+
                 document.getElementById('loading').classList.add('hidden');
                 document.getElementById('setup-form').classList.remove('hidden');
                 document.getElementById('btn-start').classList.remove('hidden');
+
                 this.buildEspMenu();
                 this.buildTemaMenu();
+
+                // Restaurar filtros salvos
+                this._restoreFilters();
+
                 this.atualizarTudo();
             },
             error: () => {
@@ -412,6 +640,9 @@ const App = {
         });
     },
 
+    // ─────────────────────────────────────────────────────────────
+    // DROPDOWNS
+    // ─────────────────────────────────────────────────────────────
     toggleDD(id) {
         const menu = document.getElementById('menu-' + id);
         const chev = document.getElementById('chev-' + id);
@@ -604,6 +835,9 @@ const App = {
         document.getElementById('start-count').textContent = v;
     },
 
+    // ─────────────────────────────────────────────────────────────
+    // SESSÃO
+    // ─────────────────────────────────────────────────────────────
     iniciarSessao() {
         const validas = this.filtrarQuestoes();
         if (!validas.length) return;
@@ -611,6 +845,10 @@ const App = {
         this.fila = validas.sort(() => Math.random() - 0.5).slice(0, qtd);
         this.indice = 0;
         this.sessao = { respostas: [], startTime: Date.now() };
+
+        // Salvar filtros antes de iniciar
+        this._saveFilters();
+
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('start-bar').classList.add('hidden');
         document.getElementById('quiz-screen').classList.remove('hidden');
@@ -663,7 +901,7 @@ const App = {
     handleAction() {
         if (this.estado === 'RESPONDENDO') this.confirmarResposta();
         else if (this.estado === 'FEEDBACK') this.proximaQuestao();
-        else if (this.estado === 'FIM') location.reload();
+        else if (this.estado === 'FIM') this.voltarSetup();
     },
 
     confirmarResposta() {
@@ -713,7 +951,6 @@ const App = {
     _salvarSessao(sessaoData) {
         const sessions = JSON.parse(localStorage.getItem('apex_sessions') || '[]');
         sessions.push(sessaoData);
-        // Manter até 100 sessões
         if (sessions.length > 100) sessions.splice(0, sessions.length - 100);
         localStorage.setItem('apex_sessions', JSON.stringify(sessions));
     },
@@ -729,7 +966,6 @@ const App = {
         const avgSeg = Math.round((endTime - this.sessao.startTime) / 1000 / total);
         const tempoStr = avgSeg >= 60 ? Math.floor(avgSeg/60) + 'm' + (avgSeg%60) + 's' : avgSeg + 's';
 
-        // Salvar sessão no histórico de sessões
         const sessaoRecord = {
             date: new Date().toISOString(),
             total, acertos, pct,
