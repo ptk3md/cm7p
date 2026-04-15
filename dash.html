@@ -117,7 +117,8 @@
         .diag-item.crit { border-left-color: var(--wrong); background: var(--wrong-bg); }
         .diag-item.warn { border-left-color: var(--warn); }
         .diag-item.good { border-left-color: var(--correct); }
-        .diag-topic { font-size: 0.92rem; font-weight: 600; margin-bottom: 4px; }
+        .diag-topic { font-size: 0.92rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+        .diag-comp { font-size: 0.78rem; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
         .diag-meta-row { font-size: 0.72rem; color: var(--text-2); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .badge { padding: 2px 7px; border-radius: 4px; font-weight: 700; font-size: 0.68rem; }
         .badge.err { color: var(--wrong); background: var(--wrong-bg); border: 1px solid var(--wrong-border); }
@@ -192,7 +193,6 @@
 
 <main id="dash-main" class="hidden">
 
-    <!-- TABS -->
     <div class="tab-bar">
         <button class="tab-btn active" onclick="switchTab('overview', this)">Visão Geral</button>
         <button class="tab-btn" onclick="switchTab('topics', this)">Tópicos</button>
@@ -200,7 +200,6 @@
         <button class="tab-btn" onclick="switchTab('plan', this)">Plano</button>
     </div>
 
-    <!-- TAB: OVERVIEW -->
     <div id="tab-overview">
         <div class="card">
             <div class="card-title">
@@ -253,7 +252,6 @@
         </div>
     </div>
 
-    <!-- TAB: TOPICS -->
     <div id="tab-topics" class="hidden">
         <div class="card">
             <div class="card-title">
@@ -265,20 +263,27 @@
         <div class="card">
             <div class="card-title">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Desempenho por Tema
+                Desempenho por Tema Específico
             </div>
             <div id="tema-table-wrap"></div>
+        </div>
+        <div class="card">
+            <div class="card-title">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                Desempenho por Competência
+            </div>
+            <div id="comp-table-wrap"></div>
         </div>
         <div class="card" id="worst-qs-card">
             <div class="card-title" style="color:var(--wrong)">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Questões com Maior Dificuldade (Erradas)
+                Recorrência de Erros (Tema + Competência)
             </div>
+            <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:14px;">Identifique os conceitos específicos onde você repete erros com mais frequência.</p>
             <div id="worst-qs-list"></div>
         </div>
     </div>
 
-    <!-- TAB: SESSIONS -->
     <div id="tab-sessions" class="hidden">
         <div class="card">
             <div class="card-title">Histórico de Sessões</div>
@@ -286,7 +291,6 @@
         </div>
     </div>
 
-    <!-- TAB: PLAN -->
     <div id="tab-plan" class="hidden">
         <div class="card">
             <div class="card-title">
@@ -300,7 +304,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 Prescrição de Estudos
             </div>
-            <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:14px;">Gere um documento Markdown com seu diagnóstico e plano de ação detalhado.</p>
+            <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:14px;">Gere um documento Markdown com seu diagnóstico mapeado por competência e plano de ação detalhado.</p>
             <button onclick="openPrescription()" style="padding:10px 18px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:700;cursor:pointer;transition:opacity 0.2s;" onmouseover="this.style.opacity=0.85" onmouseout="this.style.opacity=1">
                 Gerar Prescrição Markdown
             </button>
@@ -309,7 +313,6 @@
 
 </main>
 
-<!-- MODAL PRESCRIPTION -->
 <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
     <div class="modal-box">
         <div class="modal-head">
@@ -498,49 +501,63 @@ function buildSessionTrend() {
 
 /* ── TOPICS ───────────────────────────────────── */
 function buildTopics() {
-    // Build from historico + banco
-    const espStats = {}, temaStats = {};
-    const wrongIds = [];
+    const espStats = {}, temaStats = {}, compStats = {};
+    const wrongQs = [];
 
     Object.entries(G.historico).forEach(([id, status]) => {
         const q = G.banco.find(q => q.id === id);
         if (!q) return;
         const esp = q.especialidade || 'Sem especialidade';
         const tema = q.tema_especifico || 'Sem tema';
+        const comp = q.competencia || 'Sem competência listada';
         const isCorrect = status === 'correta';
 
-        if (!espStats[esp]) espStats[esp] = { total: 0, correct: 0 };
-        espStats[esp].total++; if (isCorrect) espStats[esp].correct++;
+        if (!espStats[esp]) espStats[esp] = { total: 0, correct: 0, errors: 0 };
+        espStats[esp].total++; if (isCorrect) espStats[esp].correct++; else espStats[esp].errors++;
 
-        if (!temaStats[tema]) temaStats[tema] = { total: 0, correct: 0, esp };
-        temaStats[tema].total++; if (isCorrect) temaStats[tema].correct++;
+        if (!temaStats[tema]) temaStats[tema] = { total: 0, correct: 0, errors: 0, esp };
+        temaStats[tema].total++; if (isCorrect) temaStats[tema].correct++; else temaStats[tema].errors++;
 
-        if (!isCorrect) wrongIds.push({ id, tema, esp });
-    });
+        if (!compStats[comp]) compStats[comp] = { total: 0, correct: 0, errors: 0, tema };
+        compStats[comp].total++; if (isCorrect) compStats[comp].correct++; else compStats[comp].errors++;
 
-    // Also pull from sessions if banco not loaded
-    G.sessions.forEach(s => {
-        s.respostas.forEach(r => {
-            const esp = r.especialidade || 'Sem especialidade';
-            const tema = r.tema || 'Sem tema';
-            if (!espStats[esp]) espStats[esp] = { total: 0, correct: 0 };
-            // Already counted via historico if banco loaded; skip duplicates
-        });
+        if (!isCorrect) wrongQs.push({ id, tema, esp, comp });
     });
 
     renderTable('esp-table-wrap', espStats);
     renderTable('tema-table-wrap', temaStats);
+    renderTable('comp-table-wrap', compStats);
 
-    // Worst questions
+    // Agrupar erros por Tema + Competência para revelar recorrência
+    const freqMap = {};
+    wrongQs.forEach(w => {
+        const key = `${w.tema}:::${w.comp}:::${w.esp}`;
+        if(!freqMap[key]) freqMap[key] = { tema: w.tema, comp: w.comp, esp: w.esp, count: 0, ids: [] };
+        freqMap[key].count++;
+        freqMap[key].ids.push(w.id);
+    });
+
+    const sortedFreq = Object.values(freqMap).sort((a,b) => b.count - a.count);
+
     const wrapEl = document.getElementById('worst-qs-list');
-    if (!wrongIds.length) { wrapEl.innerHTML = '<div style="color:var(--text-3);font-size:0.85rem;">Nenhum erro registrado ainda. 🎉</div>'; return; }
-    wrapEl.innerHTML = wrongIds.slice(0, 15).map(w =>
-        `<div style="display:flex;justify-content:space-between;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--wrong);border-radius:var(--radius);margin-bottom:6px;">
-            <div>
-                <div style="font-size:0.88rem;font-weight:600;">${escHtml(w.tema)}</div>
-                <div style="font-size:0.72rem;color:var(--text-3);margin-top:2px;">${escHtml(w.esp)}</div>
+    if (!sortedFreq.length) { 
+        wrapEl.innerHTML = '<div style="color:var(--text-3);font-size:0.85rem;">Nenhum erro registrado ainda. 🎉</div>'; 
+        return; 
+    }
+
+    wrapEl.innerHTML = sortedFreq.slice(0, 15).map(w =>
+        `<div style="display:flex;justify-content:space-between;padding:12px 14px;background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--wrong);border-radius:var(--radius);margin-bottom:8px;gap:12px;align-items:center;">
+            <div style="flex:1;min-width:0;">
+                <div style="font-size:0.92rem;font-weight:700;color:var(--text);margin-bottom:4px;">${escHtml(w.tema)}</div>
+                <div style="font-size:0.8rem;color:var(--text-2);margin-bottom:6px;font-weight:500;">⮑ ${escHtml(w.comp)}</div>
+                <div style="font-size:0.7rem;color:var(--text-3); display:flex; gap:6px; flex-wrap:wrap;">
+                    <span style="background:var(--surface-3);padding:2px 6px;border-radius:4px;">${escHtml(w.esp)}</span>
+                </div>
             </div>
-            <div style="font-size:0.72rem;color:var(--text-3);font-weight:600;padding-top:2px;">ID ${escHtml(w.id)}</div>
+            <div style="text-align:right;flex-shrink:0;">
+                <div style="font-size:1.5rem;font-weight:700;color:var(--wrong);line-height:1;">${w.count}</div>
+                <div style="font-size:0.65rem;color:var(--text-3);text-transform:uppercase;font-weight:700;margin-top:4px;letter-spacing:0.04em;">Erro(s)</div>
+            </div>
         </div>`
     ).join('');
 }
@@ -556,7 +573,7 @@ function renderTable(containerId, stats) {
 
     el.innerHTML = `<table class="topic-table">
         <thead><tr>
-            <th>Tópico</th>
+            <th>Tópico / Competência</th>
             <th>Questões</th>
             <th>Acerto</th>
         </tr></thead>
@@ -609,16 +626,15 @@ function buildPlan() {
         if (!q) return;
         const tema = q.tema_especifico || q.tema || 'Geral';
         const esp = q.especialidade || 'Geral';
-        const comp = q.competencia || 'Revisão Geral';
-        const ga = q.grande_area || esp;
-        const key = `${esp}|${tema}`;
-        if (!topicMap[key]) topicMap[key] = { tema, esp, comp, ga, total: 0, correct: 0, errors: 0 };
+        const comp = q.competencia || 'Sem competência listada';
+        const key = `${esp}|${tema}|${comp}`; // Agrupamento granulado agora foca também na competência
+        
+        if (!topicMap[key]) topicMap[key] = { tema, esp, comp, total: 0, correct: 0, errors: 0 };
         topicMap[key].total++;
         if (status === 'correta') topicMap[key].correct++;
         else topicMap[key].errors++;
     });
 
-    // Also pull from sessions (deduplicate with historico by relying only on unique per-session topics for timing insights)
     const nodes = Object.values(topicMap).map(t => {
         const acc = Math.round((t.correct / t.total) * 100);
         const urgency = (t.errors * 2) + (100 - acc);
@@ -658,6 +674,7 @@ function diagItemHtml(t) {
     return `<div class="diag-item ${t.cat}">
         <div style="flex:1;min-width:0;">
             <div class="diag-topic">${escHtml(t.tema)}</div>
+            <div class="diag-comp">⮑ ${escHtml(t.comp)}</div>
             <div class="diag-meta-row">
                 ${t.errors > 0 ? `<span class="badge err">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>` : `<span class="badge ok">Sem erros</span>`}
                 <span class="badge info">${escHtml(t.esp)}</span>
@@ -676,11 +693,20 @@ function openPrescription() {
     if (!G.diagNodes.length) return;
     const crits = G.diagNodes.filter(n => n.cat === 'crit');
     const warns = G.diagNodes.filter(n => n.cat === 'warn');
-    const main = G.diagNodes[0];
     const totalQ = Object.keys(G.historico).length;
     const totalCorr = Object.values(G.historico).filter(v => v === 'correta').length;
     const globalAcc = totalQ > 0 ? Math.round((totalCorr / totalQ) * 100) : 0;
     const hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+
+    // Extrair principais competências falhas globalmente
+    const compErrors = {};
+    G.diagNodes.forEach(n => {
+        if(n.errors > 0) {
+            if(!compErrors[n.comp]) compErrors[n.comp] = 0;
+            compErrors[n.comp] += n.errors;
+        }
+    });
+    const topComps = Object.entries(compErrors).sort((a,b) => b[1] - a[1]).slice(0, 3);
 
     G.currentMarkdown = `# 🩺 Prescrição de Estudos — QuestBank
 > Gerada em ${hoje}
@@ -694,40 +720,38 @@ function openPrescription() {
 | Questões respondidas | ${totalQ} |
 | Taxa de acerto global | ${globalAcc}% |
 | Sessões realizadas | ${G.sessions.length} |
-| Tópicos mapeados | ${G.diagNodes.length} |
-| Tópicos críticos | ${crits.length} |
-| Tópicos em atenção | ${warns.length} |
+| Tópicos (Competências) analisados | ${G.diagNodes.length} |
+| Lacunas Críticas | ${crits.length} |
 
+${topComps.length > 0 ? `### 🎯 Principais Deficiências por Competência\n${topComps.map(c => `- **${c[0]}** (${c[1]} erros acumulados)`).join('\n')}\n` : ''}
 ---
 
-## 🚨 Prioridade Máxima (Revisão Imediata)
+## 🚨 Prioridade Máxima (Revisão Imediata da Teoria)
 
 ${crits.length > 0 ? crits.slice(0,5).map((t, i) => `### ${i+1}. ${t.tema}
 - **Especialidade:** ${t.esp}
-- **Competência:** ${t.comp}
-- **Precisão atual:** ${t.acc}% (meta: 70%)
-- **Erros acumulados:** ${t.errors}
-- **Ação:** Revise a teoria de _${t.comp}_ antes de voltar às questões.`).join('\n\n') : '_Nenhum tópico crítico. Bom trabalho!_'}
+- **Competência em Defasagem:** ${t.comp}
+- **Precisão atual:** ${t.acc}% (meta: 70%) | **Erros acumulados:** ${t.errors}
+- **Plano de Ação:** 1. Retorne ao material teórico focado em *${t.comp}*. Não faça questões deste tema agora.
+  2. Após revisar a teoria, crie uma nova sessão focada exclusivamente neste tema no modo "Meus Erros".`).join('\n\n') : '_Nenhuma competência em estágio crítico. Excelente trabalho!_'}
 
 ---
 
-## ⚠️ Atenção (Lacunas Parciais)
+## ⚠️ Atenção (Lacunas Parciais de Desempenho)
 
-${warns.length > 0 ? warns.slice(0,5).map((t, i) => `${i+1}. **${t.tema}** (${t.esp}) — ${t.acc}% de precisão, ${t.errors} erros`).join('\n') : '_Nenhum tópico em atenção no momento._'}
-
----
-
-## 📝 Plano de Ação Recomendado
-
-1. **Pare** de fazer questões aleatórias por enquanto.
-2. **Foque** nos ${crits.length} tópicos críticos listados acima — revise a teoria primeiro.
-3. **Volte** ao banco filtrando por especialidade + tema específico.
-4. **Meta por sessão:** mínimo 70% de acerto antes de avançar para o próximo tópico.
-5. **Cadência:** pelo menos 1 sessão por dia para manter a sequência.
+${warns.length > 0 ? warns.slice(0,5).map((t, i) => `${i+1}. **${t.tema}** — ${t.comp} (${t.acc}% acerto, ${t.errors} erros)`).join('\n') : '_Nenhum tópico na zona de atenção no momento._'}
 
 ---
 
-_Prescrição gerada automaticamente. Use como guia de revisão._`;
+## 📝 Instruções de Cadência
+
+1. **Bloqueio Teórico:** Dedique as próximas horas de estudo para sanar as competências listadas em **Prioridade Máxima**. O erro repetitivo indica falha no pilar de base conceitual.
+2. **Re-teste Inteligente:** Utilize os filtros de Especialidade e Tema Específico do QuestBank para testar o domínio novamente após a revisão teórica. Sua meta é atingir **>70%** nas competências críticas.
+3. **Consistência Semanal:** Continue realizando pelo menos 1 sessão geral de modo "Aleatório" a cada 2 dias para manter as demais competências frescas e evitar a curva de esquecimento.
+
+---
+
+_Prescrição orientada por dados de recorrência de erros nas competências avaliadas._`;
 
     document.getElementById('modal-content').textContent = G.currentMarkdown;
     document.getElementById('modal').classList.add('active');
