@@ -506,7 +506,6 @@ const App = {
         const saved = this._loadFilters();
         if (!saved) return;
 
-        // Restore mode tab
         if (saved.modo && ['todas', 'ineditas', 'erradas'].includes(saved.modo)) {
             this.filtros.modo = saved.modo;
             document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
@@ -515,13 +514,11 @@ const App = {
             if (tabEl) tabEl.classList.add('active');
         }
 
-        // Restore especialidades — only keep ones that still exist in banco
         if (Array.isArray(saved.especialidades) && saved.especialidades.length) {
             const validEsps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))];
             this.filtros.especialidades = saved.especialidades.filter(e => validEsps.includes(e));
         }
 
-        // Restore temas — only keep ones valid under current especialidades filter
         if (Array.isArray(saved.temas) && saved.temas.length) {
             const pool = this.filtros.especialidades.length === 0
                 ? this.banco
@@ -530,12 +527,10 @@ const App = {
             this.filtros.temas = saved.temas.filter(t => validTemas.includes(t));
         }
 
-        // Rebuild menus and chips with restored state
         this.buildEspMenu(); this.buildTemaMenu();
         this.renderEspChips(); this.renderTemaChips();
         this.updateEspLabel(); this.updateTemaLabel();
 
-        // Restore quantity
         if (saved.qtd) {
             const qtyInput = document.getElementById('qtd-questoes');
             const slider = document.getElementById('qty-slider');
@@ -562,7 +557,6 @@ const App = {
         document.getElementById('start-bar').classList.remove('hidden');
         document.getElementById('btn-start').classList.remove('hidden');
 
-        // Rebuild menus to reflect current state (historico may have changed)
         this.buildEspMenu(); this.buildTemaMenu();
         this.renderEspChips(); this.renderTemaChips();
         this.updateEspLabel(); this.updateTemaLabel();
@@ -612,7 +606,6 @@ const App = {
                     .filter(q => q.id && q.enunciado)
                     .map(q => {
                         const normalized = { ...q, id: this.normalizeId(q.id) };
-                        // Aplicar normalização de temas para Pediatria
                         if (this.isPediatria(normalized.especialidade)) {
                             normalized.tema_especifico = this.normalizePediatriaTema(normalized.tema_especifico) || normalized.tema_especifico;
                         }
@@ -625,10 +618,7 @@ const App = {
 
                 this.buildEspMenu();
                 this.buildTemaMenu();
-
-                // Restaurar filtros salvos
                 this._restoreFilters();
-
                 this.atualizarTudo();
             },
             error: () => {
@@ -838,15 +828,74 @@ const App = {
     // ─────────────────────────────────────────────────────────────
     // SESSÃO
     // ─────────────────────────────────────────────────────────────
+
+    // 🔀 ALTERAÇÃO: garantia de 1+ questão por tema no modo aleatório
+    _selecionarComCoberturaDeTemas(validas, qtd) {
+        // Só aplica a lógica de cobertura quando nenhum tema foi pré-selecionado.
+        // Se temas foram selecionados manualmente, o comportamento original é mantido.
+        if (this.filtros.temas.length > 0) {
+            return validas.sort(() => Math.random() - 0.5).slice(0, qtd);
+        }
+
+        // Agrupar questões por tema (campo: tema_especifico; fallback para especialidade ou 'Geral')
+        const grupos = {};
+        for (const q of validas) {
+            const chave = q.tema_especifico || q.especialidade || 'Geral';
+            if (!grupos[chave]) grupos[chave] = [];
+            grupos[chave].push(q);
+        }
+
+        // Embaralhar internamente cada grupo
+        for (const chave of Object.keys(grupos)) {
+            grupos[chave].sort(() => Math.random() - 0.5);
+        }
+
+        const temas = Object.keys(grupos);
+        const numTemas = temas.length;
+        const selecionadas = [];
+        const usados = new Set();
+
+        if (qtd >= numTemas) {
+            // Regra 1: ao menos 1 questão de cada tema; preenche o restante aleatoriamente
+            // Passo 1 — 1 questão por tema
+            for (const tema of temas) {
+                const q = grupos[tema].shift();
+                selecionadas.push(q);
+                usados.add(q.id);
+            }
+
+            // Passo 2 — preencher o restante com questões aleatórias das sobras
+            const sobras = validas.filter(q => !usados.has(q.id)).sort(() => Math.random() - 0.5);
+            const restante = qtd - selecionadas.length;
+            for (let i = 0; i < restante && i < sobras.length; i++) {
+                selecionadas.push(sobras[i]);
+            }
+        } else {
+            // Regra 2: qtd < numTemas — cobrir o maior número possível de temas distintos
+            // Embaralhar a ordem dos temas e pegar 1 questão de cada até atingir qtd
+            const temasEmbaralhados = temas.sort(() => Math.random() - 0.5);
+            for (const tema of temasEmbaralhados) {
+                if (selecionadas.length >= qtd) break;
+                const q = grupos[tema].shift();
+                selecionadas.push(q);
+            }
+        }
+
+        // Embaralhar ordem final da fila
+        return selecionadas.sort(() => Math.random() - 0.5);
+    },
+
     iniciarSessao() {
         const validas = this.filtrarQuestoes();
         if (!validas.length) return;
         const qtd = Math.min(parseInt(document.getElementById('qtd-questoes').value) || 10, validas.length);
-        this.fila = validas.sort(() => Math.random() - 0.5).slice(0, qtd);
+
+        // 🔀 ALTERAÇÃO: garantia de 1+ questão por tema no modo aleatório
+        this.fila = this._selecionarComCoberturaDeTemas(validas, qtd);
+
         this.indice = 0;
         this.sessao = { respostas: [], startTime: Date.now() };
 
-        // Salvar filtros antes de iniciar
         this._saveFilters();
 
         document.getElementById('setup-screen').classList.add('hidden');
