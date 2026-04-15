@@ -1,0 +1,922 @@
+<!-- 🔧 OTIMIZADO: TS + modernizado em 2026-04-15 -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<meta name="theme-color" content="#0d0d0d">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://gc.zgo.at https://cm7p.goatcounter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://docs.google.com https://cm7p.goatcounter.com https://gc.zgo.at;">
+<title>Banco de Questões</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+:root{--bg:#0d0d0d;--surface:#181818;--surface-2:#222;--surface-3:#2a2a2a;--border:#2e2e2e;--border-light:#3a3a3a;--text:#f2f2f2;--text-2:#a0a0a0;--text-3:#606060;--accent:#5b8df0;--accent-bg:rgba(91,141,240,.12);--correct:#3ecf8e;--correct-bg:rgba(62,207,142,.1);--correct-border:rgba(62,207,142,.3);--wrong:#f06060;--wrong-bg:rgba(240,96,96,.1);--wrong-border:rgba(240,96,96,.3);--warn:#f5a623;--radius:6px;--radius-lg:8px;--safe-bottom:env(safe-area-inset-bottom,16px)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;max-width:680px;margin:0 auto;padding:0 0 calc(100px + var(--safe-bottom)) 0;min-height:100vh;-webkit-font-smoothing:antialiased;font-size:15px}
+.hidden{display:none!important}
+#setup-screen{padding:28px 20px 0}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.top-bar-title{font-size:1rem;font-weight:700}
+.top-bar-sub{font-size:.75rem;color:var(--text-3);margin-top:2px}
+.top-bar-nav{display:flex;align-items:center;gap:6px}
+.nav-icon-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:7px 11px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text-2);text-decoration:none;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:600;transition:all .15s;cursor:pointer;white-space:nowrap}
+.nav-icon-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+.nav-icon-btn svg{flex-shrink:0}
+.counter-block{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;transition:border-color .2s}
+.counter-block.zero{border-color:var(--wrong-border)}
+.counter-block.zero .counter-num{color:var(--wrong)}
+.counter-num{font-size:2rem;font-weight:700;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.counter-num-label{font-size:.72rem;color:var(--text-3);margin-top:3px;text-transform:uppercase;letter-spacing:.05em}
+.counter-tags{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ctag{font-size:.72rem;font-weight:600;padding:3px 8px;border-radius:4px;white-space:nowrap}
+.ctag-n{background:var(--surface-3);color:var(--text-2)}
+.ctag-d{background:rgba(62,207,142,.1);color:var(--correct)}
+.ctag-e{background:rgba(240,96,96,.1);color:var(--wrong)}
+.section-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.section-label{font-size:.7rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em}
+.clear-btn{font-size:.72rem;font-weight:700;color:var(--accent);background:none;border:1px solid var(--border);border-radius:4px;padding:3px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;visibility:hidden}
+.clear-btn:hover{background:var(--accent-bg);border-color:var(--accent)}
+.mode-tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:14px}
+.mode-tab{padding:10px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text-2);font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;text-align:center;transition:all .15s}
+.mode-tab:hover{border-color:var(--border-light);color:var(--text)}
+.mode-tab.active{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
+.filter-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;overflow:visible}
+.filter-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative;user-select:none}
+.filter-row:hover{background:var(--surface-2)}
+.filter-row-left{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.filter-row-key{font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.filter-row-val{font-size:.9rem;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}
+.filter-chevron{color:var(--text-3);transition:transform .2s;flex-shrink:0;margin-left:10px}
+.filter-chevron.open{transform:rotate(180deg);color:var(--accent)}
+.dropdown-menu{position:absolute;top:calc(100% + 2px);left:0;right:0;z-index:300;background:var(--surface-2);border:1px solid var(--border-light);border-radius:var(--radius-lg);max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.dd-option{padding:10px 14px;font-size:.88rem;color:var(--text-2);cursor:pointer;border-bottom:1px solid var(--border);transition:background .12s,color .12s;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.dd-option:last-child{border-bottom:none}
+.dd-option:hover{background:var(--surface-3);color:var(--text)}
+.dd-option.selected{color:var(--accent);font-weight:600}
+.dd-check{width:16px;height:16px;border:1.5px solid var(--border-light);border-radius:3px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.dd-option.selected .dd-check{background:var(--accent);border-color:var(--accent)}
+.dd-check-mark{display:none}
+.dd-option.selected .dd-check-mark{display:block}
+.tema-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px 14px;border-top:1px solid var(--border)}
+.tema-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:4px;border:1px solid var(--accent);background:var(--accent-bg);font-size:.78rem;color:var(--accent);font-weight:500}
+.tema-chip-x{cursor:pointer;font-size:1rem;line-height:1;opacity:.7}
+.tema-chip-x:hover{opacity:1}
+.qty-wrap{padding:18px 16px 16px}
+.qty-big-num{font-size:3rem;font-weight:700;color:var(--accent);background:transparent;border:none;text-align:center;width:100%;outline:none;font-family:'DM Sans',sans-serif;line-height:1;font-variant-numeric:tabular-nums}
+.qty-big-num::-webkit-inner-spin-button,.qty-big-num::-webkit-outer-spin-button{-webkit-appearance:none}
+.qty-big-label{font-size:.7rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;text-align:center;background:var(--surface-3);display:inline-block;padding:2px 10px;border-radius:20px;margin-top:4px}
+.qty-slider-wrap{margin-top:14px}
+.qty-slider{width:100%;height:4px;background:var(--surface-3);border-radius:2px;appearance:none;-webkit-appearance:none;cursor:pointer;accent-color:var(--accent);outline:none}
+.qty-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg);box-shadow:0 0 0 1px var(--accent)}
+.qty-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;border:2px solid var(--bg)}
+.fixed-bottom{position:fixed;bottom:0;left:0;right:0;padding:12px 20px calc(12px + var(--safe-bottom));background:linear-gradient(to top,var(--bg) 65%,transparent);display:flex;justify-content:center;z-index:200;pointer-events:none}
+.btn-primary{width:100%;max-width:400px;padding:15px 28px;border-radius:var(--radius-lg);border:none;background:var(--accent);color:white;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;pointer-events:auto;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+.btn-primary:hover{opacity:.9;transform:translateY(-1px)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{background:var(--surface-2);color:var(--text-3);cursor:not-allowed;transform:none;opacity:1}
+.btn-badge{background:rgba(255,255,255,.22);padding:2px 9px;border-radius:4px;font-size:.82rem}
+#quiz-screen{padding:0}
+.quiz-header{display:flex;align-items:center;gap:12px;padding:16px 20px 12px;border-bottom:1px solid var(--border)}
+.quiz-prog-wrap{flex:1}
+.quiz-prog-labels{display:flex;justify-content:space-between;font-size:.72rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.quiz-prog-bar{height:3px;background:var(--surface-3);border-radius:2px;overflow:hidden}
+.quiz-prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s ease}
+.quiz-id{background:var(--surface);border:1px solid var(--border);padding:5px 10px;border-radius:var(--radius);font-size:.72rem;color:var(--text-3);font-weight:600;white-space:nowrap}
+.quiz-body{padding:20px 20px 0}
+.q-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.q-badge{padding:4px 10px;border-radius:4px;border:1px solid var(--border);font-size:.72rem;font-weight:600;color:var(--text-3);background:var(--surface)}
+#enunciado{font-size:1rem;line-height:1.7;color:var(--text);margin-bottom:22px}
+.option-label{display:flex;align-items:flex-start;padding:13px 14px;margin-bottom:8px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--surface);transition:all .15s;gap:12px}
+.option-label:hover{border-color:var(--border-light);background:var(--surface-2)}
+.option-label input{display:none}
+.option-bubble{width:28px;height:28px;min-width:28px;border:1.5px solid var(--border-light);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--text-3);background:var(--surface-2);transition:all .15s}
+.option-text{font-size:.95rem;flex:1;line-height:1.55;color:var(--text-2);padding-top:4px}
+.option-label.selected{border-color:var(--accent);background:var(--accent-bg)}
+.option-label.selected .option-bubble{border-color:var(--accent);background:var(--accent);color:white}
+.option-label.selected .option-text{color:var(--text)}
+.option-label.correct-answer{border-color:var(--correct-border);background:var(--correct-bg)}
+.option-label.correct-answer .option-bubble{border-color:var(--correct);background:var(--correct);color:#0d0d0d}
+.option-label.correct-answer .option-text{color:var(--text)}
+.option-label.wrong-answer{border-color:var(--wrong-border);background:var(--wrong-bg);opacity:.7}
+.option-label.wrong-answer .option-bubble{border-color:var(--wrong);background:var(--wrong);color:white}
+#feedback-section{margin:4px 20px 0;padding:16px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface)}
+.fb-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.fb-icon{width:28px;height:28px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fb-icon.c{background:var(--correct-bg);border:1px solid var(--correct-border)}
+.fb-icon.w{background:var(--wrong-bg);border:1px solid var(--wrong-border)}
+.fb-label{font-size:.95rem;font-weight:700}
+.fb-label.c{color:var(--correct)}
+.fb-label.w{color:var(--wrong)}
+.fb-div{height:1px;background:var(--border);margin-bottom:12px}
+.fb-com-label{font-size:.7rem;color:var(--text-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+#comentario-texto{font-size:.9rem;color:var(--text-2);line-height:1.6}
+.quiz-action-bar{position:fixed;bottom:0;left:0;right:0;padding:12px 20px calc(12px + var(--safe-bottom));background:linear-gradient(to top,var(--bg) 65%,transparent);display:flex;justify-content:center;z-index:200;pointer-events:none}
+.quiz-action-btn{width:100%;max-width:400px;padding:15px 28px;border-radius:var(--radius-lg);border:none;background:var(--accent);color:white;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;pointer-events:auto;transition:all .15s}
+.quiz-action-btn:hover{opacity:.9}
+.quiz-action-btn:active{transform:scale(.98)}
+.quiz-action-btn:disabled{background:var(--surface-2);color:var(--text-3);cursor:not-allowed}
+#end-screen{padding:28px 20px 0}
+.end-title{font-size:1.3rem;font-weight:700;margin-bottom:4px}
+.end-sub{font-size:.85rem;color:var(--text-3);margin-bottom:24px}
+.score-wrap{display:flex;justify-content:center;margin-bottom:24px}
+.score-ring{position:relative;width:130px;height:130px}
+.score-ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.score-ring-bg{fill:none;stroke:var(--surface-3);stroke-width:7}
+.score-ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-pct{font-size:2rem;font-weight:700;line-height:1}
+.score-pct-lbl{font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px}
+.stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 10px;text-align:center}
+.stat-val{font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:5px}
+.stat-lbl{font-size:.7rem;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.analysis-section{border-top:1px solid var(--border);padding-top:20px;margin-top:20px}
+.analysis-title{font-size:.72rem;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px}
+.theme-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px}
+.theme-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:10px}
+.theme-name{font-size:.88rem;font-weight:600;flex:1}
+.theme-stat{font-size:.82rem;font-weight:700;flex-shrink:0}
+.theme-bar-bg{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden}
+.theme-bar-fill{height:100%;border-radius:2px}
+.error-item{padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--wrong);border-radius:var(--radius);margin-bottom:6px}
+.error-topic{font-size:.85rem;font-weight:600;margin-bottom:3px}
+.error-detail{font-size:.75rem;color:var(--text-3)}
+#loading{display:flex;flex-direction:column;align-items:center;gap:16px;padding:60px 0}
+.spinner{width:40px;height:40px;border:2px solid var(--surface-3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-text{font-size:.85rem;color:var(--text-3);font-weight:500}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:2px}
+</style>
+</head>
+<body>
+<main>
+<div id="setup-screen">
+<div class="top-bar">
+<div>
+<div class="top-bar-title">Banco de Questões</div>
+<div class="top-bar-sub">Configure e inicie sua sessão</div>
+</div>
+<div class="top-bar-nav">
+<a href="dash.html" class="nav-icon-btn" title="Dashboard Analítico">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Análise</a>
+<a href="transfer.html" class="nav-icon-btn" title="Transferência de Dados">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>Dados</a>
+</div>
+</div>
+<div id="loading"><div class="spinner"></div><div class="spin-text">Carregando banco...</div></div>
+<div id="setup-form" class="hidden">
+<div class="counter-block" id="counter-block">
+<div><div class="counter-num" id="counter-value">0</div><div class="counter-num-label">questões disponíveis</div></div>
+<div class="counter-tags"><span class="ctag ctag-n" id="tag-total">— no banco</span><span class="ctag ctag-d" id="tag-done">— respondidas</span><span class="ctag ctag-e" id="tag-errors">— com erro</span></div>
+</div>
+<div class="section-label" style="margin-bottom:8px">Modo de Questões</div>
+<div class="mode-tabs" style="margin-bottom:14px">
+<button class="mode-tab active" id="tab-todas" onclick="App.setModo('todas',this)">Todas</button>
+<button class="mode-tab" id="tab-ineditas" onclick="App.setModo('ineditas',this)">Inéditas</button>
+<button class="mode-tab" id="tab-erradas" onclick="App.setModo('erradas',this)">Meus Erros</button>
+</div>
+<div class="section-bar"><span class="section-label">Filtros</span><button class="clear-btn" id="btn-clear" onclick="App.limparFiltros()">Limpar filtros</button></div>
+<div class="filter-card">
+<div>
+<div class="filter-row" id="row-esp" onclick="App.toggleDD('esp')">
+<div class="filter-row-left"><span class="filter-row-key">Especialidade (múltipla seleção)</span><span class="filter-row-val" id="label-esp">Todas as Especialidades</span></div>
+<svg class="filter-chevron" id="chev-esp" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+<div class="dropdown-menu hidden" id="menu-esp"></div>
+</div>
+<div id="esp-chips-wrap" class="hidden"></div>
+</div>
+<div style="border-top:1px solid var(--border)">
+<div class="filter-row" id="row-tema" onclick="App.toggleDD('tema')" style="border-bottom:none">
+<div class="filter-row-left"><span class="filter-row-key">Temas (múltipla seleção)</span><span class="filter-row-val" id="label-tema">Todos os Temas</span></div>
+<svg class="filter-chevron" id="chev-tema" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+<div class="dropdown-menu hidden" id="menu-tema"></div>
+</div>
+<div id="tema-chips-wrap" class="hidden"></div>
+</div>
+</div>
+<div class="section-label" style="margin-bottom:8px">Quantidade</div>
+<div class="filter-card">
+<div class="qty-wrap">
+<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:14px">
+<input type="number" class="qty-big-num" id="qtd-questoes" value="10" min="1" oninput="App.onQtyInput()">
+<span class="qty-big-label">Questões selecionadas</span>
+</div>
+<div class="qty-slider-wrap">
+<input type="range" id="qty-slider" class="qty-slider" min="1" max="100" value="10" step="1" oninput="App.onSliderInput()">
+<div style="display:flex;justify-content:space-between;font-size:.72rem;font-weight:600;color:var(--text-3);margin-top:5px"><span>1</span><span id="qty-max">0</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="quiz-screen" class="hidden">
+<div class="quiz-header">
+<div class="quiz-prog-wrap">
+<div class="quiz-prog-labels"><span id="progress-text">1 / 10</span><span id="progress-pct">0%</span></div>
+<div class="quiz-prog-bar"><div class="quiz-prog-fill" id="progress-fill" style="width:0%"></div></div>
+</div>
+<div class="quiz-id">ID: <span id="question-id">—</span></div>
+</div>
+<div class="quiz-body">
+<div class="q-meta" id="question-meta"></div>
+<div id="enunciado"></div>
+<div id="opcoes-container"></div>
+</div>
+<div id="feedback-section" class="hidden" style="margin:4px 20px 0">
+<div class="fb-row"><div class="fb-icon" id="fb-icon"></div><div class="fb-label" id="resultado-texto"></div></div>
+<div class="fb-div"></div>
+<div class="fb-com-label">Comentário</div>
+<div id="comentario-texto"></div>
+</div>
+<div style="height:8px"></div>
+</div>
+<div id="end-screen" class="hidden">
+<div class="end-title">Sessão Concluída</div>
+<div class="end-sub" id="dash-feedback-msg">Calculando...</div>
+<div class="score-wrap">
+<div class="score-ring">
+<svg viewBox="0 0 100 100"><circle class="score-ring-bg" cx="50" cy="50" r="42"/><circle class="score-ring-fill" id="score-ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/></svg>
+<div class="score-center"><div class="score-pct" id="dash-pct">0%</div><div class="score-pct-lbl">acertos</div></div>
+</div>
+</div>
+<div class="stats-grid">
+<div class="stat-box"><div class="stat-val" id="dash-acertos">0</div><div class="stat-lbl">Acertos</div></div>
+<div class="stat-box"><div class="stat-val" id="dash-total-end">0</div><div class="stat-lbl">Questões</div></div>
+<div class="stat-box"><div class="stat-val" id="dash-tempo">—</div><div class="stat-lbl">Tempo/Q.</div></div>
+</div>
+<div class="analysis-section"><div class="analysis-title">Desempenho por Tema</div><div id="themes-container"></div></div>
+<div class="analysis-section hidden" id="errors-block"><div class="analysis-title" style="color:var(--wrong)">Gabarito dos Erros</div><div id="error-list"></div></div>
+<div style="height:16px"></div>
+</div>
+</main>
+<div class="fixed-bottom" id="start-bar"><button class="btn-primary hidden" id="btn-start" onclick="App.iniciarSessao()">Iniciar Sessão<span class="btn-badge" id="start-count">0</span></button></div>
+<div class="quiz-action-bar hidden" id="quiz-bar"><button class="quiz-action-btn" id="btn-action" onclick="App.handleAction()" disabled>Selecione uma Alternativa</button></div>
+<script type="module">
+// ═══════════════════════════════════════════════════════════════
+// TypeScript Interfaces (compiled to ES2020+)
+// ═══════════════════════════════════════════════════════════════
+// interface Questao {
+//   id: string; enunciado: string; tema_especifico?: string;
+//   especialidade?: string; correta: string; comentario?: string;
+//   [key: string]: any;
+// }
+// interface Filtros {
+//   especialidades: string[]; temas: string[];
+//   modo: 'todas' | 'ineditas' | 'erradas';
+// }
+// interface HistoricoEntry { correta: boolean; data?: string; }
+// interface SessaoResposta {
+//   questao: Questao; acertou: boolean; marcada: string; tempoMs: number;
+// }
+// type HistoricoValue = 'correta' | 'errada';
+// type HistoricoMap = Record<string, HistoricoValue>;
+
+// ─── Pure Utility Functions (tree-shakeable) ──────────────────
+
+/** @param {string} s @returns {string} */
+const esc = (s) => {
+  if (typeof s !== 'string') return String(s ?? '');
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+};
+
+/** @param {string} id @returns {string} */
+const normId = (id) => String(id ?? '').trim().toUpperCase();
+
+/** @template T @param {T[]} arr @returns {T[]} */
+const shuffle = (arr) => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+};
+
+/** @param {Function} fn @param {number} ms @returns {Function} */
+const debounce = (fn, ms) => {
+  let t;
+  return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+};
+
+/** @param {number} sec @returns {string} */
+const fmtTime = (sec) => sec >= 60 ? Math.floor(sec / 60) + 'm' + (sec % 60) + 's' : sec + 's';
+
+const CHECK_SVG = '<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+
+const $ = (id) => document.getElementById(id);
+
+// ─── Pediatria Normalization (pure functions) ─────────────────
+
+/** @type {{ canonical: string; keywords: string[] }[]} */
+const PED_MAP = [
+  { canonical:'Reanimação Neonatal', keywords:['reanimação neonatal','reanimacao neonatal','rcp neonatal','ressuscitação neonatal'] },
+  { canonical:'Circulação Fetal e Neonatal e Asfixia Perinatal', keywords:['circulação fetal','circulacao fetal','circulação neonatal','circulacao neonatal','asfixia perinatal','transição circulatória','transicao circulatoria'] },
+  { canonical:'HIV na infância', keywords:['hiv na infância','hiv na infancia','hiv infantil','aids pediátrica','aids pediatrica','hiv criança','hiv crianca'] },
+  { canonical:'Infecções Congênitas: Sífilis, Toxoplasmose, Rubéola, Citomegalovírus', keywords:['infecções congênitas','infeccoes congenitas','infecção congênita','infeccao congenita','sífilis congênita','sifilis congenita','toxoplasmose congênita','toxoplasmose congenita','rubéola congênita','rubeola congenita','citomegalovírus','citomegalovirus','torch'] },
+  { canonical:'Infecções de Vias Aéreas Superiores: Resfriado comum, Amigdalites, Sinusites, Otites, Mastoidites, Laringites', keywords:['vias aéreas superiores','vias aereas superiores','resfriado comum','amigdalite','tonsilite','sinusite','otite','mastoidite','laringite','ivas','infecção respiratória alta','infeccao respiratoria alta','faringoamigdalite','rinofaringite'] },
+  { canonical:'Bronquiolite e suas complicações / Lactente sibilante', keywords:['bronquiolite','lactente sibilante','sibilância recorrente','sibilancia recorrente','vsr','vírus sincicial','virus sincicial'] },
+  { canonical:'Distúrbios metabólicos do RN', keywords:['distúrbios metabólicos','disturbios metabolicos','metabólico do rn','metabolico do rn','hipoglicemia neonatal','hipocalcemia neonatal','hipomagnesemia neonatal','distúrbio metabólico neonatal','disturbio metabolico neonatal'] },
+  { canonical:'Hiperbilirrubinemia e Colestase Neonatal', keywords:['hiperbilirrubinemia','colestase neonatal','icterícia neonatal','ictericia neonatal','icterícia do rn','ictericia do rn','bilirrubina neonatal','fototerapia neonatal'] },
+  { canonical:'Estafilococcias e Estreptococcias', keywords:['estafilococcia','estreptococcia','estafilococ','estreptococ','staphylococ','streptococ','impetigo','escarlatina','síndrome do choque tóxico','sindrome do choque toxico'] },
+  { canonical:'Constipação Intestinal – Dor abdominal Crônica', keywords:['constipação intestinal','constipacao intestinal','dor abdominal crônica','dor abdominal cronica','obstipação','obstipacao','constipação','constipacao','encoprese'] },
+  { canonical:'Diagnóstico Diferencial das dificuldades respiratórias no período Neonatal', keywords:['dificuldades respiratórias','dificuldades respiratorias','dificuldade respiratória neonatal','dificuldade respiratoria neonatal','desconforto respiratório neonatal','desconforto respiratorio neonatal','ttrn','taquipneia transitória','taquipneia transitoria','síndrome do desconforto respiratório','sindrome do desconforto respiratorio','membrana hialina','sdra neonatal'] },
+  { canonical:'Afecções Cirúrgicas em Neonatologia: Hérnia diafragmática, Atresia de esôfago, Obstruções duodenais congênitas, Íleo meconial, Onfalocele e Gastrosquise', keywords:['afecções cirúrgicas','afeccoes cirurgicas','cirurgia neonatal','hérnia diafragmática','hernia diafragmatica','atresia de esôfago','atresia de esofago','obstrução duodenal','obstrucao duodenal','íleo meconial','ileo meconial','onfalocele','gastrosquise','atresia duodenal'] },
+  { canonical:'Urgências cirúrgicas abdominais em Pediatria: Apendicite, Estenose hipertrófica do piloro, Invaginação intestinal', keywords:['urgências cirúrgicas','urgencias cirurgicas','cirurgia abdominal pediátrica','cirurgia abdominal pediatrica','apendicite','estenose hipertrófica do piloro','estenose hipertrofica do piloro','invaginação intestinal','invaginacao intestinal','intussuscepção','intussuscepcao','piloro estenose'] },
+  { canonical:'Pneumonias Complicadas', keywords:['pneumonias complicadas','pneumonia complicada','derrame parapneumônico','derrame parapneumonico','empiema','abscesso pulmonar','pneumonia necrosante'] },
+  { canonical:'Convulsões na Infância', keywords:['convulsões na infância','convulsoes na infancia','convulsão infantil','convulsao infantil','crise convulsiva','epilepsia','convulsão febril','convulsao febril','status epilepticus','estado de mal epiléptico'] },
+  { canonical:'Meningoencefalites', keywords:['meningoencefalite','meningite','encefalite','meningismo','meningococcemia','neisseria meningitidis','meningite bacteriana','meningite viral'] },
+  { canonical:'Doenças Exantemáticas: Rubéola, Eritema Infeccioso, Exantema súbito, Kawasaki, Varicela Zoster, Mononucleose Infecciosa', keywords:['doenças exantemáticas','doencas exantematicas','exantema','kawasaki','varicela','mononucleose','eritema infeccioso','exantema súbito','exantema subito','roséola','roseola','rubéola','rubeola','quinta doença','sexta doença','quinta doenca','sexta doenca','epstein-barr','ebv'] }
+];
+
+/** @param {string} tema @returns {string} */
+const normPedTema = (tema) => {
+  if (!tema) return tema;
+  const t = tema.toLowerCase().trim();
+  for (const { canonical, keywords } of PED_MAP) {
+    if (keywords.some(kw => t.includes(kw))) return canonical;
+  }
+  return tema;
+};
+
+/** @param {string} esp @returns {boolean} */
+const isPed = (esp) => !!esp && esp.toLowerCase().includes('pediatr');
+
+// ─── CSV Parsing (async) ─────────────────────────────────────
+
+/** @param {string} url @returns {Promise<any>} */
+const parseCSV = (url) => new Promise((resolve, reject) => {
+  Papa.parse(url, { download: true, header: true, skipEmptyLines: true, complete: resolve, error: reject });
+});
+
+// ─── Shared DOM Helpers ───────────────────────────────────────
+
+/** @param {string[]} arr @param {string} val */
+const toggleArrItem = (arr, val) => {
+  const idx = arr.indexOf(val);
+  idx === -1 ? arr.push(val) : arr.splice(idx, 1);
+};
+
+/**
+ * @param {HTMLElement} menuEl
+ * @param {string[]} items
+ * @param {Set<string>} selSet
+ * @param {Function} onToggle
+ * @param {string} emptyMsg
+ */
+const buildMenu = (menuEl, items, selSet, onToggle, emptyMsg) => {
+  if (!items.length) {
+    menuEl.innerHTML = `<div class="dd-option" style="cursor:default;color:var(--text-3)">${emptyMsg}</div>`;
+    return;
+  }
+  menuEl.innerHTML = items.map(e => {
+    const sel = selSet.has(e);
+    return `<div class="dd-option${sel ? ' selected' : ''}" data-val="${esc(e)}"><span>${esc(e)}</span>${CHECK_SVG}</div>`;
+  }).join('');
+  menuEl.querySelectorAll('.dd-option[data-val]').forEach(el => {
+    el.addEventListener('click', ev => { ev.stopPropagation(); onToggle(el.dataset.val); });
+  });
+};
+
+/**
+ * @param {string} wrapId
+ * @param {string[]} items
+ * @param {Function} onRemove
+ */
+const renderChips = (wrapId, items, onRemove) => {
+  const wrap = $(wrapId);
+  if (!items.length) { wrap.className = 'hidden'; wrap.innerHTML = ''; return; }
+  wrap.className = 'tema-chips';
+  wrap.innerHTML = items.map(e =>
+    `<span class="tema-chip">${esc(e)}<span class="tema-chip-x" data-val="${esc(e)}">×</span></span>`
+  ).join('');
+  wrap.querySelectorAll('.tema-chip-x').forEach(el => {
+    el.addEventListener('click', ev => { ev.stopPropagation(); onRemove(el.dataset.val); });
+  });
+};
+
+/**
+ * @param {string} elId
+ * @param {string[]} items
+ * @param {string} allLabel
+ */
+const updateLabel = (elId, items, allLabel) => {
+  const n = items.length;
+  $(elId).textContent = n === 0 ? allLabel : n === 1 ? items[0] : n + ' selecionados';
+};
+
+// ═══════════════════════════════════════════════════════════════
+// App Object (typed properties)
+// ═══════════════════════════════════════════════════════════════
+
+/** @type {{ banco: Questao[], fila: Questao[], indice: number, historico: Record<string, string>, estado: string, sessao: { respostas: SessaoResposta[], startTime: number }, filtros: Filtros, _qStartTime: number }} */
+const App = {
+  url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
+  banco: [],
+  fila: [],
+  indice: 0,
+  historico: {},
+  estado: 'SETUP',
+  sessao: { respostas: [], startTime: 0 },
+  filtros: { especialidades: [], temas: [], modo: 'todas' },
+  _qStartTime: 0,
+
+  // ─── localStorage Helpers ───────────────────────────────────
+
+  _loadHistorico() {
+    const raw = JSON.parse(localStorage.getItem('apex_historico') ?? '{}');
+    const normalized = {};
+    for (const [k, v] of Object.entries(raw)) {
+      const key = normId(k);
+      if (normalized[key] === 'errada') continue;
+      normalized[key] = v;
+    }
+    return normalized;
+  },
+
+  _saveFilters() {
+    localStorage.setItem('apex_filtros', JSON.stringify({
+      especialidades: this.filtros.especialidades,
+      temas: this.filtros.temas,
+      modo: this.filtros.modo,
+      qtd: $('qtd-questoes').value
+    }));
+  },
+
+  _loadFilters() {
+    try { return JSON.parse(localStorage.getItem('apex_filtros') ?? 'null'); }
+    catch { return null; }
+  },
+
+  _restoreFilters() {
+    const saved = this._loadFilters();
+    if (!saved) return;
+
+    if (saved.modo && ['todas','ineditas','erradas'].includes(saved.modo)) {
+      this.filtros.modo = saved.modo;
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      $('tab-' + saved.modo)?.classList.add('active');
+    }
+
+    if (Array.isArray(saved.especialidades)?.length) {
+      const validEsps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))];
+      this.filtros.especialidades = saved.especialidades.filter(e => validEsps.includes(e));
+    }
+
+    if (Array.isArray(saved.temas)?.length) {
+      const pool = this.filtros.especialidades.length === 0
+        ? this.banco
+        : this.banco.filter(q => this.filtros.especialidades.includes(q.especialidade));
+      const validTemas = [...new Set(pool.map(q => q.tema_especifico).filter(Boolean))];
+      this.filtros.temas = saved.temas.filter(t => validTemas.includes(t));
+    }
+
+    this._rebuildMenus();
+    if (saved.qtd) {
+      const v = parseInt(saved.qtd);
+      if (!isNaN(v) && v >= 1) { $('qtd-questoes').value = v; $('qty-slider').value = v; }
+    }
+  },
+
+  // ─── Voltar ao Setup ────────────────────────────────────────
+
+  voltarSetup() {
+    this.estado = 'SETUP';
+    this.historico = this._loadHistorico();
+    $('end-screen').classList.add('hidden');
+    $('quiz-screen').classList.add('hidden');
+    $('quiz-bar').classList.add('hidden');
+    $('setup-screen').classList.remove('hidden');
+    $('start-bar').classList.remove('hidden');
+    $('btn-start').classList.remove('hidden');
+    this._rebuildMenus();
+    this.atualizarTudo();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  // ─── INIT (async/await) ────────────────────────────────────
+
+  async init() {
+    this.historico = this._loadHistorico();
+    try {
+      const r = await parseCSV(this.url);
+      this.banco = r.data
+        .filter(q => q.id && q.enunciado)
+        .map(q => {
+          const n = { ...q, id: normId(q.id) };
+          if (isPed(n.especialidade)) {
+            n.tema_especifico = normPedTema(n.tema_especifico) ?? n.tema_especifico;
+          }
+          return n;
+        });
+      $('loading').classList.add('hidden');
+      $('setup-form').classList.remove('hidden');
+      $('btn-start').classList.remove('hidden');
+      this.buildEspMenu();
+      this.buildTemaMenu();
+      this._restoreFilters();
+      this.atualizarTudo();
+    } catch {
+      $('loading').innerHTML = '<div style="color:var(--wrong);text-align:center;padding:20px">Erro ao carregar planilha.</div>';
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.filter-row') && !e.target.closest('.dropdown-menu')) this.closeAllDD();
+    });
+  },
+
+  // ─── Dropdowns ──────────────────────────────────────────────
+
+  toggleDD(id) {
+    const menu = $('menu-' + id);
+    const chev = $('chev-' + id);
+    const isOpen = !menu.classList.contains('hidden');
+    this.closeAllDD();
+    if (!isOpen) { menu.classList.remove('hidden'); chev.classList.add('open'); }
+  },
+
+  closeAllDD() {
+    for (const id of ['esp','tema']) {
+      $('menu-' + id)?.classList.add('hidden');
+      $('chev-' + id)?.classList.remove('open');
+    }
+  },
+
+  // ─── Filter Menus (using shared helpers) ────────────────────
+
+  buildEspMenu() {
+    const esps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
+    buildMenu($('menu-esp'), esps, new Set(this.filtros.especialidades), v => this.toggleEsp(v), 'Nenhuma especialidade disponível');
+  },
+
+  toggleEsp(val) {
+    toggleArrItem(this.filtros.especialidades, val);
+    this.filtros.temas = [];
+    this._rebuildMenus();
+  },
+
+  updateEspLabel() {
+    const n = this.filtros.especialidades.length;
+    $('label-esp').textContent = n === 0 ? 'Todas as Especialidades' : n === 1 ? this.filtros.especialidades[0] : n + ' especialidades';
+  },
+
+  renderEspChips() {
+    renderChips('esp-chips-wrap', this.filtros.especialidades, v => this.toggleEsp(v));
+  },
+
+  buildTemaMenu() {
+    const pool = this.filtros.especialidades.length === 0
+      ? this.banco
+      : this.banco.filter(q => this.filtros.especialidades.includes(q.especialidade));
+    const temas = [...new Set(pool.map(q => q.tema_especifico).filter(Boolean))].sort();
+    buildMenu($('menu-tema'), temas, new Set(this.filtros.temas), v => this.toggleTema(v), 'Nenhum tema disponível');
+  },
+
+  toggleTema(tema) {
+    toggleArrItem(this.filtros.temas, tema);
+    this.buildTemaMenu();
+    this.renderTemaChips();
+    this.updateTemaLabel();
+    this.atualizarTudo();
+  },
+
+  updateTemaLabel() {
+    const n = this.filtros.temas.length;
+    $('label-tema').textContent = n === 0 ? 'Todos os Temas' : n === 1 ? this.filtros.temas[0] : n + ' temas selecionados';
+  },
+
+  renderTemaChips() {
+    renderChips('tema-chips-wrap', this.filtros.temas, v => this.toggleTema(v));
+  },
+
+  /** Rebuild all menus + chips + labels after filter changes */
+  _rebuildMenus() {
+    this.buildEspMenu(); this.buildTemaMenu();
+    this.renderEspChips(); this.renderTemaChips();
+    this.updateEspLabel(); this.updateTemaLabel();
+    this.atualizarTudo();
+  },
+
+  limparFiltros() {
+    this.filtros.especialidades = [];
+    this.filtros.temas = [];
+    this._rebuildMenus();
+  },
+
+  setModo(modo, btn) {
+    document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    this.filtros.modo = modo;
+    this.atualizarTudo();
+  },
+
+  // ─── Filtering (Set-based) ──────────────────────────────────
+
+  filtrarQuestoes() {
+    const { especialidades, temas, modo } = this.filtros;
+    const espSet = new Set(especialidades);
+    const temaSet = new Set(temas);
+    const hist = this.historico;
+    return this.banco.filter(q => {
+      if (espSet.size && !espSet.has(q.especialidade)) return false;
+      if (temaSet.size && !temaSet.has(q.tema_especifico)) return false;
+      if (modo === 'ineditas' && hist[q.id]) return false;
+      if (modo === 'erradas' && hist[q.id] !== 'errada') return false;
+      return true;
+    });
+  },
+
+  // ─── Update All (Map-based lookups) ─────────────────────────
+
+  atualizarTudo() {
+    const validas = this.filtrarQuestoes();
+    const { especialidades, temas } = this.filtros;
+    const espSet = new Set(especialidades);
+    const temaSet = new Set(temas);
+    const inScope = q => {
+      if (espSet.size && !espSet.has(q.especialidade)) return false;
+      if (temaSet.size && !temaSet.has(q.tema_especifico)) return false;
+      return true;
+    };
+    const bancoMap = new Map(this.banco.map(q => [q.id, q]));
+    const total = this.banco.filter(inScope).length;
+    let respondidas = 0, erradas = 0;
+    for (const idNorm of Object.keys(this.historico)) {
+      const q = bancoMap.get(idNorm);
+      if (!q || !inScope(q)) continue;
+      respondidas++;
+      const h = this.historico[idNorm];
+      const isErr = typeof h === 'string' ? h === 'errada' : h?.correct === false;
+      if (isErr) erradas++;
+    }
+
+    $('counter-value').textContent = validas.length;
+    $('counter-block').classList.toggle('zero', validas.length === 0);
+    $('tag-total').textContent = total + ' no banco';
+    $('tag-done').textContent = respondidas + ' respondidas';
+    $('tag-errors').textContent = erradas + ' com erro';
+
+    const max = validas.length || 1;
+    const numInput = $('qtd-questoes');
+    const slider = $('qty-slider');
+    numInput.max = max; slider.max = max; slider.min = 1;
+    if (parseInt(numInput.value) > max) { numInput.value = max; slider.value = max; }
+    if (!numInput.value || parseInt(numInput.value) < 1) { numInput.value = 1; slider.value = 1; }
+    $('qty-max').textContent = max + ' máx';
+    $('start-count').textContent = Math.min(parseInt(numInput.value) || 1, max);
+    $('btn-start').disabled = validas.length === 0;
+    $('btn-clear').style.visibility = (espSet.size > 0 || temaSet.size > 0) ? 'visible' : 'hidden';
+  },
+
+  // ─── Quantity Input (debounced) ─────────────────────────────
+
+  onQtyInput: debounce(function() {
+    const numInput = $('qtd-questoes');
+    const slider = $('qty-slider');
+    const max = parseInt(slider.max) || 1;
+    let v = parseInt(numInput.value);
+    if (isNaN(v) || numInput.value === '') { slider.value = 1; $('start-count').textContent = 1; return; }
+    v = Math.max(1, Math.min(v, max));
+    slider.value = v;
+    $('start-count').textContent = v;
+  }, 120),
+
+  onSliderInput() {
+    const v = parseInt($('qty-slider').value);
+    $('qtd-questoes').value = v;
+    $('start-count').textContent = v;
+  },
+
+  // ─── Session: Selection with Theme Coverage ─────────────────
+
+  _selecionarComCoberturaDeTemas(validas, qtd) {
+    if (this.filtros.temas.length > 0) return shuffle(validas).slice(0, qtd);
+
+    const grupos = {};
+    for (const q of validas) {
+      const chave = q.tema_especifico || q.especialidade || 'Geral';
+      (grupos[chave] ??= []).push(q);
+    }
+    for (const k of Object.keys(grupos)) grupos[k] = shuffle(grupos[k]);
+
+    const temas = Object.keys(grupos);
+    const numTemas = temas.length;
+    const selecionadas = [];
+    const usados = new Set();
+
+    if (qtd >= numTemas) {
+      for (const tema of temas) {
+        const q = grupos[tema].shift();
+        selecionadas.push(q);
+        usados.add(q.id);
+      }
+      const sobras = shuffle(validas.filter(q => !usados.has(q.id)));
+      const restante = qtd - selecionadas.length;
+      for (let i = 0; i < restante && i < sobras.length; i++) selecionadas.push(sobras[i]);
+    } else {
+      for (const tema of shuffle(temas)) {
+        if (selecionadas.length >= qtd) break;
+        selecionadas.push(grupos[tema].shift());
+      }
+    }
+    return shuffle(selecionadas);
+  },
+
+  iniciarSessao() {
+    const validas = this.filtrarQuestoes();
+    if (!validas.length) return;
+    const qtd = Math.min(parseInt($('qtd-questoes').value) || 10, validas.length);
+    this.fila = this._selecionarComCoberturaDeTemas(validas, qtd);
+    this.indice = 0;
+    this.sessao = { respostas: [], startTime: Date.now() };
+    this._saveFilters();
+    $('setup-screen').classList.add('hidden');
+    $('start-bar').classList.add('hidden');
+    $('quiz-screen').classList.remove('hidden');
+    $('quiz-bar').classList.remove('hidden');
+    this.carregarQuestao();
+  },
+
+  // ─── Quiz Logic ─────────────────────────────────────────────
+
+  carregarQuestao() {
+    this.estado = 'RESPONDENDO';
+    const q = this.fila[this.indice];
+    const total = this.fila.length, num = this.indice + 1;
+    const pct = Math.round(((num - 1) / total) * 100);
+    $('progress-text').textContent = num + ' / ' + total;
+    $('progress-pct').textContent = pct + '%';
+    $('progress-fill').style.width = pct + '%';
+    $('question-id').textContent = q.id;
+    const meta = $('question-meta');
+    meta.innerHTML = '';
+    if (q.especialidade) meta.innerHTML += '<span class="q-badge">' + esc(q.especialidade) + '</span>';
+    if (q.tema_especifico) meta.innerHTML += '<span class="q-badge">' + esc(q.tema_especifico) + '</span>';
+    if (q.banca || q.ano) meta.innerHTML += '<span class="q-badge">' + esc([q.banca, q.ano].filter(Boolean).join(' · ')) + '</span>';
+    $('enunciado').textContent = q.enunciado;
+    const container = $('opcoes-container');
+    container.innerHTML = '';
+    for (const l of ['a','b','c','d','e']) {
+      if (!q[l]?.trim()) continue;
+      const lbl = document.createElement('label');
+      lbl.className = 'option-label';
+      lbl.onclick = () => this.selecionarOpcao(lbl);
+      lbl.innerHTML = '<input type="radio" name="opcao" value="' + l + '"><div class="option-bubble">' + l.toUpperCase() + '</div><div class="option-text">' + esc(q[l]) + '</div>';
+      container.appendChild(lbl);
+    }
+    $('feedback-section').classList.add('hidden');
+    const btn = $('btn-action');
+    btn.textContent = 'Selecione uma Alternativa';
+    btn.disabled = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  selecionarOpcao(lbl) {
+    if (this.estado !== 'RESPONDENDO') return;
+    document.querySelectorAll('.option-label').forEach(el => el.classList.remove('selected'));
+    lbl.classList.add('selected');
+    lbl.querySelector('input').checked = true;
+    const btn = $('btn-action');
+    btn.textContent = 'Confirmar Resposta';
+    btn.disabled = false;
+  },
+
+  handleAction() {
+    if (this.estado === 'RESPONDENDO') this.confirmarResposta();
+    else if (this.estado === 'FEEDBACK') this.proximaQuestao();
+    else if (this.estado === 'FIM') this.voltarSetup();
+  },
+
+  confirmarResposta() {
+    const q = this.fila[this.indice];
+    const input = document.querySelector('input[name="opcao"]:checked');
+    if (!input) return;
+    this.estado = 'FEEDBACK';
+    const marcada = input.value.toLowerCase();
+    const correta = (q.correta ?? '').toLowerCase().trim();
+    const isCerta = marcada === correta;
+    const tempoMs = Date.now() - (this._qStartTime || this.sessao.startTime);
+    this._qStartTime = Date.now();
+
+    this.sessao.respostas.push({ questao: q, acertou: isCerta, marcada, tempoMs });
+    this.historico[q.id] = isCerta ? 'correta' : 'errada';
+    localStorage.setItem('apex_historico', JSON.stringify(this.historico));
+
+    document.querySelectorAll('.option-label').forEach(lbl => {
+      lbl.style.pointerEvents = 'none';
+      const v = lbl.querySelector('input').value;
+      if (v === correta) lbl.classList.add('correct-answer');
+      else if (v === marcada && !isCerta) lbl.classList.add('wrong-answer');
+    });
+
+    const icon = $('fb-icon');
+    const label = $('resultado-texto');
+    if (isCerta) {
+      icon.className = 'fb-icon c';
+      icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--correct)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      label.className = 'fb-label c'; label.textContent = 'Resposta Correta';
+    } else {
+      icon.className = 'fb-icon w';
+      icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--wrong)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+      label.className = 'fb-label w'; label.textContent = 'Resposta Incorreta';
+    }
+    $('comentario-texto').textContent = q.comentario || 'Sem comentário disponível.';
+    $('feedback-section').classList.remove('hidden');
+    $('btn-action').textContent = this.indice === this.fila.length - 1 ? 'Ver Resultados' : 'Próxima Questão →';
+    setTimeout(() => $('feedback-section')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+  },
+
+  proximaQuestao() {
+    this.indice++;
+    if (this.indice < this.fila.length) { this._qStartTime = Date.now(); this.carregarQuestao(); }
+    else this.gerarDashboard();
+  },
+
+  _salvarSessao(data) {
+    const sessions = JSON.parse(localStorage.getItem('apex_sessions') ?? '[]');
+    sessions.push(data);
+    if (sessions.length > 100) sessions.splice(0, sessions.length - 100);
+    localStorage.setItem('apex_sessions', JSON.stringify(sessions));
+  },
+
+  gerarDashboard() {
+    this.estado = 'FIM';
+    const endTime = Date.now();
+    $('quiz-screen').classList.add('hidden');
+    $('quiz-bar').classList.remove('hidden');
+    const total = this.fila.length;
+    const acertos = this.sessao.respostas.filter(r => r.acertou).length;
+    const pct = Math.round((acertos / total) * 100);
+    const avgSeg = Math.round((endTime - this.sessao.startTime) / 1000 / total);
+
+    this._salvarSessao({
+      date: new Date().toISOString(),
+      total, acertos, pct,
+      duracao: endTime - this.sessao.startTime,
+      avgSegPorQ: avgSeg,
+      respostas: this.sessao.respostas.map(r => ({
+        id: r.questao.id,
+        especialidade: r.questao.especialidade ?? '',
+        tema: r.questao.tema_especifico ?? '',
+        competencia: r.questao.competencia ?? '',
+        grande_area: r.questao.grande_area ?? '',
+        acertou: r.acertou,
+        marcada: r.marcada,
+        correta: r.questao.correta,
+        tempoMs: r.tempoMs ?? 0
+      }))
+    });
+
+    $('dash-acertos').textContent = acertos;
+    $('dash-total-end').textContent = total;
+    $('dash-tempo').textContent = fmtTime(avgSeg);
+    $('dash-pct').textContent = pct + '%';
+    $('dash-feedback-msg').textContent = pct >= 80 ? 'Excelente! Continue assim.' : pct >= 50 ? 'Bom trabalho. Revise os temas abaixo.' : 'Revise os pontos de atenção abaixo.';
+
+    const ring = $('score-ring-fill');
+    ring.style.stroke = pct >= 70 ? 'var(--correct)' : pct >= 50 ? 'var(--warn)' : 'var(--wrong)';
+    setTimeout(() => { ring.style.strokeDashoffset = 264 - (pct / 100) * 264; }, 80);
+
+    const stats = {};
+    for (const r of this.sessao.respostas) {
+      const k = r.questao.tema_especifico || r.questao.especialidade || 'Geral';
+      (stats[k] ??= { total: 0, acertos: 0 }).total++;
+      if (r.acertou) stats[k].acertos++;
+    }
+
+    const tc = $('themes-container');
+    tc.innerHTML = '';
+    for (const [tema, s] of Object.entries(stats).sort((a, b) => (b[1].acertos / b[1].total) - (a[1].acertos / a[1].total))) {
+      const p = Math.round((s.acertos / s.total) * 100);
+      const col = p >= 70 ? 'var(--correct)' : p < 50 ? 'var(--wrong)' : 'var(--warn)';
+      tc.innerHTML += `<div class="theme-item"><div class="theme-row"><span class="theme-name">${esc(tema)}</span><span class="theme-stat" style="color:${col}">${s.acertos}/${s.total} · ${p}%</span></div><div class="theme-bar-bg"><div class="theme-bar-fill" style="width:${p}%;background:${col}"></div></div></div>`;
+    }
+
+    const erros = this.sessao.respostas.filter(r => !r.acertou);
+    if (erros.length) {
+      $('errors-block').classList.remove('hidden');
+      $('error-list').innerHTML = erros.map(r =>
+        `<div class="error-item"><div class="error-topic">${esc(r.questao.tema_especifico || r.questao.especialidade || 'Geral')}</div><div class="error-detail">ID: ${esc(r.questao.id)} · Sua resp.: ${esc(r.marcada.toUpperCase())} · Gabarito: ${esc((r.questao.correta ?? '?').toUpperCase())}</div></div>`
+      ).join('');
+    }
+    $('end-screen').classList.remove('hidden');
+    $('btn-action').textContent = 'Voltar ao Início';
+    $('btn-action').disabled = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+// ─── Bootstrap ────────────────────────────────────────────────
+App._qStartTime = Date.now();
+App.init();
+
+// Expose to global scope for inline onclick handlers
+window.App = App;
+</script>
+</body>
+</html>
