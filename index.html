@@ -175,7 +175,8 @@
         .theme-bar-bg { height: 4px; background: var(--surface-3); border-radius: 2px; overflow: hidden; }
         .theme-bar-fill { height: 100%; border-radius: 2px; }
         .error-item { padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--wrong); border-radius: var(--radius); margin-bottom: 6px; }
-        .error-topic { font-size: 0.85rem; font-weight: 600; margin-bottom: 3px; }
+        .error-topic { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
+        .error-comp { font-size: 0.75rem; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
         .error-detail { font-size: 0.75rem; color: var(--text-3); }
 
         #loading { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 60px 0; }
@@ -189,7 +190,6 @@
 <body>
 <main>
 
-<!-- SETUP -->
 <div id="setup-screen">
     <div class="top-bar">
         <div>
@@ -277,7 +277,6 @@
     </div>
 </div>
 
-<!-- QUIZ -->
 <div id="quiz-screen" class="hidden">
     <div class="quiz-header">
         <div class="quiz-prog-wrap">
@@ -308,7 +307,6 @@
     <div style="height:8px;"></div>
 </div>
 
-<!-- END -->
 <div id="end-screen" class="hidden">
     <div class="end-title">Sessão Concluída</div>
     <div class="end-sub" id="dash-feedback-msg">Calculando...</div>
@@ -361,9 +359,6 @@ const App = {
     sessao: { respostas: [], startTime: 0 },
     filtros: { especialidades: [], temas: [], modo: 'todas' },
 
-    // ─────────────────────────────────────────────────────────────
-    // NORMALIZAÇÃO DE TEMAS – PEDIATRIA
-    // ─────────────────────────────────────────────────────────────
     PEDIATRIA_TEMAS_MAP: [
         {
             canonical: 'Reanimação Neonatal',
@@ -479,9 +474,6 @@ const App = {
         return especialidade.toLowerCase().includes('pediatr');
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // MEMÓRIA DE FILTROS (localStorage)
-    // ─────────────────────────────────────────────────────────────
     _saveFilters() {
         const toSave = {
             especialidades: this.filtros.especialidades,
@@ -542,9 +534,6 @@ const App = {
         }
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // VOLTAR AO SETUP (sem reload, mantendo estado)
-    // ─────────────────────────────────────────────────────────────
     voltarSetup() {
         this.estado = 'SETUP';
         this.historico = this._loadHistorico();
@@ -565,9 +554,6 @@ const App = {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // UTILITÁRIOS
-    // ─────────────────────────────────────────────────────────────
     escapeHtml(text) {
         if (typeof text !== 'string') return String(text || '');
         const d = document.createElement('div');
@@ -594,9 +580,6 @@ const App = {
         return `<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // INIT
-    // ─────────────────────────────────────────────────────────────
     init() {
         this.historico = this._loadHistorico();
         Papa.parse(this.url, {
@@ -630,9 +613,6 @@ const App = {
         });
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // DROPDOWNS
-    // ─────────────────────────────────────────────────────────────
     toggleDD(id) {
         const menu = document.getElementById('menu-' + id);
         const chev = document.getElementById('chev-' + id);
@@ -825,19 +805,11 @@ const App = {
         document.getElementById('start-count').textContent = v;
     },
 
-    // ─────────────────────────────────────────────────────────────
-    // SESSÃO
-    // ─────────────────────────────────────────────────────────────
-
-    // 🔀 ALTERAÇÃO: garantia de 1+ questão por tema no modo aleatório
     _selecionarComCoberturaDeTemas(validas, qtd) {
-        // Só aplica a lógica de cobertura quando nenhum tema foi pré-selecionado.
-        // Se temas foram selecionados manualmente, o comportamento original é mantido.
         if (this.filtros.temas.length > 0) {
             return validas.sort(() => Math.random() - 0.5).slice(0, qtd);
         }
 
-        // Agrupar questões por tema (campo: tema_especifico; fallback para especialidade ou 'Geral')
         const grupos = {};
         for (const q of validas) {
             const chave = q.tema_especifico || q.especialidade || 'Geral';
@@ -845,7 +817,6 @@ const App = {
             grupos[chave].push(q);
         }
 
-        // Embaralhar internamente cada grupo
         for (const chave of Object.keys(grupos)) {
             grupos[chave].sort(() => Math.random() - 0.5);
         }
@@ -856,23 +827,18 @@ const App = {
         const usados = new Set();
 
         if (qtd >= numTemas) {
-            // Regra 1: ao menos 1 questão de cada tema; preenche o restante aleatoriamente
-            // Passo 1 — 1 questão por tema
             for (const tema of temas) {
                 const q = grupos[tema].shift();
                 selecionadas.push(q);
                 usados.add(q.id);
             }
 
-            // Passo 2 — preencher o restante com questões aleatórias das sobras
             const sobras = validas.filter(q => !usados.has(q.id)).sort(() => Math.random() - 0.5);
             const restante = qtd - selecionadas.length;
             for (let i = 0; i < restante && i < sobras.length; i++) {
                 selecionadas.push(sobras[i]);
             }
         } else {
-            // Regra 2: qtd < numTemas — cobrir o maior número possível de temas distintos
-            // Embaralhar a ordem dos temas e pegar 1 questão de cada até atingir qtd
             const temasEmbaralhados = temas.sort(() => Math.random() - 0.5);
             for (const tema of temasEmbaralhados) {
                 if (selecionadas.length >= qtd) break;
@@ -881,7 +847,6 @@ const App = {
             }
         }
 
-        // Embaralhar ordem final da fila
         return selecionadas.sort(() => Math.random() - 0.5);
     },
 
@@ -890,7 +855,6 @@ const App = {
         if (!validas.length) return;
         const qtd = Math.min(parseInt(document.getElementById('qtd-questoes').value) || 10, validas.length);
 
-        // 🔀 ALTERAÇÃO: garantia de 1+ questão por tema no modo aleatório
         this.fila = this._selecionarComCoberturaDeTemas(validas, qtd);
 
         this.indice = 0;
@@ -1042,6 +1006,7 @@ const App = {
         const ring = document.getElementById('score-ring-fill');
         ring.style.stroke = pct >= 70 ? 'var(--correct)' : pct >= 50 ? 'var(--warn)' : 'var(--wrong)';
         setTimeout(() => { ring.style.strokeDashoffset = 264 - (pct / 100) * 264; }, 80);
+        
         const stats = {};
         this.sessao.respostas.forEach(r => {
             const k = r.questao.tema_especifico || r.questao.especialidade || 'Geral';
@@ -1049,6 +1014,7 @@ const App = {
             stats[k].total++;
             if (r.acertou) stats[k].acertos++;
         });
+        
         const tc = document.getElementById('themes-container');
         tc.innerHTML = '';
         Object.entries(stats).sort((a,b) => (b[1].acertos/b[1].total) - (a[1].acertos/a[1].total)).forEach(([tema, s]) => {
@@ -1056,12 +1022,23 @@ const App = {
             const col = p >= 70 ? 'var(--correct)' : p < 50 ? 'var(--wrong)' : 'var(--warn)';
             tc.innerHTML += '<div class="theme-item"><div class="theme-row"><span class="theme-name">' + this.escapeHtml(tema) + '</span><span class="theme-stat" style="color:' + col + '">' + s.acertos + '/' + s.total + ' · ' + p + '%</span></div><div class="theme-bar-bg"><div class="theme-bar-fill" style="width:' + p + '%;background:' + col + ';"></div></div></div>';
         });
+        
         const erros = this.sessao.respostas.filter(r => !r.acertou);
         if (erros.length) {
             document.getElementById('errors-block').classList.remove('hidden');
-            document.getElementById('error-list').innerHTML = erros.map(r =>
-                '<div class="error-item"><div class="error-topic">' + this.escapeHtml(r.questao.tema_especifico || r.questao.especialidade || 'Geral') + '</div><div class="error-detail">ID: ' + this.escapeHtml(r.questao.id) + ' · Sua resp.: ' + this.escapeHtml(r.marcada.toUpperCase()) + ' · Gabarito: ' + this.escapeHtml((r.questao.correta || '?').toUpperCase()) + '</div></div>'
-            ).join('');
+            document.getElementById('error-list').innerHTML = erros.map(r => {
+                const tema = this.escapeHtml(r.questao.tema_especifico || r.questao.especialidade || 'Geral');
+                const comp = this.escapeHtml(r.questao.competencia || 'Sem competência listada');
+                const id = this.escapeHtml(r.questao.id);
+                const resp = this.escapeHtml(r.marcada.toUpperCase());
+                const gab = this.escapeHtml((r.questao.correta || '?').toUpperCase());
+
+                return '<div class="error-item">' +
+                       '<div class="error-topic">' + tema + '</div>' +
+                       '<div class="error-comp">⮑ ' + comp + '</div>' +
+                       '<div class="error-detail">ID: ' + id + ' · Sua resp.: ' + resp + ' · Gabarito: ' + gab + '</div>' +
+                       '</div>';
+            }).join('');
         }
         document.getElementById('end-screen').classList.remove('hidden');
         document.getElementById('btn-action').textContent = 'Voltar ao Início';
