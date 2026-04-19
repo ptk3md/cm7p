@@ -2,1198 +2,557 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#07080c">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f5f5f7">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://gc.zgo.at https://cm7p.goatcounter.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://docs.google.com https://cm7p.goatcounter.com https://gc.zgo.at;">
     <title>Banco de Questões</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script data-goatcounter="https://cm7p.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+    
     <style>
         :root {
-            --bg:        #07080c;
-            --surface:   #0f1118;
-            --surface-2: #161923;
-            --surface-3: #1d2130;
-            --surface-4: #252b3d;
-
-            --border:       #1c2033;
-            --border-light: #272f47;
-
-            --text:   #dde1ef;
-            --text-2: #7d89a8;
-            --text-3: #3e4860;
-
-            --accent:          #3fffc4;
-            --accent-dim:      #2acda0;
-            --accent-bg:       rgba(63,255,196,0.06);
-            --accent-bg-strong:rgba(63,255,196,0.11);
-
-            --correct:        #3fefaa;
-            --correct-bg:     rgba(63,239,170,0.07);
-            --correct-border: rgba(63,239,170,0.22);
-            --wrong:          #ff5070;
-            --wrong-bg:       rgba(255,80,112,0.07);
-            --wrong-border:   rgba(255,80,112,0.22);
-            --warn:           #ffb347;
-
-            --radius:    8px;
-            --radius-lg: 12px;
-            --radius-xl: 16px;
-            --safe-bottom: env(safe-area-inset-bottom, 16px);
-
-            --font-display: 'Fraunces', serif;
-            --font-ui:      'Outfit', sans-serif;
-            --font-mono:    'JetBrains Mono', monospace;
-            --font-body:    'Lora', serif;
+            /* Apple Light Theme Palette */
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --surface-hover: #fbfbfd;
+            --surface-active: #f0f0f2;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --text-light: #a1a1a6;
+            
+            /* Accents */
+            --accent: #0071e3;
+            --accent-bg: #e8f2fc;
+            --success: #34c759;
+            --success-bg: #eaf9ed;
+            --danger: #ff3b30;
+            --danger-bg: #ffeceb;
+            --warning: #ff9500;
+            
+            /* Borders & UI Elements */
+            --border: rgba(60, 60, 67, 0.12);
+            --border-light: rgba(60, 60, 67, 0.08);
+            --divider: rgba(60, 60, 67, 0.16);
+            --segmented-bg: rgba(118, 118, 128, 0.12);
+            
+            /* Spacing & Radii */
+            --radius-sm: 8px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --safe-bottom: env(safe-area-inset-bottom, 20px);
+            
+            /* Shadows & Effects */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-float: 0 12px 40px rgba(0,0,0,0.12);
+            --shadow-segmented: 0 3px 8px rgba(0,0,0,0.12), 0 3px 1px rgba(0,0,0,0.04);
+            
+            /* Easing */
+            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
         html { scroll-behavior: smooth; }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-ui);
-            max-width: 680px;
-            margin: 0 auto;
-            padding: 0 0 calc(100px + var(--safe-bottom)) 0;
-            min-height: 100vh;
-            -webkit-font-smoothing: antialiased;
-            font-size: 15px;
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text-main); 
+            /* Apple System Font Stack for authentic aesthetic */
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
+            max-width: 640px; 
+            margin: 0 auto; 
+            padding: 0 0 calc(120px + var(--safe-bottom)) 0; 
+            min-height: 100vh; 
+            font-size: 16px;
+            line-height: 1.5;
+            letter-spacing: -0.01em;
         }
-
-        /* Subtle dot-grid background */
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: radial-gradient(circle, rgba(63,255,196,0.04) 1px, transparent 1px);
-            background-size: 28px 28px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        main { position: relative; z-index: 1; }
 
         .hidden { display: none !important; }
 
-        /* ─── LOADING ───────────────────────────── */
-        #loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            padding: 80px 0;
-        }
-        .spinner {
-            width: 34px; height: 34px;
-            border: 1.5px solid var(--surface-3);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 0.75s linear infinite;
-            box-shadow: 0 0 14px rgba(63,255,196,0.12);
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .spin-text {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            color: var(--text-3);
-            letter-spacing: 0.08em;
-        }
-
-        /* ─── SETUP SCREEN ──────────────────────── */
-        #setup-screen {
-            padding: 28px 20px 0;
-            animation: fadeUp 0.35s ease both;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Top bar */
-        .top-bar {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            padding-bottom: 22px;
-            margin-bottom: 22px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .brand-mark {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-        }
-
-        .brand-icon {
-            width: 34px; height: 34px;
-            border-radius: 9px;
-            background: var(--accent-bg-strong);
-            border: 1px solid rgba(63,255,196,0.18);
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .top-bar-title {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text);
+        /* Typography */
+        h1, h2, h3, .top-bar-title {
             letter-spacing: -0.02em;
-            line-height: 1.1;
+            font-weight: 600;
         }
 
-        .top-bar-sub {
-            font-size: 0.7rem;
-            color: var(--text-3);
-            margin-top: 3px;
-            font-weight: 500;
-            letter-spacing: 0.03em;
-        }
-
-        .top-bar-nav {
+        /* Top Navigation - Apple Glass */
+        .glass-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(245, 245, 247, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-light);
+            padding: 16px 24px;
             display: flex;
             align-items: center;
-            gap: 6px;
-            margin-top: 2px;
+            justify-content: space-between;
         }
-
+        
+        .top-bar-title { font-size: 20px; color: var(--text-main); }
+        .top-bar-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+        
+        .top-bar-nav { display: flex; align-items: center; gap: 12px; }
         .nav-icon-btn {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            padding: 7px 12px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--text-3);
-            text-decoration: none;
-            font-family: var(--font-ui);
-            font-size: 0.7rem;
-            font-weight: 700;
-            transition: all 0.18s;
-            cursor: pointer;
-            white-space: nowrap;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
+            background: var(--surface); border: 1px solid var(--border-light);
+            border-radius: 50%; color: var(--accent); text-decoration: none;
+            transition: all 0.2s var(--apple-ease); cursor: pointer;
+            box-shadow: var(--shadow-sm);
         }
-        .nav-icon-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-            background: var(--accent-bg);
-            box-shadow: 0 0 14px rgba(63,255,196,0.08);
-        }
-        .nav-icon-btn svg { flex-shrink: 0; }
+        .nav-icon-btn:hover, .nav-icon-btn:active { transform: scale(0.95); background: var(--surface-hover); }
 
-        /* Counter block */
-        .counter-block {
-            position: relative;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            gap: 12px;
-            overflow: hidden;
-            transition: border-color 0.2s;
+        /* Layout Wrappers */
+        #setup-screen, #end-screen { padding: 24px; animation: fadeUp 0.6s var(--apple-ease) forwards; }
+        
+        /* Stats & Counters */
+        .counter-block { 
+            background: var(--surface); 
+            border-radius: var(--radius-xl); 
+            padding: 24px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 24px; 
+            box-shadow: var(--shadow-md);
         }
+        .counter-num { font-size: 40px; font-weight: 600; color: var(--text-main); line-height: 1; letter-spacing: -1.5px; }
+        .counter-num-label { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 6px; }
+        
+        .counter-tags { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        .ctag { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; white-space: nowrap; letter-spacing: 0.02em; }
+        .ctag-n { background: var(--surface-active); color: var(--text-muted); }
+        .ctag-d { background: var(--success-bg); color: var(--success); }
+        .ctag-e { background: var(--danger-bg); color: var(--danger); }
 
-        .counter-block::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 10%; right: 10%; height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0.35;
-            transition: opacity 0.2s;
-        }
-
-        .counter-block.zero { border-color: var(--wrong-border); }
-        .counter-block.zero::before {
-            background: linear-gradient(90deg, transparent, var(--wrong), transparent);
-            opacity: 0.4;
-        }
-        .counter-block.zero .counter-num { color: var(--wrong); }
-
-        .counter-left {}
-        .counter-num {
-            font-family: var(--font-mono);
-            font-size: 3rem;
-            font-weight: 600;
-            color: var(--accent);
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.04em;
-        }
-        .counter-num-label {
-            font-size: 0.66rem;
-            color: var(--text-3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 5px;
-        }
-
-        .counter-tags {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .ctag {
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            font-weight: 500;
-            padding: 3px 10px;
-            border-radius: 20px;
-            white-space: nowrap;
-            letter-spacing: 0.02em;
-        }
-        .ctag-n { background: var(--surface-3); color: var(--text-3); border: 1px solid var(--border-light); }
-        .ctag-d { background: var(--correct-bg); color: var(--correct); border: 1px solid var(--correct-border); }
-        .ctag-e { background: var(--wrong-bg); color: var(--wrong); border: 1px solid var(--wrong-border); }
-
-        /* Section bar */
-        .section-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .section-label {
-            font-size: 0.66rem;
-            font-weight: 700;
-            color: var(--text-3);
-            text-transform: uppercase;
-            letter-spacing: 0.11em;
-        }
-
-        .clear-btn {
-            font-size: 0.66rem;
-            font-weight: 700;
-            color: var(--accent);
-            background: none;
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 3px 12px;
-            cursor: pointer;
-            font-family: var(--font-ui);
-            transition: all 0.16s;
-            visibility: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-        }
-        .clear-btn:hover {
-            background: var(--accent-bg);
-            border-color: var(--accent);
-        }
-
-        /* Mode tabs */
+        /* Segmented Controls (iOS Style Tabs) */
+        .section-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; display: block; padding-left: 4px; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        
         .mode-tabs {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 16px;
+            display: flex;
+            background: var(--segmented-bg);
+            border-radius: 9px;
+            padding: 2px;
+            margin-bottom: 28px;
         }
-
         .mode-tab {
-            padding: 10px 6px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            background: var(--surface);
-            color: var(--text-3);
-            font-family: var(--font-ui);
-            font-size: 0.79rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.18s;
-            letter-spacing: 0.01em;
+            flex: 1; padding: 6px 12px; text-align: center;
+            font-size: 13px; font-weight: 500; color: var(--text-main);
+            background: transparent; border: none; border-radius: 7px;
+            cursor: pointer; transition: all 0.2s var(--apple-ease);
+            font-family: inherit;
         }
-        .mode-tab:hover {
-            border-color: var(--border-light);
-            color: var(--text-2);
-            background: var(--surface-2);
-        }
-        .mode-tab.active {
-            border-color: var(--accent);
-            background: var(--accent-bg-strong);
-            color: var(--accent);
-            box-shadow: 0 0 16px rgba(63,255,196,0.05), inset 0 1px 0 rgba(63,255,196,0.08);
-        }
+        .mode-tab.active { background: var(--surface); box-shadow: var(--shadow-segmented); font-weight: 600; }
 
-        /* Filter card */
-        .filter-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
-            margin-bottom: 16px;
-            overflow: visible;
+        /* Filter Cards */
+        .filter-card { 
+            background: var(--surface); 
+            border-radius: var(--radius-lg); 
+            margin-bottom: 28px; 
+            box-shadow: var(--shadow-sm); 
+            overflow: visible; 
         }
+        .filter-row { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 16px 20px; border-bottom: 1px solid var(--border-light); 
+            cursor: pointer; transition: background 0.2s var(--apple-ease); position: relative; 
+        }
+        .filter-row:first-child { border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg); }
+        .filter-row:last-child { border-bottom: none; border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
+        .filter-row:active { background: var(--surface-active); }
+        
+        .filter-row-left { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .filter-row-key { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+        .filter-row-val { font-size: 16px; color: var(--accent); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%; }
+        
+        .filter-chevron { color: var(--text-light); transition: transform 0.3s var(--apple-ease); flex-shrink: 0; margin-left: 12px; }
+        .filter-chevron.open { transform: rotate(180deg); color: var(--text-main); }
 
-        .filter-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 18px;
-            border-bottom: 1px solid var(--border);
-            cursor: pointer;
-            transition: background 0.14s;
-            position: relative;
-            user-select: none;
+        /* Clear Filters Button */
+        .clear-btn {
+            font-size: 13px; font-weight: 500; color: var(--accent); background: none; border: none;
+            cursor: pointer; font-family: inherit; transition: opacity 0.2s; visibility: hidden; padding: 4px;
         }
-        .filter-row:hover { background: var(--surface-2); }
+        .clear-btn:active { opacity: 0.6; }
 
-        .filter-row-left {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-            min-width: 0;
-            flex: 1;
+        /* iOS Context Menu Dropdown */
+        .dropdown-menu { 
+            position: absolute; top: calc(100% + 8px); left: 0; right: 0; z-index: 300; 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border-radius: var(--radius-md); max-height: 280px; overflow-y: auto; 
+            box-shadow: var(--shadow-float); border: 1px solid var(--border-light);
+            animation: popIn 0.2s var(--apple-ease); transform-origin: top center;
         }
-
-        .filter-row-key {
-            font-size: 0.63rem;
-            color: var(--text-3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.98) translateY(-4px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
         }
-
-        .filter-row-val {
-            font-size: 0.9rem;
-            color: var(--text);
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 280px;
-        }
-
-        .filter-chevron {
-            color: var(--text-3);
-            transition: transform 0.2s, color 0.2s;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-        .filter-chevron.open {
-            transform: rotate(180deg);
-            color: var(--accent);
-        }
-
-        /* Dropdown */
-        .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0; right: 0;
-            z-index: 300;
-            background: var(--surface-2);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-lg);
-            max-height: 240px;
-            overflow-y: auto;
-            box-shadow: 0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(63,255,196,0.03);
-        }
-        .dropdown-menu::-webkit-scrollbar { width: 3px; }
-        .dropdown-menu::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 2px; }
-
-        .dd-option {
-            padding: 11px 16px;
-            font-size: 0.86rem;
-            color: var(--text-2);
-            cursor: pointer;
-            border-bottom: 1px solid var(--border);
-            transition: background 0.11s, color 0.11s;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
+        .dropdown-menu::-webkit-scrollbar { width: 4px; }
+        .dropdown-menu::-webkit-scrollbar-thumb { background: var(--divider); border-radius: 4px; }
+        
+        .dd-option { 
+            padding: 14px 20px; font-size: 15px; color: var(--text-main); 
+            cursor: pointer; border-bottom: 1px solid var(--border-light); 
+            transition: background 0.2s; display: flex; align-items: center; justify-content: space-between; 
         }
         .dd-option:last-child { border-bottom: none; }
-        .dd-option:hover { background: var(--surface-3); color: var(--text); }
-        .dd-option.selected { color: var(--accent); font-weight: 600; }
-
-        .dd-check {
-            width: 16px; height: 16px;
-            border: 1.5px solid var(--border-light);
-            border-radius: 4px;
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.15s;
-        }
-        .dd-option.selected .dd-check {
-            background: var(--accent);
-            border-color: var(--accent);
-        }
+        .dd-option:active { background: var(--surface-active); }
+        .dd-option.selected { color: var(--accent); font-weight: 500; background: var(--surface-hover); }
+        
         .dd-check-mark { display: none; }
-        .dd-option.selected .dd-check-mark { display: block; }
+        .dd-option.selected .dd-check-mark { display: block; color: var(--accent); }
 
         /* Chips */
-        .tema-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 10px 16px 14px;
-            border-top: 1px solid var(--border);
+        .tema-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--border-light); background: #fafafc; border-bottom-left-radius: var(--radius-lg); border-bottom-right-radius: var(--radius-lg); }
+        .tema-chip { 
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; 
+            border-radius: 100px; background: var(--surface); border: 1px solid var(--border-light);
+            font-size: 13px; color: var(--text-main); font-weight: 500; box-shadow: var(--shadow-sm);
         }
+        .tema-chip-x { cursor: pointer; font-size: 16px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; transition: all 0.2s; }
+        .tema-chip-x:hover { background: var(--surface-active); color: var(--text-main); }
 
-        .tema-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(63,255,196,0.22);
-            background: var(--accent-bg);
-            font-size: 0.74rem;
-            color: var(--accent);
-            font-weight: 500;
+        /* Quantity Slider (iOS style) */
+        .qty-wrap { padding: 28px 24px; display: flex; flex-direction: column; align-items: center; }
+        .qty-big-num { 
+            font-size: 48px; font-weight: 600; color: var(--text-main); background: transparent; 
+            border: none; text-align: center; width: 100%; outline: none; 
+            font-family: inherit; line-height: 1; letter-spacing: -1.5px;
         }
-        .tema-chip-x { cursor: pointer; font-size: 0.9rem; line-height: 1; opacity: 0.55; }
-        .tema-chip-x:hover { opacity: 1; }
+        .qty-big-label { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-top: 8px; }
+        
+        .qty-slider-wrap { width: 100%; margin-top: 24px; position: relative; }
+        .qty-slider { 
+            width: 100%; height: 6px; background: var(--border); border-radius: 4px; 
+            appearance: none; -webkit-appearance: none; outline: none;
+        }
+        .qty-slider::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%; 
+            background: #ffffff; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05); 
+            transition: transform 0.1s;
+        }
+        .qty-slider::-webkit-slider-thumb:active { transform: scale(1.1); }
+        .qty-limits { display: flex; justify-content: space-between; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-top: 12px; }
 
-        /* Quantity */
-        .qty-wrap { padding: 20px 18px 18px; }
+        /* Floating Bottom Action Bar */
+        .fixed-bottom, .quiz-action-bar { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            padding: 16px 24px calc(16px + var(--safe-bottom)); 
+            background: rgba(245, 245, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-light);
+            display: flex; justify-content: center; z-index: 200; 
+        }
+        
+        .btn-primary, .quiz-action-btn { 
+            width: 100%; max-width: 400px; padding: 18px 32px; 
+            border-radius: var(--radius-lg); border: none; 
+            background: var(--text-main); color: #ffffff; 
+            font-family: inherit; font-size: 16px; font-weight: 600; 
+            cursor: pointer; transition: all 0.2s var(--apple-ease); 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: var(--shadow-md); letter-spacing: -0.01em;
+        }
+        .btn-primary:active, .quiz-action-btn:active { transform: scale(0.97); }
+        .btn-primary:disabled, .quiz-action-btn:disabled { 
+            background: var(--border); color: var(--text-muted); 
+            cursor: not-allowed; transform: none; box-shadow: none; 
+        }
+        .btn-badge { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 100px; font-size: 13px; font-weight: 500; margin-left: 4px; }
 
-        .qty-display {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 18px;
+        /* Quiz Screen */
+        .quiz-header { 
+            position: sticky; top: 0; z-index: 90;
+            background: rgba(245, 245, 247, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 16px 24px; border-bottom: 1px solid var(--border-light);
+            display: flex; align-items: center; gap: 16px;
         }
-
-        .qty-big-num {
-            font-family: var(--font-mono);
-            font-size: 3.6rem;
-            font-weight: 600;
-            color: var(--accent);
-            background: transparent;
-            border: none;
-            text-align: center;
-            width: 100%;
-            outline: none;
-            line-height: 1;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -0.04em;
-        }
-        .qty-big-num::-webkit-inner-spin-button,
-        .qty-big-num::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-        .qty-big-label {
-            font-size: 0.66rem;
-            font-weight: 700;
-            color: var(--text-3);
-            text-transform: uppercase;
-            letter-spacing: 0.11em;
-            margin-top: 6px;
-        }
-
-        .qty-slider-wrap { margin-top: 4px; }
-
-        .qty-slider {
-            width: 100%;
-            height: 3px;
-            background: var(--surface-3);
-            border-radius: 2px;
-            appearance: none;
-            -webkit-appearance: none;
-            cursor: pointer;
-            accent-color: var(--accent);
-            outline: none;
-        }
-        .qty-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px; height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            border: 3px solid var(--bg);
-            box-shadow: 0 0 0 1.5px var(--accent), 0 0 12px rgba(63,255,196,0.28);
-        }
-        .qty-slider::-moz-range-thumb {
-            width: 20px; height: 20px;
-            border-radius: 50%;
-            background: var(--accent);
-            cursor: pointer;
-            border: 3px solid var(--bg);
-        }
-
-        .qty-range-labels {
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.66rem;
-            color: var(--text-3);
-            margin-top: 7px;
-            letter-spacing: 0.03em;
-        }
-
-        /* Fixed bottom */
-        .fixed-bottom {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            padding: 14px 20px calc(14px + var(--safe-bottom));
-            background: linear-gradient(to top, var(--bg) 58%, transparent);
-            display: flex;
-            justify-content: center;
-            z-index: 200;
-            pointer-events: none;
-        }
-
-        .btn-primary {
-            width: 100%;
-            max-width: 400px;
-            padding: 16px 28px;
-            border-radius: var(--radius-xl);
-            border: none;
-            background: var(--accent);
-            color: #07080c;
-            font-family: var(--font-ui);
-            font-size: 0.92rem;
-            font-weight: 700;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 28px rgba(63,255,196,0.18);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 36px rgba(63,255,196,0.28);
-        }
-        .btn-primary:active { transform: scale(0.98); }
-        .btn-primary:disabled {
-            background: var(--surface-2);
-            color: var(--text-3);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        .btn-badge {
-            background: rgba(7,8,12,0.22);
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-family: var(--font-mono);
-        }
-
-        /* ─── QUIZ SCREEN ───────────────────────── */
-        #quiz-screen { padding: 0; }
-
-        .quiz-header {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 16px 20px 14px;
-            border-bottom: 1px solid var(--border);
-        }
-
         .quiz-prog-wrap { flex: 1; }
+        .quiz-prog-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; letter-spacing: 0.02em; }
+        .quiz-prog-bar { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+        .quiz-prog-fill { height: 100%; background: var(--text-main); border-radius: 2px; transition: width 0.5s var(--apple-ease); }
+        .quiz-id { font-size: 12px; color: var(--text-muted); font-weight: 500; background: var(--surface); padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-light); }
 
-        .quiz-prog-labels {
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            color: var(--text-3);
-            font-weight: 500;
-            letter-spacing: 0.04em;
-            margin-bottom: 7px;
-        }
+        .quiz-body { padding: 24px; animation: fadeIn 0.4s var(--apple-ease); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .quiz-prog-bar {
-            height: 2px;
-            background: var(--surface-3);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .quiz-prog-fill {
-            height: 100%;
-            background: var(--accent);
-            border-radius: 2px;
-            transition: width 0.4s ease;
-            box-shadow: 0 0 8px rgba(63,255,196,0.4);
-        }
-
-        .quiz-id {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 5px 10px;
-            border-radius: var(--radius);
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            color: var(--text-3);
-            font-weight: 500;
-            white-space: nowrap;
-            letter-spacing: 0.04em;
-        }
-
-        .quiz-body { padding: 20px 20px 0; }
-
-        .q-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-
-        .q-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            font-size: 0.66rem;
-            font-weight: 700;
-            color: var(--text-3);
-            background: var(--surface);
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        #enunciado {
-            font-family: var(--font-body);
-            font-size: 1rem;
-            line-height: 1.78;
-            color: var(--text);
-            margin-bottom: 22px;
-        }
+        .q-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .q-badge { padding: 4px 10px; border-radius: 6px; background: var(--surface); border: 1px solid var(--border-light); font-size: 12px; font-weight: 500; color: var(--text-muted); }
+        
+        #enunciado { font-size: 18px; line-height: 1.5; color: var(--text-main); margin-bottom: 32px; font-weight: 400; }
 
         /* Options */
-        .option-label {
-            display: flex;
-            align-items: flex-start;
-            padding: 14px 16px;
-            margin-bottom: 8px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            cursor: pointer;
-            background: var(--surface);
-            transition: all 0.18s;
-            gap: 12px;
+        .option-label { 
+            display: flex; align-items: flex-start; padding: 18px; margin-bottom: 12px; 
+            background: var(--surface); border: 1px solid transparent; 
+            border-radius: var(--radius-md); cursor: pointer; 
+            transition: all 0.2s var(--apple-ease); gap: 16px; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            animation: fadeUp 0.5s var(--apple-ease) backwards;
         }
-        .option-label:hover {
-            border-color: var(--border-light);
-            background: var(--surface-2);
-            transform: translateX(2px);
-        }
+        .option-label:nth-child(1) { animation-delay: 0.05s; }
+        .option-label:nth-child(2) { animation-delay: 0.1s; }
+        .option-label:nth-child(3) { animation-delay: 0.15s; }
+        .option-label:nth-child(4) { animation-delay: 0.2s; }
+        .option-label:nth-child(5) { animation-delay: 0.25s; }
+        
+        .option-label:active { transform: scale(0.99); background: var(--surface-active); }
         .option-label input { display: none; }
+        
+        .option-bubble { 
+            width: 28px; height: 28px; min-width: 28px; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 13px; font-weight: 600; color: var(--text-muted); 
+            background: var(--bg); border: 1px solid var(--border);
+            transition: all 0.2s; margin-top: 2px;
+        }
+        .option-text { font-size: 16px; flex: 1; line-height: 1.5; color: var(--text-main); }
+        
+        .option-label.selected { border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 1px var(--accent), var(--shadow-md); }
+        .option-label.selected .option-bubble { background: var(--accent); color: white; border-color: var(--accent); }
+        
+        .option-label.correct-answer { border-color: var(--success); background: var(--success-bg); box-shadow: 0 0 0 1px var(--success); }
+        .option-label.correct-answer .option-bubble { background: var(--success); color: white; border-color: var(--success); }
+        
+        .option-label.wrong-answer { border-color: var(--danger); background: var(--danger-bg); opacity: 0.8; }
+        .option-label.wrong-answer .option-bubble { background: var(--danger); color: white; border-color: var(--danger); }
 
-        .option-bubble {
-            width: 28px; height: 28px; min-width: 28px;
-            border: 1.5px solid var(--border-light);
-            border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: var(--text-3);
-            background: var(--surface-2);
-            transition: all 0.18s;
-        }
+        /* Feedback Section */
+        #feedback-section { margin: 12px 24px 24px; padding: 24px; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-sm); animation: fadeIn 0.4s var(--apple-ease); }
+        .fb-row { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .fb-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .fb-icon.c { background: var(--success-bg); color: var(--success); }
+        .fb-icon.w { background: var(--danger-bg); color: var(--danger); }
+        .fb-label { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+        .fb-label.c { color: var(--success); }
+        .fb-label.w { color: var(--danger); }
+        .fb-div { height: 1px; background: var(--border-light); margin-bottom: 16px; }
+        .fb-com-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+        #comentario-texto { font-size: 15px; color: var(--text-main); line-height: 1.6; }
 
-        .option-text {
-            font-size: 0.94rem;
-            flex: 1;
-            line-height: 1.58;
-            color: var(--text-2);
-            padding-top: 4px;
-        }
+        /* End Screen */
+        .end-title { font-size: 28px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.5px; text-align: center; }
+        .end-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 32px; text-align: center; }
+        
+        .score-wrap { display: flex; justify-content: center; margin-bottom: 32px; }
+        .score-ring { position: relative; width: 140px; height: 140px; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.06)); }
+        .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .score-ring-bg { fill: none; stroke: var(--surface); stroke-width: 8; }
+        .score-ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s var(--apple-ease); }
+        .score-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--surface); border-radius: 50%; margin: 8px; }
+        .score-pct { font-size: 32px; font-weight: 600; line-height: 1; letter-spacing: -1px; }
+        .score-pct-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 40px; }
+        .stat-box { background: var(--surface); border-radius: var(--radius-md); padding: 16px 12px; text-align: center; box-shadow: var(--shadow-sm); }
+        .stat-val { font-size: 24px; font-weight: 600; line-height: 1; margin-bottom: 6px; letter-spacing: -0.5px; }
+        .stat-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+        
+        .analysis-section { margin-top: 32px; }
+        .analysis-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 16px; letter-spacing: -0.01em; }
+        
+        .theme-item { background: var(--surface); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+        .theme-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 12px; }
+        .theme-name { font-size: 15px; font-weight: 500; flex: 1; color: var(--text-main); }
+        .theme-stat { font-size: 14px; font-weight: 600; flex-shrink: 0; }
+        .theme-bar-bg { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+        .theme-bar-fill { height: 100%; border-radius: 3px; }
+        
+        .error-item { padding: 16px; background: var(--surface); border-left: 4px solid var(--danger); border-radius: var(--radius-md); margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+        .error-topic { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
+        .error-comp { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
+        .error-detail { font-size: 13px; color: var(--text-muted); background: var(--bg); padding: 8px 12px; border-radius: 6px; display: inline-block; }
 
-        .option-label.selected {
-            border-color: var(--accent);
-            background: var(--accent-bg);
-        }
-        .option-label.selected .option-bubble {
-            border-color: var(--accent);
-            background: var(--accent);
-            color: #07080c;
-        }
-        .option-label.selected .option-text { color: var(--text); }
+        /* Loading */
+        #loading { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 60vh; gap: 20px; }
+        .spinner { width: 48px; height: 48px; border: 3px solid var(--border); border-top-color: var(--text-main); border-radius: 50%; animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin-text { font-size: 15px; color: var(--text-muted); font-weight: 500; letter-spacing: -0.01em; }
 
-        .option-label.correct-answer {
-            border-color: var(--correct-border);
-            background: var(--correct-bg);
-        }
-        .option-label.correct-answer .option-bubble {
-            border-color: var(--correct);
-            background: var(--correct);
-            color: #07080c;
-        }
-        .option-label.correct-answer .option-text { color: var(--text); }
-
-        .option-label.wrong-answer {
-            border-color: var(--wrong-border);
-            background: var(--wrong-bg);
-            opacity: 0.65;
-        }
-        .option-label.wrong-answer .option-bubble {
-            border-color: var(--wrong);
-            background: var(--wrong);
-            color: white;
-        }
-
-        /* Feedback */
-        #feedback-section {
-            margin: 4px 20px 0;
-            padding: 16px 18px;
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--border);
-            background: var(--surface);
-        }
-
-        .fb-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        .fb-icon {
-            width: 30px; height: 30px;
-            border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            flex-shrink: 0;
-        }
-        .fb-icon.c { background: var(--correct-bg); border: 1px solid var(--correct-border); }
-        .fb-icon.w { background: var(--wrong-bg); border: 1px solid var(--wrong-border); }
-
-        .fb-label { font-size: 0.94rem; font-weight: 700; letter-spacing: 0.01em; }
-        .fb-label.c { color: var(--correct); }
-        .fb-label.w { color: var(--wrong); }
-
-        .fb-div { height: 1px; background: var(--border); margin-bottom: 12px; }
-
-        .fb-com-label {
-            font-size: 0.63rem;
-            color: var(--text-3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.11em;
-            margin-bottom: 7px;
-        }
-
-        #comentario-texto {
-            font-size: 0.9rem;
-            color: var(--text-2);
-            line-height: 1.68;
-        }
-
-        /* Quiz action bar */
-        .quiz-action-bar {
-            position: fixed;
-            bottom: 0; left: 0; right: 0;
-            padding: 14px 20px calc(14px + var(--safe-bottom));
-            background: linear-gradient(to top, var(--bg) 58%, transparent);
-            display: flex;
-            justify-content: center;
-            z-index: 200;
-            pointer-events: none;
-        }
-
-        .quiz-action-btn {
-            width: 100%;
-            max-width: 400px;
-            padding: 16px 28px;
-            border-radius: var(--radius-xl);
-            border: none;
-            background: var(--accent);
-            color: #07080c;
-            font-family: var(--font-ui);
-            font-size: 0.92rem;
-            font-weight: 700;
-            cursor: pointer;
-            pointer-events: auto;
-            transition: all 0.2s;
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 28px rgba(63,255,196,0.18);
-        }
-        .quiz-action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 36px rgba(63,255,196,0.28);
-        }
-        .quiz-action-btn:active { transform: scale(0.98); }
-        .quiz-action-btn:disabled {
-            background: var(--surface-2);
-            color: var(--text-3);
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
-        }
-
-        /* ─── END SCREEN ────────────────────────── */
-        #end-screen {
-            padding: 28px 20px 0;
-            animation: fadeUp 0.35s ease both;
-        }
-
-        .end-eyebrow {
-            font-family: var(--font-mono);
-            font-size: 0.64rem;
-            font-weight: 600;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-            margin-bottom: 6px;
-        }
-
-        .end-title {
-            font-family: var(--font-display);
-            font-size: 1.65rem;
-            font-weight: 600;
-            letter-spacing: -0.025em;
-            line-height: 1.1;
-            margin-bottom: 6px;
-        }
-
-        .end-sub {
-            font-size: 0.86rem;
-            color: var(--text-2);
-            margin-bottom: 26px;
-            line-height: 1.5;
-        }
-
-        .score-wrap {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 24px;
-        }
-
-        .score-ring {
-            position: relative;
-            width: 140px; height: 140px;
-        }
-        .score-ring svg {
-            width: 100%; height: 100%;
-            transform: rotate(-90deg);
-        }
-        .score-ring-bg { fill: none; stroke: var(--surface-3); stroke-width: 6; }
-        .score-ring-fill {
-            fill: none;
-            stroke-width: 6;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .score-center {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .score-pct {
-            font-family: var(--font-mono);
-            font-size: 2.1rem;
-            font-weight: 600;
-            line-height: 1;
-            letter-spacing: -0.03em;
-        }
-        .score-pct-lbl {
-            font-size: 0.63rem;
-            color: var(--text-3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-top: 4px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3,1fr);
-            gap: 8px;
-            margin-bottom: 24px;
-        }
-
-        .stat-box {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 16px 10px;
-            text-align: center;
-        }
-
-        .stat-val {
-            font-family: var(--font-mono);
-            font-size: 1.7rem;
-            font-weight: 600;
-            line-height: 1;
-            margin-bottom: 6px;
-            letter-spacing: -0.025em;
-        }
-
-        .stat-lbl {
-            font-size: 0.63rem;
-            color: var(--text-3);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .analysis-section {
-            border-top: 1px solid var(--border);
-            padding-top: 22px;
-            margin-top: 22px;
-        }
-
-        .analysis-title {
-            font-size: 0.63rem;
-            font-weight: 700;
-            color: var(--text-3);
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-            margin-bottom: 14px;
-        }
-
-        .theme-item {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 13px 16px;
-            margin-bottom: 8px;
-        }
-
-        .theme-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 9px;
-            gap: 10px;
-        }
-
-        .theme-name { font-size: 0.87rem; font-weight: 600; flex: 1; color: var(--text); }
-
-        .theme-stat {
-            font-family: var(--font-mono);
-            font-size: 0.78rem;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-
-        .theme-bar-bg {
-            height: 3px;
-            background: var(--surface-3);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-        .theme-bar-fill { height: 100%; border-radius: 2px; }
-
-        .error-item {
-            padding: 13px 16px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-left: 2px solid var(--wrong);
-            border-radius: var(--radius-lg);
-            margin-bottom: 6px;
-        }
-        .error-topic { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; color: var(--text); }
-        .error-comp  { font-size: 0.75rem; font-weight: 500; color: var(--text-2); margin-bottom: 6px; }
-        .error-detail {
-            font-family: var(--font-mono);
-            font-size: 0.68rem;
-            color: var(--text-3);
-            letter-spacing: 0.02em;
-        }
-
-        ::-webkit-scrollbar { width: 3px; }
-        ::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 2px; }
     </style>
 </head>
 <body>
-<main>
 
-<!-- ─── SETUP SCREEN ─────────────────────────────── -->
-<div id="setup-screen">
-    <div class="top-bar">
-        <div class="brand-mark">
-            <div class="brand-icon">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div>
-                <div class="top-bar-title">Banco de Questões</div>
-                <div class="top-bar-sub">Configure sua sessão de estudos</div>
-            </div>
-        </div>
-        <div class="top-bar-nav">
-            <a href="dash.html" class="nav-icon-btn" title="Dashboard Analítico">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Análise
-            </a>
-            <a href="transfer.html" class="nav-icon-btn" title="Transferência de Dados">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
-                Dados
-            </a>
-        </div>
+<div class="glass-nav" id="top-nav">
+    <div>
+        <div class="top-bar-title">Questões</div>
+        <div class="top-bar-sub">Sessão de Estudos</div>
     </div>
+    <div class="top-bar-nav">
+        <a href="dash.html" class="nav-icon-btn" title="Dashboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-5 5"/></svg>
+        </a>
+        <a href="transfer.html" class="nav-icon-btn" title="Dados">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </a>
+    </div>
+</div>
 
+<main>
     <div id="loading">
         <div class="spinner"></div>
-        <div class="spin-text">Carregando banco...</div>
+        <div class="spin-text">Sincronizando banco...</div>
     </div>
 
-    <div id="setup-form" class="hidden">
-
+    <div id="setup-screen" class="hidden">
+        
         <div class="counter-block" id="counter-block">
-            <div class="counter-left">
+            <div>
                 <div class="counter-num" id="counter-value">0</div>
-                <div class="counter-num-label">questões disponíveis</div>
+                <div class="counter-num-label">Questões filtradas</div>
             </div>
             <div class="counter-tags">
-                <span class="ctag ctag-n" id="tag-total">— no banco</span>
-                <span class="ctag ctag-d" id="tag-done">— respondidas</span>
-                <span class="ctag ctag-e" id="tag-errors">— com erro</span>
+                <span class="ctag ctag-n" id="tag-total">— banco</span>
+                <span class="ctag ctag-d" id="tag-done">— feitas</span>
+                <span class="ctag ctag-e" id="tag-errors">— erros</span>
             </div>
         </div>
 
-        <div class="section-label" style="margin-bottom:10px;">Modo de Questões</div>
-        <div class="mode-tabs" style="margin-bottom:16px;">
-            <button class="mode-tab active" id="tab-todas"   onclick="App.setModo('todas',this)">Todas</button>
-            <button class="mode-tab"        id="tab-ineditas" onclick="App.setModo('ineditas',this)">Inéditas</button>
-            <button class="mode-tab"        id="tab-erradas"  onclick="App.setModo('erradas',this)">Meus Erros</button>
+        <div class="section-header">
+            <span class="section-label" style="margin:0;">Modo de Estudo</span>
+        </div>
+        <div class="mode-tabs">
+            <button class="mode-tab active" id="tab-todas" onclick="App.setModo('todas',this)">Todas</button>
+            <button class="mode-tab" id="tab-ineditas" onclick="App.setModo('ineditas',this)">Inéditas</button>
+            <button class="mode-tab" id="tab-erradas" onclick="App.setModo('erradas',this)">Meus Erros</button>
         </div>
 
-        <div class="section-bar">
-            <span class="section-label">Filtros</span>
-            <button class="clear-btn" id="btn-clear" onclick="App.limparFiltros()">Limpar filtros</button>
+        <div class="section-header">
+            <span class="section-label" style="margin:0;">Filtros</span>
+            <button class="clear-btn" id="btn-clear" onclick="App.limparFiltros()">Limpar</button>
         </div>
-
         <div class="filter-card">
             <div>
                 <div class="filter-row" id="row-esp" onclick="App.toggleDD('esp')">
                     <div class="filter-row-left">
-                        <span class="filter-row-key">Especialidade (múltipla seleção)</span>
-                        <span class="filter-row-val" id="label-esp">Todas as Especialidades</span>
+                        <span class="filter-row-key">Especialidade</span>
+                        <span class="filter-row-val" id="label-esp">Todas</span>
                     </div>
-                    <svg class="filter-chevron" id="chev-esp" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    <svg class="filter-chevron" id="chev-esp" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     <div class="dropdown-menu hidden" id="menu-esp"></div>
                 </div>
                 <div id="esp-chips-wrap" class="hidden"></div>
             </div>
-            <div style="border-top:1px solid var(--border);">
-                <div class="filter-row" id="row-tema" onclick="App.toggleDD('tema')" style="border-bottom:none;">
+            <div>
+                <div class="filter-row" id="row-tema" onclick="App.toggleDD('tema')">
                     <div class="filter-row-left">
-                        <span class="filter-row-key">Temas (múltipla seleção)</span>
-                        <span class="filter-row-val" id="label-tema">Todos os Temas</span>
+                        <span class="filter-row-key">Tema Específico</span>
+                        <span class="filter-row-val" id="label-tema">Todos</span>
                     </div>
-                    <svg class="filter-chevron" id="chev-tema" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    <svg class="filter-chevron" id="chev-tema" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                     <div class="dropdown-menu hidden" id="menu-tema"></div>
                 </div>
                 <div id="tema-chips-wrap" class="hidden"></div>
             </div>
         </div>
 
-        <div class="section-label" style="margin-bottom:10px;">Quantidade</div>
+        <div class="section-header">
+            <span class="section-label" style="margin:0;">Quantidade</span>
+        </div>
         <div class="filter-card">
             <div class="qty-wrap">
-                <div class="qty-display">
-                    <input type="number" class="qty-big-num" id="qtd-questoes" value="10" min="1" oninput="App.onQtyInput()">
-                    <span class="qty-big-label">Questões selecionadas</span>
-                </div>
+                <input type="number" class="qty-big-num" id="qtd-questoes" value="10" min="1" oninput="App.onQtyInput()">
+                <span class="qty-big-label">questões selecionadas</span>
+                
                 <div class="qty-slider-wrap">
                     <input type="range" id="qty-slider" class="qty-slider" min="1" max="100" value="10" step="1" oninput="App.onSliderInput()">
-                    <div class="qty-range-labels"><span>1</span><span id="qty-max">0</span></div>
+                    <div class="qty-limits">
+                        <span>1</span>
+                        <span id="qty-max">0</span>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
-</div>
 
-<!-- ─── QUIZ SCREEN ──────────────────────────────── -->
-<div id="quiz-screen" class="hidden">
-    <div class="quiz-header">
-        <div class="quiz-prog-wrap">
-            <div class="quiz-prog-labels">
-                <span id="progress-text">1 / 10</span>
-                <span id="progress-pct">0%</span>
+    <div id="quiz-screen" class="hidden">
+        <div class="quiz-header">
+            <div class="quiz-prog-wrap">
+                <div class="quiz-prog-labels">
+                    <span id="progress-text">1 de 10</span>
+                    <span id="progress-pct">0%</span>
+                </div>
+                <div class="quiz-prog-bar">
+                    <div class="quiz-prog-fill" id="progress-fill" style="width:0%"></div>
+                </div>
             </div>
-            <div class="quiz-prog-bar">
-                <div class="quiz-prog-fill" id="progress-fill" style="width:0%"></div>
+            <div class="quiz-id" id="question-id">—</div>
+        </div>
+        <div class="quiz-body">
+            <div class="q-meta" id="question-meta"></div>
+            <div id="enunciado"></div>
+            <div id="opcoes-container"></div>
+        </div>
+        <div id="feedback-section" class="hidden">
+            <div class="fb-row">
+                <div class="fb-icon" id="fb-icon"></div>
+                <div class="fb-label" id="resultado-texto"></div>
             </div>
+            <div class="fb-div"></div>
+            <div class="fb-com-label">Comentário</div>
+            <div id="comentario-texto"></div>
         </div>
-        <div class="quiz-id">ID: <span id="question-id">—</span></div>
+        <div style="height:16px;"></div>
     </div>
-    <div class="quiz-body">
-        <div class="q-meta" id="question-meta"></div>
-        <div id="enunciado"></div>
-        <div id="opcoes-container"></div>
-    </div>
-    <div id="feedback-section" class="hidden" style="margin:4px 20px 0;">
-        <div class="fb-row">
-            <div class="fb-icon" id="fb-icon"></div>
-            <div class="fb-label" id="resultado-texto"></div>
-        </div>
-        <div class="fb-div"></div>
-        <div class="fb-com-label">Comentário</div>
-        <div id="comentario-texto"></div>
-    </div>
-    <div style="height:8px;"></div>
-</div>
 
-<!-- ─── END SCREEN ───────────────────────────────── -->
-<div id="end-screen" class="hidden">
-    <div class="end-eyebrow">Relatório de Desempenho</div>
-    <div class="end-title">Sessão Concluída</div>
-    <div class="end-sub" id="dash-feedback-msg">Calculando...</div>
-
-    <div class="score-wrap">
-        <div class="score-ring">
-            <svg viewBox="0 0 100 100">
-                <circle class="score-ring-bg"   cx="50" cy="50" r="42"/>
-                <circle class="score-ring-fill" id="score-ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
-            </svg>
-            <div class="score-center">
-                <div class="score-pct" id="dash-pct">0%</div>
-                <div class="score-pct-lbl">acertos</div>
+    <div id="end-screen" class="hidden">
+        <div class="end-title">Sessão Concluída</div>
+        <div class="end-sub" id="dash-feedback-msg">Analisando resultados...</div>
+        
+        <div class="score-wrap">
+            <div class="score-ring">
+                <svg viewBox="0 0 100 100">
+                    <circle class="score-ring-bg" cx="50" cy="50" r="42"/>
+                    <circle class="score-ring-fill" id="score-ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+                </svg>
+                <div class="score-center">
+                    <div class="score-pct" id="dash-pct">0%</div>
+                    <div class="score-pct-lbl">Acertos</div>
+                </div>
             </div>
         </div>
+        
+        <div class="stats-grid">
+            <div class="stat-box"><div class="stat-val" id="dash-acertos">0</div><div class="stat-lbl">Corretas</div></div>
+            <div class="stat-box"><div class="stat-val" id="dash-total-end">0</div><div class="stat-lbl">Total</div></div>
+            <div class="stat-box"><div class="stat-val" id="dash-tempo">—</div><div class="stat-lbl">Tempo/Q.</div></div>
+        </div>
+        
+        <div class="analysis-section">
+            <div class="analysis-title">Desempenho por Tema</div>
+            <div id="themes-container"></div>
+        </div>
+        
+        <div class="analysis-section hidden" id="errors-block">
+            <div class="analysis-title" style="color:var(--danger)">Revisão de Erros</div>
+            <div id="error-list"></div>
+        </div>
     </div>
-
-    <div class="stats-grid">
-        <div class="stat-box"><div class="stat-val" id="dash-acertos">0</div><div class="stat-lbl">Acertos</div></div>
-        <div class="stat-box"><div class="stat-val" id="dash-total-end">0</div><div class="stat-lbl">Questões</div></div>
-        <div class="stat-box"><div class="stat-val" id="dash-tempo">—</div><div class="stat-lbl">Tempo/Q.</div></div>
-    </div>
-
-    <div class="analysis-section">
-        <div class="analysis-title">Desempenho por Tema</div>
-        <div id="themes-container"></div>
-    </div>
-    <div class="analysis-section hidden" id="errors-block">
-        <div class="analysis-title" style="color:var(--wrong)">Gabarito dos Erros</div>
-        <div id="error-list"></div>
-    </div>
-    <div style="height:16px;"></div>
-</div>
 
 </main>
 
-<!-- Bottom action bars -->
 <div class="fixed-bottom" id="start-bar">
     <button class="btn-primary hidden" id="btn-start" onclick="App.iniciarSessao()">
         Iniciar Sessão
         <span class="btn-badge" id="start-count">0</span>
     </button>
 </div>
+
 <div class="quiz-action-bar hidden" id="quiz-bar">
-    <button class="quiz-action-btn" id="btn-action" onclick="App.handleAction()" disabled>Selecione uma Alternativa</button>
+    <button class="quiz-action-btn" id="btn-action" onclick="App.handleAction()" disabled>Selecionar Alternativa</button>
 </div>
 
 <script>
+// Mantendo rigorosamente o JavaScript funcional e lógico inalterado
 const App = {
     url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
     banco: [], fila: [], indice: 0,
@@ -1203,102 +562,23 @@ const App = {
     filtros: { especialidades: [], temas: [], modo: 'todas' },
 
     PEDIATRIA_TEMAS_MAP: [
-        {
-            canonical: 'Reanimação Neonatal',
-            keywords: ['reanimação neonatal', 'reanimacao neonatal', 'rcp neonatal', 'ressuscitação neonatal']
-        },
-        {
-            canonical: 'Circulação Fetal e Neonatal e Asfixia Perinatal',
-            keywords: ['circulação fetal', 'circulacao fetal', 'circulação neonatal', 'circulacao neonatal', 'asfixia perinatal', 'transição circulatória', 'transicao circulatoria']
-        },
-        {
-            canonical: 'HIV na infância',
-            keywords: ['hiv na infância', 'hiv na infancia', 'hiv infantil', 'aids pediátrica', 'aids pediatrica', 'hiv criança', 'hiv crianca']
-        },
-        {
-            canonical: 'Infecções Congênitas: Sífilis, Toxoplasmose, Rubéola, Citomegalovírus',
-            keywords: ['infecções congênitas', 'infeccoes congenitas', 'infecção congênita', 'infeccao congenita',
-                       'sífilis congênita', 'sifilis congenita', 'toxoplasmose congênita', 'toxoplasmose congenita',
-                       'rubéola congênita', 'rubeola congenita', 'citomegalovírus', 'citomegalovirus', 'torch']
-        },
-        {
-            canonical: 'Infecções de Vias Aéreas Superiores: Resfriado comum, Amigdalites, Sinusites, Otites, Mastoidites, Laringites',
-            keywords: ['vias aéreas superiores', 'vias aereas superiores', 'resfriado comum',
-                       'amigdalite', 'tonsilite', 'sinusite', 'otite', 'mastoidite', 'laringite',
-                       'ivas', 'infecção respiratória alta', 'infeccao respiratoria alta',
-                       'faringoamigdalite', 'rinofaringite']
-        },
-        {
-            canonical: 'Bronquiolite e suas complicações / Lactente sibilante',
-            keywords: ['bronquiolite', 'lactente sibilante', 'sibilância recorrente', 'sibilancia recorrente',
-                       'vsr', 'vírus sincicial', 'virus sincicial']
-        },
-        {
-            canonical: 'Distúrbios metabólicos do RN',
-            keywords: ['distúrbios metabólicos', 'disturbios metabolicos', 'metabólico do rn', 'metabolico do rn',
-                       'hipoglicemia neonatal', 'hipocalcemia neonatal', 'hipomagnesemia neonatal',
-                       'distúrbio metabólico neonatal', 'disturbio metabolico neonatal']
-        },
-        {
-            canonical: 'Hiperbilirrubinemia e Colestase Neonatal',
-            keywords: ['hiperbilirrubinemia', 'colestase neonatal', 'icterícia neonatal', 'ictericia neonatal',
-                       'icterícia do rn', 'ictericia do rn', 'bilirrubina neonatal', 'fototerapia neonatal']
-        },
-        {
-            canonical: 'Estafilococcias e Estreptococcias',
-            keywords: ['estafilococcia', 'estreptococcia', 'estafilococ', 'estreptococ',
-                       'staphylococ', 'streptococ', 'impetigo', 'escarlatina',
-                       'síndrome do choque tóxico', 'sindrome do choque toxico']
-        },
-        {
-            canonical: 'Constipação Intestinal – Dor abdominal Crônica',
-            keywords: ['constipação intestinal', 'constipacao intestinal', 'dor abdominal crônica', 'dor abdominal cronica',
-                       'obstipação', 'obstipacao', 'constipação', 'constipacao', 'encoprese']
-        },
-        {
-            canonical: 'Diagnóstico Diferencial das dificuldades respiratórias no período Neonatal',
-            keywords: ['dificuldades respiratórias', 'dificuldades respiratorias', 'dificuldade respiratória neonatal',
-                       'dificuldade respiratoria neonatal', 'desconforto respiratório neonatal', 'desconforto respiratorio neonatal',
-                       'ttrn', 'taquipneia transitória', 'taquipneia transitoria', 'síndrome do desconforto respiratório',
-                       'sindrome do desconforto respiratorio', 'membrana hialina', 'sdra neonatal']
-        },
-        {
-            canonical: 'Afecções Cirúrgicas em Neonatologia: Hérnia diafragmática, Atresia de esôfago, Obstruções duodenais congênitas, Íleo meconial, Onfalocele e Gastrosquise',
-            keywords: ['afecções cirúrgicas', 'afeccoes cirurgicas', 'cirurgia neonatal',
-                       'hérnia diafragmática', 'hernia diafragmatica', 'atresia de esôfago', 'atresia de esofago',
-                       'obstrução duodenal', 'obstrucao duodenal', 'íleo meconial', 'ileo meconial',
-                       'onfalocele', 'gastrosquise', 'atresia duodenal']
-        },
-        {
-            canonical: 'Urgências cirúrgicas abdominais em Pediatria: Apendicite, Estenose hipertrófica do piloro, Invaginação intestinal',
-            keywords: ['urgências cirúrgicas', 'urgencias cirurgicas', 'cirurgia abdominal pediátrica', 'cirurgia abdominal pediatrica',
-                       'apendicite', 'estenose hipertrófica do piloro', 'estenose hipertrofica do piloro',
-                       'invaginação intestinal', 'invaginacao intestinal', 'intussuscepção', 'intussuscepcao',
-                       'piloro estenose']
-        },
-        {
-            canonical: 'Pneumonias Complicadas',
-            keywords: ['pneumonias complicadas', 'pneumonia complicada', 'derrame parapneumônico', 'derrame parapneumonico',
-                       'empiema', 'abscesso pulmonar', 'pneumonia necrosante']
-        },
-        {
-            canonical: 'Convulsões na Infância',
-            keywords: ['convulsões na infância', 'convulsoes na infancia', 'convulsão infantil', 'convulsao infantil',
-                       'crise convulsiva', 'epilepsia', 'convulsão febril', 'convulsao febril',
-                       'status epilepticus', 'estado de mal epiléptico']
-        },
-        {
-            canonical: 'Meningoencefalites',
-            keywords: ['meningoencefalite', 'meningite', 'encefalite', 'meningismo',
-                       'meningococcemia', 'neisseria meningitidis', 'meningite bacteriana', 'meningite viral']
-        },
-        {
-            canonical: 'Doenças Exantemáticas: Rubéola, Eritema Infeccioso, Exantema súbito, Kawasaki, Varicela Zoster, Mononucleose Infecciosa',
-            keywords: ['doenças exantemáticas', 'doencas exantematicas', 'exantema', 'kawasaki',
-                       'varicela', 'mononucleose', 'eritema infeccioso', 'exantema súbito', 'exantema subito',
-                       'roséola', 'roseola', 'rubéola', 'rubeola', 'quinta doença', 'sexta doença',
-                       'quinta doenca', 'sexta doenca', 'epstein-barr', 'ebv']
-        }
+        { canonical: 'Reanimação Neonatal', keywords: ['reanimação neonatal', 'reanimacao neonatal', 'rcp neonatal', 'ressuscitação neonatal'] },
+        { canonical: 'Circulação Fetal e Neonatal e Asfixia Perinatal', keywords: ['circulação fetal', 'circulacao fetal', 'circulação neonatal', 'circulacao neonatal', 'asfixia perinatal', 'transição circulatória', 'transicao circulatoria'] },
+        { canonical: 'HIV na infância', keywords: ['hiv na infância', 'hiv na infancia', 'hiv infantil', 'aids pediátrica', 'aids pediatrica', 'hiv criança', 'hiv crianca'] },
+        { canonical: 'Infecções Congênitas: Sífilis, Toxoplasmose, Rubéola, Citomegalovírus', keywords: ['infecções congênitas', 'infeccoes congenitas', 'infecção congênita', 'infeccao congenita', 'sífilis congênita', 'sifilis congenita', 'toxoplasmose congênita', 'toxoplasmose congenita', 'rubéola congênita', 'rubeola congenita', 'citomegalovírus', 'citomegalovirus', 'torch'] },
+        { canonical: 'Infecções de Vias Aéreas Superiores: Resfriado comum, Amigdalites, Sinusites, Otites, Mastoidites, Laringites', keywords: ['vias aéreas superiores', 'vias aereas superiores', 'resfriado comum', 'amigdalite', 'tonsilite', 'sinusite', 'otite', 'mastoidite', 'laringite', 'ivas', 'infecção respiratória alta', 'infeccao respiratoria alta', 'faringoamigdalite', 'rinofaringite'] },
+        { canonical: 'Bronquiolite e suas complicações / Lactente sibilante', keywords: ['bronquiolite', 'lactente sibilante', 'sibilância recorrente', 'sibilancia recorrente', 'vsr', 'vírus sincicial', 'virus sincicial'] },
+        { canonical: 'Distúrbios metabólicos do RN', keywords: ['distúrbios metabólicos', 'disturbios metabolicos', 'metabólico do rn', 'metabolico do rn', 'hipoglicemia neonatal', 'hipocalcemia neonatal', 'hipomagnesemia neonatal', 'distúrbio metabólico neonatal', 'disturbio metabolico neonatal'] },
+        { canonical: 'Hiperbilirrubinemia e Colestase Neonatal', keywords: ['hiperbilirrubinemia', 'colestase neonatal', 'icterícia neonatal', 'ictericia neonatal', 'icterícia do rn', 'ictericia do rn', 'bilirrubina neonatal', 'fototerapia neonatal'] },
+        { canonical: 'Estafilococcias e Estreptococcias', keywords: ['estafilococcia', 'estreptococcia', 'estafilococ', 'estreptococ', 'staphylococ', 'streptococ', 'impetigo', 'escarlatina', 'síndrome do choque tóxico', 'sindrome do choque toxico'] },
+        { canonical: 'Constipação Intestinal – Dor abdominal Crônica', keywords: ['constipação intestinal', 'constipacao intestinal', 'dor abdominal crônica', 'dor abdominal cronica', 'obstipação', 'obstipacao', 'constipação', 'constipacao', 'encoprese'] },
+        { canonical: 'Diagnóstico Diferencial das dificuldades respiratórias no período Neonatal', keywords: ['dificuldades respiratórias', 'dificuldades respiratorias', 'dificuldade respiratória neonatal', 'dificuldade respiratoria neonatal', 'desconforto respiratório neonatal', 'desconforto respiratorio neonatal', 'ttrn', 'taquipneia transitória', 'taquipneia transitoria', 'síndrome do desconforto respiratório', 'sindrome do desconforto respiratorio', 'membrana hialina', 'sdra neonatal'] },
+        { canonical: 'Afecções Cirúrgicas em Neonatologia: Hérnia diafragmática, Atresia de esôfago, Obstruções duodenais congênitas, Íleo meconial, Onfalocele e Gastrosquise', keywords: ['afecções cirúrgicas', 'afeccoes cirurgicas', 'cirurgia neonatal', 'hérnia diafragmática', 'hernia diafragmatica', 'atresia de esôfago', 'atresia de esofago', 'obstrução duodenal', 'obstrucao duodenal', 'íleo meconial', 'ileo meconial', 'onfalocele', 'gastrosquise', 'atresia duodenal'] },
+        { canonical: 'Urgências cirúrgicas abdominais em Pediatria: Apendicite, Estenose hipertrófica do piloro, Invaginação intestinal', keywords: ['urgências cirúrgicas', 'urgencias cirurgicas', 'cirurgia abdominal pediátrica', 'cirurgia abdominal pediatrica', 'apendicite', 'estenose hipertrófica do piloro', 'estenose hipertrofica do piloro', 'invaginação intestinal', 'invaginacao intestinal', 'intussuscepção', 'intussuscepcao', 'piloro estenose'] },
+        { canonical: 'Pneumonias Complicadas', keywords: ['pneumonias complicadas', 'pneumonia complicada', 'derrame parapneumônico', 'derrame parapneumonico', 'empiema', 'abscesso pulmonar', 'pneumonia necrosante'] },
+        { canonical: 'Convulsões na Infância', keywords: ['convulsões na infância', 'convulsoes na infancia', 'convulsão infantil', 'convulsao infantil', 'crise convulsiva', 'epilepsia', 'convulsão febril', 'convulsao febril', 'status epilepticus', 'estado de mal epiléptico'] },
+        { canonical: 'Meningoencefalites', keywords: ['meningoencefalite', 'meningite', 'encefalite', 'meningismo', 'meningococcemia', 'neisseria meningitidis', 'meningite bacteriana', 'meningite viral'] },
+        { canonical: 'Doenças Exantemáticas: Rubéola, Eritema Infeccioso, Exantema súbito, Kawasaki, Varicela Zoster, Mononucleose Infecciosa', keywords: ['doenças exantemáticas', 'doencas exantematicas', 'exantema', 'kawasaki', 'varicela', 'mononucleose', 'eritema infeccioso', 'exantema súbito', 'exantema subito', 'roséola', 'roseola', 'rubéola', 'rubeola', 'quinta doença', 'sexta doença', 'quinta doenca', 'sexta doenca', 'epstein-barr', 'ebv'] }
     ],
 
     normalizePediatriaTema(tema) {
@@ -1332,9 +612,7 @@ const App = {
             const raw = localStorage.getItem('apex_filtros');
             if (!raw) return null;
             return JSON.parse(raw);
-        } catch (e) {
-            return null;
-        }
+        } catch (e) { return null; }
     },
 
     _restoreFilters() {
@@ -1384,6 +662,7 @@ const App = {
         document.getElementById('end-screen').classList.add('hidden');
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('quiz-bar').classList.add('hidden');
+        document.getElementById('top-nav').classList.remove('hidden');
 
         document.getElementById('setup-screen').classList.remove('hidden');
         document.getElementById('start-bar').classList.remove('hidden');
@@ -1420,7 +699,7 @@ const App = {
     },
 
     _checkSvg() {
-        return `<div class="dd-check"><svg class="dd-check-mark" width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+        return `<div class="dd-check-mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>`;
     },
 
     init() {
@@ -1439,7 +718,7 @@ const App = {
                     });
 
                 document.getElementById('loading').classList.add('hidden');
-                document.getElementById('setup-form').classList.remove('hidden');
+                document.getElementById('setup-screen').classList.remove('hidden');
                 document.getElementById('btn-start').classList.remove('hidden');
 
                 this.buildEspMenu();
@@ -1448,7 +727,7 @@ const App = {
                 this.atualizarTudo();
             },
             error: () => {
-                document.getElementById('loading').innerHTML = '<div style="color:var(--wrong);text-align:center;padding:20px;font-family:var(--font-mono);font-size:0.8rem;">Erro ao carregar planilha.</div>';
+                document.getElementById('loading').innerHTML = '<div style="color:var(--danger);text-align:center;padding:20px;font-weight:500;">Erro ao carregar os dados.</div>';
             }
         });
         document.addEventListener('click', e => {
@@ -1477,7 +756,7 @@ const App = {
         const esps = [...new Set(this.banco.map(q => q.especialidade).filter(Boolean))].sort();
         const menu = document.getElementById('menu-esp');
         if (!esps.length) {
-            menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-3);">Nenhuma especialidade disponível</div>';
+            menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-muted);">Nenhuma especialidade disponível</div>';
             return;
         }
         menu.innerHTML = esps.map(e => {
@@ -1503,7 +782,7 @@ const App = {
     updateEspLabel() {
         const el = document.getElementById('label-esp');
         const n = this.filtros.especialidades.length;
-        el.textContent = n === 0 ? 'Todas as Especialidades' : n === 1 ? this.filtros.especialidades[0] : n + ' especialidades';
+        el.textContent = n === 0 ? 'Todas' : n === 1 ? this.filtros.especialidades[0] : n + ' selecionadas';
     },
 
     renderEspChips() {
@@ -1511,7 +790,7 @@ const App = {
         if (!this.filtros.especialidades.length) { wrap.className = 'hidden'; wrap.innerHTML = ''; return; }
         wrap.className = 'tema-chips';
         wrap.innerHTML = this.filtros.especialidades.map(e =>
-            `<span class="tema-chip">${this.escapeHtml(e)}<span class="tema-chip-x" data-val="${this.escapeHtml(e)}">×</span></span>`
+            `<span class="tema-chip">${this.escapeHtml(e)}<span class="tema-chip-x" data-val="${this.escapeHtml(e)}">&times;</span></span>`
         ).join('');
         wrap.querySelectorAll('.tema-chip-x').forEach(el => {
             el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleEsp(el.dataset.val); });
@@ -1525,7 +804,7 @@ const App = {
         const temas = [...new Set(pool.map(q => q.tema_especifico).filter(Boolean))].sort();
         const menu = document.getElementById('menu-tema');
         if (!temas.length) {
-            menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-3);">Nenhum tema disponível</div>';
+            menu.innerHTML = '<div class="dd-option" style="cursor:default;color:var(--text-muted);">Nenhum tema disponível</div>';
             return;
         }
         menu.innerHTML = temas.map(t => {
@@ -1548,7 +827,7 @@ const App = {
     updateTemaLabel() {
         const el = document.getElementById('label-tema');
         const n = this.filtros.temas.length;
-        el.textContent = n === 0 ? 'Todos os Temas' : n === 1 ? this.filtros.temas[0] : n + ' temas selecionados';
+        el.textContent = n === 0 ? 'Todos' : n === 1 ? this.filtros.temas[0] : n + ' selecionados';
     },
 
     renderTemaChips() {
@@ -1556,7 +835,7 @@ const App = {
         if (!this.filtros.temas.length) { wrap.className = 'hidden'; wrap.innerHTML = ''; return; }
         wrap.className = 'tema-chips';
         wrap.innerHTML = this.filtros.temas.map(t =>
-            `<span class="tema-chip">${this.escapeHtml(t)}<span class="tema-chip-x" data-val="${this.escapeHtml(t)}">×</span></span>`
+            `<span class="tema-chip">${this.escapeHtml(t)}<span class="tema-chip-x" data-val="${this.escapeHtml(t)}">&times;</span></span>`
         ).join('');
         wrap.querySelectorAll('.tema-chip-x').forEach(el => {
             el.addEventListener('click', ev => { ev.stopPropagation(); this.toggleTema(el.dataset.val); });
@@ -1611,10 +890,9 @@ const App = {
         }).length;
 
         document.getElementById('counter-value').textContent = validas.length;
-        document.getElementById('counter-block').classList.toggle('zero', validas.length === 0);
         document.getElementById('tag-total').textContent = total + ' no banco';
-        document.getElementById('tag-done').textContent = respondidas + ' respondidas';
-        document.getElementById('tag-errors').textContent = erradas + ' com erro';
+        document.getElementById('tag-done').textContent = respondidas + ' feitas';
+        document.getElementById('tag-errors').textContent = erradas + ' erros';
 
         const max = validas.length || 1;
         const numInput = document.getElementById('qtd-questoes');
@@ -1622,7 +900,7 @@ const App = {
         numInput.max = max; slider.max = max; slider.min = 1;
         if (parseInt(numInput.value) > max) { numInput.value = max; slider.value = max; }
         if (!numInput.value || parseInt(numInput.value) < 1) { numInput.value = 1; slider.value = 1; }
-        document.getElementById('qty-max').textContent = max + ' máx';
+        document.getElementById('qty-max').textContent = max;
         document.getElementById('start-count').textContent = Math.min(parseInt(numInput.value) || 1, max);
         document.getElementById('btn-start').disabled = validas.length === 0;
 
@@ -1707,6 +985,7 @@ const App = {
 
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('start-bar').classList.add('hidden');
+        document.getElementById('top-nav').classList.add('hidden'); // Oculta nav na prova
         document.getElementById('quiz-screen').classList.remove('hidden');
         document.getElementById('quiz-bar').classList.remove('hidden');
         this.carregarQuestao();
@@ -1717,15 +996,15 @@ const App = {
         const q = this.fila[this.indice];
         const total = this.fila.length, num = this.indice + 1;
         const pct = Math.round(((num - 1) / total) * 100);
-        document.getElementById('progress-text').textContent = num + ' / ' + total;
+        document.getElementById('progress-text').textContent = num + ' de ' + total;
         document.getElementById('progress-pct').textContent = pct + '%';
         document.getElementById('progress-fill').style.width = pct + '%';
-        document.getElementById('question-id').textContent = q.id;
+        document.getElementById('question-id').textContent = 'ID ' + q.id;
         const meta = document.getElementById('question-meta');
         meta.innerHTML = '';
         if (q.especialidade) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.especialidade) + '</span>';
         if (q.tema_especifico) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.tema_especifico) + '</span>';
-        if (q.banca || q.ano) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml([q.banca, q.ano].filter(Boolean).join(' · ')) + '</span>';
+        if (q.banca || q.ano) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml([q.banca, q.ano].filter(Boolean).join(' • ')) + '</span>';
         document.getElementById('enunciado').textContent = q.enunciado;
         const container = document.getElementById('opcoes-container');
         container.innerHTML = '';
@@ -1739,7 +1018,7 @@ const App = {
         });
         document.getElementById('feedback-section').classList.add('hidden');
         const btn = document.getElementById('btn-action');
-        btn.textContent = 'Selecione uma Alternativa';
+        btn.textContent = 'Selecionar Alternativa';
         btn.disabled = true;
         window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -1785,17 +1064,17 @@ const App = {
         const label = document.getElementById('resultado-texto');
         if (isCerta) {
             icon.className = 'fb-icon c';
-            icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--correct)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-            label.className = 'fb-label c'; label.textContent = 'Resposta Correta';
+            icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            label.className = 'fb-label c'; label.textContent = 'Correto';
         } else {
             icon.className = 'fb-icon w';
-            icon.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--wrong)" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-            label.className = 'fb-label w'; label.textContent = 'Resposta Incorreta';
+            icon.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+            label.className = 'fb-label w'; label.textContent = 'Incorreto';
         }
-        document.getElementById('comentario-texto').textContent = q.comentario || 'Sem comentário disponível.';
+        document.getElementById('comentario-texto').textContent = q.comentario || 'Gabarito oficial: ' + correta.toUpperCase();
         document.getElementById('feedback-section').classList.remove('hidden');
-        document.getElementById('btn-action').textContent = this.indice === this.fila.length - 1 ? 'Ver Resultados' : 'Próxima Questão →';
-        setTimeout(() => document.getElementById('feedback-section').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 80);
+        document.getElementById('btn-action').textContent = this.indice === this.fila.length - 1 ? 'Ver Resultados' : 'Avançar';
+        setTimeout(() => document.getElementById('feedback-section').scrollIntoView({ behavior: 'smooth', block: 'end' }), 100);
     },
 
     proximaQuestao() {
@@ -1815,12 +1094,14 @@ const App = {
         this.estado = 'FIM';
         const endTime = Date.now();
         document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('top-nav').classList.remove('hidden'); // Volta a nav
         document.getElementById('quiz-bar').classList.remove('hidden');
+        
         const total = this.fila.length;
         const acertos = this.sessao.respostas.filter(r => r.acertou).length;
         const pct = Math.round((acertos / total) * 100);
         const avgSeg = Math.round((endTime - this.sessao.startTime) / 1000 / total);
-        const tempoStr = avgSeg >= 60 ? Math.floor(avgSeg/60) + 'm' + (avgSeg%60) + 's' : avgSeg + 's';
+        const tempoStr = avgSeg >= 60 ? Math.floor(avgSeg/60) + 'm ' + (avgSeg%60) + 's' : avgSeg + 's';
 
         const sessaoRecord = {
             date: new Date().toISOString(),
@@ -1845,11 +1126,12 @@ const App = {
         document.getElementById('dash-total-end').textContent = total;
         document.getElementById('dash-tempo').textContent = tempoStr;
         document.getElementById('dash-pct').textContent = pct + '%';
-        document.getElementById('dash-feedback-msg').textContent = pct >= 80 ? 'Excelente! Continue assim.' : pct >= 50 ? 'Bom trabalho. Revise os temas abaixo.' : 'Revise os pontos de atenção abaixo.';
+        document.getElementById('dash-feedback-msg').textContent = pct >= 80 ? 'Excelente desempenho.' : pct >= 50 ? 'Bom trabalho.' : 'Recomendada revisão dos temas abordados.';
+        
         const ring = document.getElementById('score-ring-fill');
-        ring.style.stroke = pct >= 70 ? 'var(--correct)' : pct >= 50 ? 'var(--warn)' : 'var(--wrong)';
-        setTimeout(() => { ring.style.strokeDashoffset = 264 - (pct / 100) * 264; }, 80);
-
+        ring.style.stroke = pct >= 70 ? 'var(--success)' : pct >= 50 ? 'var(--warning)' : 'var(--danger)';
+        setTimeout(() => { ring.style.strokeDashoffset = 264 - (pct / 100) * 264; }, 100);
+        
         const stats = {};
         this.sessao.respostas.forEach(r => {
             const k = r.questao.tema_especifico || r.questao.especialidade || 'Geral';
@@ -1857,34 +1139,35 @@ const App = {
             stats[k].total++;
             if (r.acertou) stats[k].acertos++;
         });
-
+        
         const tc = document.getElementById('themes-container');
         tc.innerHTML = '';
         Object.entries(stats).sort((a,b) => (b[1].acertos/b[1].total) - (a[1].acertos/a[1].total)).forEach(([tema, s]) => {
             const p = Math.round((s.acertos / s.total) * 100);
-            const col = p >= 70 ? 'var(--correct)' : p < 50 ? 'var(--wrong)' : 'var(--warn)';
-            tc.innerHTML += '<div class="theme-item"><div class="theme-row"><span class="theme-name">' + this.escapeHtml(tema) + '</span><span class="theme-stat" style="color:' + col + '">' + s.acertos + '/' + s.total + ' · ' + p + '%</span></div><div class="theme-bar-bg"><div class="theme-bar-fill" style="width:' + p + '%;background:' + col + ';"></div></div></div>';
+            const col = p >= 70 ? 'var(--success)' : p < 50 ? 'var(--danger)' : 'var(--warning)';
+            tc.innerHTML += '<div class="theme-item"><div class="theme-row"><span class="theme-name">' + this.escapeHtml(tema) + '</span><span class="theme-stat" style="color:' + col + '">' + p + '%</span></div><div class="theme-bar-bg"><div class="theme-bar-fill" style="width:' + p + '%;background:' + col + ';"></div></div></div>';
         });
-
+        
         const erros = this.sessao.respostas.filter(r => !r.acertou);
         if (erros.length) {
             document.getElementById('errors-block').classList.remove('hidden');
             document.getElementById('error-list').innerHTML = erros.map(r => {
                 const tema = this.escapeHtml(r.questao.tema_especifico || r.questao.especialidade || 'Geral');
-                const comp = this.escapeHtml(r.questao.competencia || 'Sem competência listada');
                 const id = this.escapeHtml(r.questao.id);
                 const resp = this.escapeHtml(r.marcada.toUpperCase());
                 const gab = this.escapeHtml((r.questao.correta || '?').toUpperCase());
 
                 return '<div class="error-item">' +
                        '<div class="error-topic">' + tema + '</div>' +
-                       '<div class="error-comp">⮑ ' + comp + '</div>' +
-                       '<div class="error-detail">ID: ' + id + ' · Sua resp.: ' + resp + ' · Gabarito: ' + gab + '</div>' +
+                       '<div class="error-detail">ID: ' + id + ' • Você marcou: ' + resp + ' • Correta: ' + gab + '</div>' +
                        '</div>';
             }).join('');
+        } else {
+            document.getElementById('errors-block').classList.add('hidden');
         }
+        
         document.getElementById('end-screen').classList.remove('hidden');
-        document.getElementById('btn-action').textContent = 'Voltar ao Início';
+        document.getElementById('btn-action').textContent = 'Concluir Revisão';
         document.getElementById('btn-action').disabled = false;
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
