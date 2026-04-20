@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Aprender • QuestBank</title>
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --text-main: #1d1d1f;
+            --text-muted: #86868b;
+            --accent: #0071e3;
+            --accent-bg: #e8f2fc;
+            --success: #34c759;
+            --danger: #ff3b30;
+            --border: rgba(60, 60, 67, 0.12);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            margin: 0;
+            padding: 0 0 100px 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .glass-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(245, 245, 247, 0.72);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+
+        /* Topic Selector */
+        .topic-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            padding: 16px; margin-bottom: 12px;
+            cursor: pointer; transition: all 0.2s var(--apple-ease);
+            border: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .topic-card:active { transform: scale(0.98); background: var(--bg); }
+        .topic-path { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-bottom: 4px; }
+        .topic-name { font-size: 16px; font-weight: 600; }
+
+        /* Quiz Area */
+        .quiz-box { animation: slideUp 0.4s var(--apple-ease); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .question-text { font-size: 18px; line-height: 1.5; margin-bottom: 24px; }
+        
+        /* Active Keywords */
+        .keyword {
+            color: var(--accent);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0 2px;
+            border-bottom: 2px solid var(--accent-bg);
+            transition: background 0.2s;
+        }
+        .keyword:hover { background: var(--accent-bg); border-radius: 4px; }
+
+        .option {
+            background: var(--surface);
+            padding: 16px; border-radius: var(--radius-md);
+            margin-bottom: 10px; border: 1px solid var(--border);
+            cursor: pointer; transition: all 0.2s;
+        }
+        .option.selected { border-color: var(--accent); background: var(--accent-bg); }
+
+        /* Summary Panel */
+        .summary-overlay {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--surface);
+            border-top-left-radius: var(--radius-lg);
+            border-top-right-radius: var(--radius-lg);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+            padding: 24px; z-index: 200;
+            transform: translateY(100%); transition: transform 0.4s var(--apple-ease);
+        }
+        .summary-overlay.active { transform: translateY(0); }
+        .summary-title { font-size: 18px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; }
+        .close-btn { color: var(--text-muted); cursor: pointer; font-size: 14px; }
+
+        /* Final Summary Design */
+        .final-report { background: var(--surface); border-radius: var(--radius-lg); padding: 32px; border: 1px solid var(--border); }
+        .report-item { margin-bottom: 20px; padding-left: 12px; border-left: 3px solid var(--accent); }
+        .report-concept { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+        .report-text { font-size: 14px; color: var(--text-muted); }
+
+        .btn-primary {
+            background: var(--text-main); color: white;
+            border: none; padding: 16px; border-radius: var(--radius-md);
+            width: 100%; font-size: 16px; font-weight: 600; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="glass-nav">
+    <div class="top-bar-title">Modo Aprender</div>
+    <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Protótipo</div>
+</nav>
+
+<div class="container" id="main-content">
+    <div id="topic-selector">
+        <div class="topic-path">PEDIATRIA • NEONATOLOGIA</div>
+        <h2 style="margin-bottom: 24px;">Escolha um tema</h2>
+        
+        <div class="topic-card" onclick="startLearning(0)">
+            <div>
+                <div class="topic-path">Neonatologia</div>
+                <div class="topic-name">Reanimação Neonatal</div>
+            </div>
+            <span style="color: var(--accent);">→</span>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="question-container"></div>
+    </div>
+
+    <div id="final-screen" class="hidden">
+        <h2 style="text-align: center; margin-bottom: 24px;">Resumo da Sessão</h2>
+        <div class="final-report" id="report-body"></div>
+        <button class="btn-primary" style="margin-top: 24px;" onclick="location.reload()">Nova Sessão</button>
+    </div>
+</div>
+
+<div class="summary-overlay" id="summary-panel">
+    <div class="summary-title">
+        <span id="concept-title">Conceito</span>
+        <span class="close-btn" onclick="closePanel()">Fechar</span>
+    </div>
+    <div id="concept-body" style="font-size: 15px; color: var(--text-muted); line-height: 1.6;"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+    {
+        topic: "Reanimação Neonatal",
+        text: "Recém-nascido a termo, parto vaginal, apresenta-se com apneia e frequência cardíaca de 80 bpm. Após passos iniciais, qual a conduta imediata?",
+        keywords: {
+            "apneia": "A ausência de respiração efetiva no RN indica necessidade imediata de suporte ventilatório.",
+            "frequência cardíaca": "O principal determinante da reanimação neonatal. No RN, FC < 100 bpm é indicação de VPP.",
+            "passos iniciais": "Prover calor, posicionar a cabeça, aspirar se necessário e secar. Devem durar no máximo 30 segundos."
+        },
+        options: ["Aspirar vias aéreas", "Iniciar VPP", "Massagear o dorso", "Administrar Oxigênio"],
+        correct: 1
+    }
+];
+
+let currentQ = null;
+let sessionLearnings = [];
+
+function startLearning(idx) {
+    document.getElementById('topic-selector').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    loadQuestion(QUESTIONS[idx]);
+}
+
+function loadQuestion(q) {
+    currentQ = q;
+    const container = document.getElementById('question-container');
+    container.innerHTML = `
+        <div class="question-text" id="q-text-body">${q.text}</div>
+        <div id="options">
+            ${q.options.map((opt, i) => `
+                <div class="option" onclick="checkAnswer(${i})">${opt}</div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function checkAnswer(idx) {
+    const isCorrect = idx === currentQ.correct;
+    
+    // Transform question text with active keywords
+    let highlightedText = currentQ.text;
+    Object.keys(currentQ.keywords).forEach(key => {
+        const regex = new RegExp(key, "gi");
+        highlightedText = highlightedText.replace(regex, `<span class="keyword" onclick="showConcept('${key}')">$&</span>`);
+    });
+
+    const container = document.getElementById('question-container');
+    container.innerHTML = `
+        <div style="margin-bottom: 20px; color: ${isCorrect ? 'var(--success)' : 'var(--danger)'}; font-weight: 700;">
+            ${isCorrect ? '✓ Você acertou!' : '✕ Você errou, mas vamos aprender com isso.'}
+        </div>
+        <div class="question-text">${highlightedText}</div>
+        <p style="font-size: 13px; color: var(--text-muted);">Clique nos termos em azul para explorar o tema.</p>
+        <button class="btn-primary" style="margin-top: 20px;" onclick="showFinal()">Finalizar e Ver Resumo</button>
+    `;
+}
+
+function showConcept(key) {
+    const concept = currentQ.keywords[key];
+    document.getElementById('concept-title').innerText = key.charAt(0).toUpperCase() + key.slice(1);
+    document.getElementById('concept-body').innerText = concept;
+    document.getElementById('summary-panel').classList.add('active');
+    
+    if (!sessionLearnings.find(l => l.key === key)) {
+        sessionLearnings.push({ key, concept });
+    }
+}
+
+function closePanel() {
+    document.getElementById('summary-panel').classList.remove('active');
+}
+
+function showFinal() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('final-screen').classList.remove('hidden');
+    const report = document.getElementById('report-body');
+    
+    report.innerHTML = sessionLearnings.map(l => `
+        <div class="report-item">
+            <div class="report-concept">${l.key.toUpperCase()}</div>
+            <div class="report-text">${l.concept}</div>
+        </div>
+    `).join('') || '<p>Nenhum conceito explorado.</p>';
+}
+</script>
+
+</body>
+</html>
