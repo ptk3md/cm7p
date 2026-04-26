@@ -669,7 +669,7 @@
     <!-- Section Header -->
     <div class="section-eyebrow">Mapeamento de Lacunas</div>
     <div class="section-title">Onde você precisa melhorar</div>
-    <div class="section-sub">Temas ordenados por urgência, calculada com base em erros acumulados e taxa de acerto.</div>
+    <div class="section-sub">Temas ordenados por urgência. Em Oftalmologia, subtemas são aglutinados na taxonomia canônica definida para o curso.</div>
 
     <!-- Diagnostic Map -->
     <div id="diag-container"></div>
@@ -713,6 +713,121 @@
    CONSTANTS
 ───────────────────────────────────────────────────────────────── */
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv';
+
+/**
+ * Taxonomia canônica de Oftalmologia.
+ *
+ * Observação: o pedido mencionou "8 temas", mas a lista enviada possui 9 rótulos.
+ * O dashboard respeita exatamente a lista fornecida e aglutina qualquer variação
+ * de tema de Oftalmologia em um destes nomes.
+ */
+const OPH_CANONICAL_THEMES = Object.freeze([
+    'Anatomia do olho',
+    'Fundo de olho normal e patológico',
+    'Ambliopia, refração e estrabismo',
+    'Hipertensão arterial e doenças vasculares',
+    'Alterações oculares no diabetes',
+    'Avaliação multimídia / feedback',
+    'Olho vermelho',
+    'Glaucoma',
+    'Neuroftalmologia'
+]);
+
+/**
+ * Remove acentos, baixa caixa e simplifica espaços para comparação textual.
+ * @param {unknown} value
+ * @returns {string}
+ */
+function normalizeText(value) {
+    return String(value || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+}
+
+/**
+ * Detecta registros de Oftalmologia mesmo quando a coluna especialidade vier
+ * incompleta, usando sinais do tema/competência como fallback.
+ * @param {{esp: string, tema: string, comp: string}} record
+ * @returns {boolean}
+ */
+function isOphthalmologyRecord(record) {
+    const haystack = normalizeText(`${record.esp} ${record.tema} ${record.comp}`);
+    return /\boftalmo/.test(haystack)
+        || /\bocular\b|\bolho\b|\bolhos\b|\bretina\b|\bcornea\b|\bconjuntiv/.test(haystack)
+        || /\bglaucoma\b|\bestrabismo\b|\bambliopia\b|\bfundoscopia\b/.test(haystack);
+}
+
+/**
+ * Normaliza qualquer tema de Oftalmologia para a taxonomia fechada do dashboard.
+ * A ordem das regras evita que retinopatia diabética/hipertensiva caia em
+ * "Fundo de olho" antes de ser classificada no eixo etiológico correto.
+ * @param {string} tema
+ * @param {string} comp
+ * @returns {string}
+ */
+function mapOphthalmologyTheme(tema, comp) {
+    const t = normalizeText(`${tema} ${comp}`);
+
+    if (/\bdiabet|\bdiabetes\b|\bretinopatia diabet|\bmaculopatia diabet|\bedema macular diabet/.test(t)) {
+        return 'Alterações oculares no diabetes';
+    }
+
+    if (/\bhipertens|\bhas\b|\bvascular|\bvascul|\boclus|\btromb|\bveia central|\barteria central|\bretinopatia hipertens|\bdoenca arterial|\bdoenca venosa|\bhemorragia retiniana/.test(t)) {
+        return 'Hipertensão arterial e doenças vasculares';
+    }
+
+    if (/\bglaucoma|\bpressao intraocular|\bpio\b|\btrabecul|\btrabeculect|\bangulo aberto|\bangulo fechado|\bgonioscop|\bescavacao|\bpapila glaucomatosa|\bcolirio hipotensor/.test(t)) {
+        return 'Glaucoma';
+    }
+
+    if (/\bneuro|\bnervo optico|\bneurite|\bneuropatia optica|\bpapiledema|\bquiasm|\bpupila|\banisocor|\bdiplopia|\boftalmopleg|\bparesia|\bparalisia|\bptose|\bcampo visual neurolog|\bhemianops|\bescotoma neurolog/.test(t)) {
+        return 'Neuroftalmologia';
+    }
+
+    if (/\bolho vermelho|\bconjuntiv|\bceratit|\buveit|\besclerit|\bepisclerit|\bblefarit|\bhordeol|\bcalazio|\bcelulite orbit|\bdor ocular|\bfotofobia|\bhiperemia|\bsecrecao ocular|\bcorpo estranho/.test(t)) {
+        return 'Olho vermelho';
+    }
+
+    if (/\bambliop|\brefracao|\brefrativ|\bmiopia|\bhipermetrop|\bastigmat|\bpresbiop|\bestrab|\bmotilidade ocular|\bforia\b|\btropia\b|\bcover test|\bteste de cobertura|\bacuidade visual|\blentes corretivas|\boculos/.test(t)) {
+        return 'Ambliopia, refração e estrabismo';
+    }
+
+    if (/\bfundo de olho|\bfundoscop|\bretina|\bretin|\bmacula|\bmacular|\bvitr|\bdescolamento|\bdegeneracao macular|\bdmri\b|\bpapila optica|\bdisco optico|\bexsudato|\bdrusa|\bhemorragia em chama|\bretinografia|\bangiografia|\boct\b/.test(t)) {
+        return 'Fundo de olho normal e patológico';
+    }
+
+    if (/\bmultimidi|\bfeedback|\bimagem|\bimagens|\bfoto|\bvideo|\bavaliacao multimidia|\bavaliacao por imagem|\binterpretacao de imagem|\blaudo|\bdescritor visual|\bfigura|\bmidia/.test(t)) {
+        return 'Avaliação multimídia / feedback';
+    }
+
+    if (/\banatom|\bcornea|\biris\b|\bcristalino|\blente\b|\bconjuntiva|\besclera|\buvea|\bcoroide|\bhumor aquoso|\bhumor vitreo|\bcamara anterior|\bcamara posterior|\bcorpo ciliar|\btrabeculado|\bpalpebra|\borbita|\bmusculo extraocular/.test(t)) {
+        return 'Anatomia do olho';
+    }
+
+    // Fallback: mantém a taxonomia fechada para Oftalmologia mesmo com temas novos.
+    return 'Anatomia do olho';
+}
+
+/**
+ * Formata competências acumuladas em um único rótulo legível para o card.
+ * @param {Record<string, {total: number, correct: number, errors: number}>} compStats
+ * @returns {string}
+ */
+function summarizeCompetencies(compStats) {
+    const comps = Object.entries(compStats)
+        .filter(([name]) => name && name !== 'Sem competência mapeada')
+        .sort((a, b) => b[1].errors - a[1].errors || b[1].total - a[1].total)
+        .map(([name]) => name);
+
+    if (!comps.length) return 'Sem competência mapeada';
+    if (comps.length === 1) return comps[0];
+    if (comps.length === 2) return `${comps[0]} + ${comps[1]}`;
+    return `${comps[0]} + ${comps.length - 1} competências relacionadas`;
+}
+
 
 /* ─────────────────────────────────────────────────────────────────
    STATE
@@ -805,15 +920,43 @@ function buildDiagnostic() {
         const id = String(rawId).trim().toUpperCase();
         const q  = G.banco.find(q => q.id === id);
 
-        const tema = (q && (q.tema_especifico || q.tema)) || 'Geral';
-        const esp  = (q && q.especialidade) || 'Geral';
-        const comp = (q && q.competencia)   || 'Sem competência mapeada';
-        const key  = `${esp}|${tema}|${comp}`;
+        const rawTema = (q && (q.tema_especifico || q.tema)) || 'Geral';
+        const rawEsp  = (q && q.especialidade) || 'Geral';
+        const rawComp = (q && q.competencia)   || 'Sem competência mapeada';
 
-        if (!topicMap[key]) topicMap[key] = { tema, esp, comp, total: 0, correct: 0, errors: 0 };
-        topicMap[key].total++;
-        if (status === 'correta') topicMap[key].correct++;
-        else topicMap[key].errors++;
+        const isOph = isOphthalmologyRecord({ esp: rawEsp, tema: rawTema, comp: rawComp });
+        const tema  = isOph ? mapOphthalmologyTheme(rawTema, rawComp) : rawTema;
+        const esp   = isOph ? 'Oftalmologia' : rawEsp;
+
+        // Para Oftalmologia, a chave ignora subtemas e competências para que
+        // o dashboard exiba apenas a taxonomia fechada definida em OPH_CANONICAL_THEMES.
+        const key = isOph ? `${esp}|${tema}` : `${esp}|${tema}|${rawComp}`;
+
+        if (!topicMap[key]) {
+            topicMap[key] = {
+                tema,
+                esp,
+                total: 0,
+                correct: 0,
+                errors: 0,
+                compStats: {}
+            };
+        }
+
+        const node = topicMap[key];
+        node.total++;
+        if (!node.compStats[rawComp]) {
+            node.compStats[rawComp] = { total: 0, correct: 0, errors: 0 };
+        }
+        node.compStats[rawComp].total++;
+
+        if (status === 'correta') {
+            node.correct++;
+            node.compStats[rawComp].correct++;
+        } else {
+            node.errors++;
+            node.compStats[rawComp].errors++;
+        }
     });
 
     G.diagNodes = Object.values(topicMap).map(t => {
@@ -822,7 +965,15 @@ function buildDiagnostic() {
         let cat = 'good';
         if (acc < 50 && t.errors >= 2)       cat = 'crit';
         else if (acc < 75 || t.errors >= 1)  cat = 'warn';
-        return { ...t, acc, urgency, cat };
+
+        return {
+            ...t,
+            comp: summarizeCompetencies(t.compStats),
+            competencias: Object.keys(t.compStats),
+            acc,
+            urgency,
+            cat
+        };
     }).sort((a, b) => b.urgency - a.urgency);
 }
 
@@ -924,7 +1075,7 @@ function openPrescription() {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 4);
 
-    G.currentMd = `# 🩺 Prescrição de Estudos — QuestBank
+    G.currentMd = `# 🩺 Prescrição de Estudos
 > Gerada em ${hoje}
 
 ---
@@ -970,7 +1121,7 @@ ${G.diagNodes.filter(n => n.cat === 'good').length > 0
     : '_Sem tópicos em domínio consolidado ainda._'}
 
 ---
-_Prescrição gerada dinamicamente pelo QuestBank com base no histórico de respostas._`;
+_Prescrição gerada dinamicamente com base no histórico de respostas._`;
 
     document.getElementById('modal-content').textContent = G.currentMd;
     const copyBtn = document.getElementById('btn-copy');
