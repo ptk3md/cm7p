@@ -313,6 +313,137 @@
         .diag-score-val.high { color: var(--accent); }
 
         /* ─────────────────────────────────────────────
+           ACCORDION — Macrotema → Subtema específico
+        ───────────────────────────────────────────── */
+        .accordion-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid transparent;
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            transition: background 0.2s var(--ease), border-color 0.2s var(--ease);
+        }
+        .accordion-card[open] { background: var(--surface); }
+        .accordion-card.crit { border-left-color: var(--danger); }
+        .accordion-card.warn { border-left-color: var(--warning); }
+        .accordion-card.good { border-left-color: var(--accent); }
+
+        .accordion-summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 16px 18px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: start;
+        }
+        .accordion-summary::-webkit-details-marker { display: none; }
+        .accordion-summary:active { background: var(--surface-2); }
+
+        .macro-kicker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+        .macro-label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.10em;
+            color: var(--text-muted);
+        }
+        .macro-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            line-height: 1.25;
+            margin-bottom: 5px;
+        }
+        .macro-preview {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+        .macro-preview strong { color: var(--text-main); font-weight: 700; }
+
+        .macro-side {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .chevron {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            transition: transform 0.22s var(--ease), color 0.22s, background 0.22s;
+        }
+        .accordion-card[open] .chevron { transform: rotate(180deg); color: var(--accent); background: var(--accent-dim); }
+
+        .accordion-body {
+            border-top: 1px solid var(--border);
+            background: var(--surface-2);
+            padding: 12px;
+        }
+        .subtopic-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .subtopic-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+        }
+        .subtopic-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .subtopic-name {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.01em;
+            line-height: 1.3;
+        }
+        .subtopic-score {
+            font-size: 15px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            flex-shrink: 0;
+        }
+        .subtopic-score.low { color: var(--danger); }
+        .subtopic-score.mid { color: var(--warning); }
+        .subtopic-score.high { color: var(--accent); }
+        .subtopic-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin-bottom: 9px;
+        }
+        .subtopic-meta strong { color: var(--text-main); }
+        .subtopic-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .badge.spec { color: var(--text-main); background: var(--surface-2); border: 1px solid var(--border); }
+
+        /* ─────────────────────────────────────────────
            PRESCRIPTION TRIGGER
         ───────────────────────────────────────────── */
         .rx-block {
@@ -669,7 +800,7 @@
     <!-- Section Header -->
     <div class="section-eyebrow">Mapeamento de Lacunas</div>
     <div class="section-title">Onde você precisa melhorar</div>
-    <div class="section-sub">Temas ordenados por urgência. Em Oftalmologia, subtemas são aglutinados na taxonomia canônica definida para o curso.</div>
+    <div class="section-sub">Macrotemas ordenados por urgência. Toque em cada grupo para ver os temas específicos, competências e pontos exatos de erro.</div>
 
     <!-- Diagnostic Map -->
     <div id="diag-container"></div>
@@ -803,7 +934,7 @@ function mapOphthalmologyTheme(tema, comp) {
         return 'Avaliação multimídia / feedback';
     }
 
-    if (/\banatom|\bcornea|\biris\b|\bcristalino|\blente\b|\bconjuntiva|\besclera|\buvea|\bcoroide|\bhumor aquoso|\bhumor vitreo|\bcamara anterior|\bcamara posterior|\bcorpo ciliar|\btrabeculado|\bpalpebra|\borbita|\bmusculo extraocular/.test(t)) {
+    if (/\banatom|\bcornea|\biris\b|\bcristalino|\blente\b|\bconjuntiva|\besclera|\buvea|\bcoroide|\bhumor aquoso|\bhumor vitreo|\bcamara anterior|\bcamara posterior|\bcorpo ciliar|\btrabeculado|\bpalpebra|\borbita|\bmusculo extraocular|\bmusculos extraoculares|\bmusculos extrinsecos|\bextraocular/.test(t)) {
         return 'Anatomia do olho';
     }
 
@@ -812,7 +943,36 @@ function mapOphthalmologyTheme(tema, comp) {
 }
 
 /**
- * Formata competências acumuladas em um único rótulo legível para o card.
+ * Lê um campo de CSV tentando variações de cabeçalho sem quebrar compatibilidade.
+ * @param {Record<string, unknown>} row
+ * @param {string[]} keys
+ * @returns {string}
+ */
+function getField(row, keys) {
+    for (const key of keys) {
+        if (row[key] !== undefined && row[key] !== null && String(row[key]).trim() !== '') {
+            return String(row[key]).trim();
+        }
+    }
+    return '';
+}
+
+/**
+ * Normaliza o status salvo no histórico para booleano de acerto.
+ * @param {unknown} status
+ * @returns {boolean}
+ */
+function isCorrectStatus(status) {
+    if (typeof status === 'object' && status !== null) {
+        const obj = status;
+        if (typeof obj.correta === 'boolean') return obj.correta;
+        return /correta|acerto|true|1/.test(normalizeText(obj.status || obj.resultado || ''));
+    }
+    return /correta|acerto|true|1/.test(normalizeText(status));
+}
+
+/**
+ * Formata competências acumuladas em um rótulo curto, mantendo especificidade.
  * @param {Record<string, {total: number, correct: number, errors: number}>} compStats
  * @returns {string}
  */
@@ -825,7 +985,16 @@ function summarizeCompetencies(compStats) {
     if (!comps.length) return 'Sem competência mapeada';
     if (comps.length === 1) return comps[0];
     if (comps.length === 2) return `${comps[0]} + ${comps[1]}`;
-    return `${comps[0]} + ${comps.length - 1} competências relacionadas`;
+    return `${comps[0]} + ${comps.length - 1} competências`;
+}
+
+/**
+ * Ordena subtemas por maior erro, menor precisão e maior volume.
+ * @param {Array<{errors: number, acc: number, total: number}>} items
+ * @returns {Array<{errors: number, acc: number, total: number}>}
+ */
+function sortByWeakness(items) {
+    return items.sort((a, b) => b.errors - a.errors || a.acc - b.acc || b.total - a.total);
 }
 
 
@@ -880,11 +1049,11 @@ document.addEventListener('DOMContentLoaded', () => {
         skipEmptyLines: true,
         complete(results) {
             G.banco = results.data.map(r => ({
-                id:             String(r.id || r.ID || '').trim().toUpperCase(),
-                especialidade:  r.especialidade  || r.Especialidade  || '',
-                tema:           r.tema           || r.Tema           || '',
-                tema_especifico:r.tema_especifico|| r.Tema_especifico|| r['Tema Específico'] || '',
-                competencia:    r.competencia    || r.Competencia    || r.Competência || ''
+                id:             String(getField(r, ['id', 'ID', 'Id'])).trim().toUpperCase(),
+                especialidade:  getField(r, ['especialidade', 'Especialidade', 'area', 'Área']),
+                tema:           getField(r, ['tema', 'Tema', 'macrotema', 'Macrotema', 'tema_geral', 'Tema Geral']),
+                tema_especifico:getField(r, ['tema_especifico', 'Tema_especifico', 'tema específico', 'Tema Específico', 'tema específico ', 'subtema', 'Subtema', 'assunto', 'Assunto']),
+                competencia:    getField(r, ['competencia', 'Competencia', 'Competência', 'competencias', 'Competências', 'competências'])
             }));
             finishBoot();
         },
@@ -914,54 +1083,100 @@ function finishBoot() {
    Merges historico + banco → urgency-sorted topic nodes
 ───────────────────────────────────────────────────────────────── */
 function buildDiagnostic() {
-    const topicMap = {};
+    const macroMap = {};
 
     Object.entries(G.historico).forEach(([rawId, status]) => {
         const id = String(rawId).trim().toUpperCase();
         const q  = G.banco.find(q => q.id === id);
 
-        const rawTema = (q && (q.tema_especifico || q.tema)) || 'Geral';
+        const rawMacro = (q && q.tema) || 'Geral';
+        const rawSpecific = (q && (q.tema_especifico || q.tema)) || 'Subtema não mapeado';
         const rawEsp  = (q && q.especialidade) || 'Geral';
         const rawComp = (q && q.competencia)   || 'Sem competência mapeada';
+        const answeredCorrectly = isCorrectStatus(status);
 
-        const isOph = isOphthalmologyRecord({ esp: rawEsp, tema: rawTema, comp: rawComp });
-        const tema  = isOph ? mapOphthalmologyTheme(rawTema, rawComp) : rawTema;
-        const esp   = isOph ? 'Oftalmologia' : rawEsp;
+        const isOph = isOphthalmologyRecord({ esp: rawEsp, tema: `${rawMacro} ${rawSpecific}`, comp: rawComp });
+        const macroTema = isOph ? mapOphthalmologyTheme(`${rawMacro} ${rawSpecific}`, rawComp) : rawMacro;
+        const esp = isOph ? 'Oftalmologia' : rawEsp;
+        const specificTema = rawSpecific && rawSpecific !== macroTema ? rawSpecific : rawMacro;
+        const macroKey = `${esp}|${macroTema}`;
+        const subKey = normalizeText(specificTema) || 'subtema';
 
-        // Para Oftalmologia, a chave ignora subtemas e competências para que
-        // o dashboard exiba apenas a taxonomia fechada definida em OPH_CANONICAL_THEMES.
-        const key = isOph ? `${esp}|${tema}` : `${esp}|${tema}|${rawComp}`;
-
-        if (!topicMap[key]) {
-            topicMap[key] = {
-                tema,
+        if (!macroMap[macroKey]) {
+            macroMap[macroKey] = {
+                tema: macroTema,
                 esp,
                 total: 0,
                 correct: 0,
                 errors: 0,
-                compStats: {}
+                compStats: {},
+                subtopicMap: {}
             };
         }
 
-        const node = topicMap[key];
-        node.total++;
-        if (!node.compStats[rawComp]) {
-            node.compStats[rawComp] = { total: 0, correct: 0, errors: 0 };
-        }
-        node.compStats[rawComp].total++;
+        const macroNode = macroMap[macroKey];
+        macroNode.total++;
 
-        if (status === 'correta') {
-            node.correct++;
-            node.compStats[rawComp].correct++;
+        if (!macroNode.compStats[rawComp]) {
+            macroNode.compStats[rawComp] = { total: 0, correct: 0, errors: 0 };
+        }
+        macroNode.compStats[rawComp].total++;
+
+        if (!macroNode.subtopicMap[subKey]) {
+            macroNode.subtopicMap[subKey] = {
+                tema: specificTema || 'Subtema não mapeado',
+                macroTema,
+                esp,
+                total: 0,
+                correct: 0,
+                errors: 0,
+                compStats: {},
+                questionIds: []
+            };
+        }
+
+        const subNode = macroNode.subtopicMap[subKey];
+        subNode.total++;
+        subNode.questionIds.push(id);
+
+        if (!subNode.compStats[rawComp]) {
+            subNode.compStats[rawComp] = { total: 0, correct: 0, errors: 0 };
+        }
+        subNode.compStats[rawComp].total++;
+
+        if (answeredCorrectly) {
+            macroNode.correct++;
+            macroNode.compStats[rawComp].correct++;
+            subNode.correct++;
+            subNode.compStats[rawComp].correct++;
         } else {
-            node.errors++;
-            node.compStats[rawComp].errors++;
+            macroNode.errors++;
+            macroNode.compStats[rawComp].errors++;
+            subNode.errors++;
+            subNode.compStats[rawComp].errors++;
         }
     });
 
-    G.diagNodes = Object.values(topicMap).map(t => {
-        const acc     = Math.round((t.correct / t.total) * 100);
-        const urgency = (t.errors * 2) + (100 - acc);
+    G.diagNodes = Object.values(macroMap).map(t => {
+        const acc = Math.round((t.correct / t.total) * 100);
+        const subtopics = sortByWeakness(Object.values(t.subtopicMap).map(st => {
+            const stAcc = Math.round((st.correct / st.total) * 100);
+            let stCat = 'good';
+            if (stAcc < 50 && st.errors >= 2) stCat = 'crit';
+            else if (stAcc < 75 || st.errors >= 1) stCat = 'warn';
+            return {
+                ...st,
+                acc: stAcc,
+                cat: stCat,
+                comp: summarizeCompetencies(st.compStats),
+                competencias: Object.entries(st.compStats)
+                    .sort((a, b) => b[1].errors - a[1].errors || b[1].total - a[1].total)
+                    .map(([name, stats]) => ({ name, ...stats }))
+            };
+        }));
+
+        const worstSubtopic = subtopics.find(st => st.errors > 0) || subtopics[0];
+        const urgency = (t.errors * 2.4) + (100 - acc) + Math.min(subtopics.length, 6);
         let cat = 'good';
         if (acc < 50 && t.errors >= 2)       cat = 'crit';
         else if (acc < 75 || t.errors >= 1)  cat = 'warn';
@@ -969,7 +1184,11 @@ function buildDiagnostic() {
         return {
             ...t,
             comp: summarizeCompetencies(t.compStats),
-            competencias: Object.keys(t.compStats),
+            competencias: Object.entries(t.compStats)
+                .sort((a, b) => b[1].errors - a[1].errors || b[1].total - a[1].total)
+                .map(([name, stats]) => ({ name, ...stats })),
+            subtopics,
+            worstSubtopic,
             acc,
             urgency,
             cat
@@ -982,7 +1201,7 @@ function buildDiagnostic() {
 ───────────────────────────────────────────────────────────────── */
 function renderStatsStrip() {
     const total   = Object.keys(G.historico).length;
-    const correct = Object.values(G.historico).filter(v => v === 'correta').length;
+    const correct = Object.values(G.historico).filter(v => isCorrectStatus(v)).length;
     const acc     = total > 0 ? Math.round((correct / total) * 100) : 0;
     const crits   = G.diagNodes.filter(n => n.cat === 'crit').length;
     const warns   = G.diagNodes.filter(n => n.cat === 'warn').length;
@@ -1033,20 +1252,63 @@ function diagItemHtml(t) {
     const scoreCls = t.acc >= 70 ? 'high' : t.acc >= 50 ? 'mid' : 'low';
     const errBadge = t.errors > 0
         ? `<span class="badge err">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>`
-        : `<span class="badge ok">Sólido</span>`;
+        : '<span class="badge ok">Sólido</span>';
+    const worst = t.worstSubtopic
+        ? `<strong>${esc(t.worstSubtopic.tema)}</strong>${t.worstSubtopic.comp ? ` · ${esc(t.worstSubtopic.comp)}` : ''}`
+        : 'Sem subtema identificado';
+    const openAttr = t.cat !== 'good' ? ' open' : '';
+
     return `
-    <div class="diag-item ${t.cat}">
-        <div class="diag-content">
-            <div class="diag-topic">${esc(t.tema)}</div>
-            <div class="diag-comp">↳ ${esc(t.comp)}</div>
-            <div class="diag-badges">
-                ${errBadge}
-                <span class="badge tag">${esc(t.esp)}</span>
+    <details class="accordion-card ${t.cat}"${openAttr}>
+        <summary class="accordion-summary">
+            <div>
+                <div class="macro-kicker">
+                    <span class="macro-label">${esc(t.esp)}</span>
+                    ${errBadge}
+                    <span class="badge tag">${t.subtopics.length} subtema${t.subtopics.length > 1 ? 's' : ''}</span>
+                </div>
+                <div class="macro-title">${esc(t.tema)}</div>
+                <div class="macro-preview">Principal lacuna: ${worst}</div>
+            </div>
+            <div class="macro-side">
+                <div class="diag-score">
+                    <div class="diag-score-lbl">Precisão</div>
+                    <div class="diag-score-val ${scoreCls}">${t.acc}%</div>
+                </div>
+                <span class="chevron" aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+            </div>
+        </summary>
+        <div class="accordion-body">
+            <div class="subtopic-list">
+                ${t.subtopics.map(subtopicItemHtml).join('')}
             </div>
         </div>
-        <div class="diag-score">
-            <div class="diag-score-lbl">Precisão</div>
-            <div class="diag-score-val ${scoreCls}">${t.acc}%</div>
+    </details>`;
+}
+
+function subtopicItemHtml(st) {
+    const scoreCls = st.acc >= 70 ? 'high' : st.acc >= 50 ? 'mid' : 'low';
+    const errBadge = st.errors > 0
+        ? `<span class="badge err">${st.errors} erro${st.errors > 1 ? 's' : ''}</span>`
+        : '<span class="badge ok">sem erro</span>';
+    const topCompetencies = st.competencias
+        .slice(0, 3)
+        .map(c => `${esc(c.name)} (${c.errors} erro${c.errors === 1 ? '' : 's'}/${c.total})`)
+        .join(' · ');
+
+    return `
+    <div class="subtopic-item">
+        <div class="subtopic-top">
+            <div class="subtopic-name">${esc(st.tema)}</div>
+            <div class="subtopic-score ${scoreCls}">${st.acc}%</div>
+        </div>
+        <div class="subtopic-meta"><strong>Competência:</strong> ${topCompetencies || esc(st.comp)}</div>
+        <div class="subtopic-badges">
+            ${errBadge}
+            <span class="badge spec">${st.total} questão${st.total > 1 ? 'ões' : ''}</span>
+            <span class="badge tag">${esc(st.macroTema)}</span>
         </div>
     </div>`;
 }
@@ -1060,22 +1322,24 @@ function openPrescription() {
     const crits   = G.diagNodes.filter(n => n.cat === 'crit');
     const warns   = G.diagNodes.filter(n => n.cat === 'warn');
     const total   = Object.keys(G.historico).length;
-    const correct = Object.values(G.historico).filter(v => v === 'correta').length;
+    const correct = Object.values(G.historico).filter(v => isCorrectStatus(v)).length;
     const globalAcc = total > 0 ? Math.round((correct / total) * 100) : 0;
     const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    // Aggregate errors by competency
     const compErrors = {};
-    G.diagNodes.forEach(n => {
-        if (n.errors > 0) {
-            compErrors[n.comp] = (compErrors[n.comp] || 0) + n.errors;
-        }
+    G.diagNodes.forEach(macro => {
+        macro.competencias.forEach(comp => {
+            if (comp.errors > 0) compErrors[comp.name] = (compErrors[comp.name] || 0) + comp.errors;
+        });
     });
     const topComps = Object.entries(compErrors)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 4);
+        .slice(0, 6);
 
-    G.currentMd = `# 🩺 Prescrição de Estudos
+    const priorityNodes = [...crits, ...warns].slice(0, 8);
+    const maintenanceNodes = G.diagNodes.filter(n => n.cat === 'good').slice(0, 5);
+
+    G.currentMd = `# 🩺 Prescrição de Estudos — QuestBank
 > Gerada em ${hoje}
 
 ---
@@ -1087,47 +1351,67 @@ function openPrescription() {
 | Questões analisadas    | ${total}           |
 | Taxa de acerto global  | ${globalAcc}%      |
 | Sessões registradas    | ${G.sessions.length}|
-| Lacunas críticas       | ${crits.length}    |
-| Temas em atenção       | ${warns.length}    |
+| Macrotemas críticos    | ${crits.length}    |
+| Macrotemas em atenção  | ${warns.length}    |
 
-${topComps.length > 0 ? `### 🎯 Deficiências por Competência\n${topComps.map(([comp, errs]) => `- **${comp}** — ${errs} erros acumulados`).join('\n')}\n` : ''}
+${topComps.length > 0 ? `### 🎯 Competências com maior carga de erro
+${topComps.map(([comp, errs]) => `- **${comp}** — ${errs} erro${errs > 1 ? 's' : ''} acumulado${errs > 1 ? 's' : ''}`).join('\n')}\n` : ''}
 ---
 
-## 🚨 Prioridade Máxima — Revisão de Base
+## 🚨 Prescrição por Macrotema e Subtema Específico
 
-${crits.length > 0
-    ? crits.slice(0, 6).map((t, i) => `### ${i + 1}. ${t.tema}
-- **Eixo:** ${t.esp}
-- **Ponto Cego:** ${t.comp}
-- **Precisão Atual:** ${t.acc}% | **Erros Acumulados:** ${t.errors}
-- **Diretriz:** Revisão teórica prioritária. Bloqueie novas questões neste tópico até consolidar os fundamentos. Foco específico no ponto cego mapeado.`).join('\n\n')
-    : '_Nenhum tópico em estágio crítico. Parabéns!_'}
+${priorityNodes.length > 0
+    ? priorityNodes.map((macro, i) => prescriptionMacroBlock(macro, i + 1)).join('\n\n')
+    : '_Nenhum macrotema em estágio crítico ou de atenção. Parabéns!_'}
 
 ---
 
-## ⚠️ Zona de Atenção — Consolidação Parcial
+## ✅ Manutenção e Revisão Espaçada
 
-${warns.length > 0
-    ? warns.slice(0, 6).map((t, i) => `${i + 1}. **${t.tema}** — ${t.comp}
-   - Precisão: ${t.acc}% | Erros: ${t.errors} | Eixo: ${t.esp}`).join('\n')
-    : '_Nenhum tópico em zona de atenção._'}
-
----
-
-## ✅ Domínio — Manutenção
-
-${G.diagNodes.filter(n => n.cat === 'good').length > 0
-    ? G.diagNodes.filter(n => n.cat === 'good').slice(0, 5).map(t => `- **${t.tema}** (${t.acc}% acerto) — Manter frequência de revisão espaçada.`).join('\n')
-    : '_Sem tópicos em domínio consolidado ainda._'}
+${maintenanceNodes.length > 0
+    ? maintenanceNodes.map(macro => `- **${macro.tema}** — ${macro.acc}% de acerto em ${macro.total} questão${macro.total > 1 ? 'ões' : ''}. Manter revisões espaçadas e resolver questões de manutenção.`).join('\n')
+    : '_Sem macrotemas em domínio consolidado ainda._'}
 
 ---
-_Prescrição gerada dinamicamente com base no histórico de respostas._`;
+_Prescrição gerada dinamicamente pelo QuestBank com base no histórico de respostas, macrotemas canônicos, temas específicos e competências exigidas._`;
 
     document.getElementById('modal-content').textContent = G.currentMd;
     const copyBtn = document.getElementById('btn-copy');
     copyBtn.textContent = 'Copiar Texto';
     copyBtn.style.background = '';
     document.getElementById('modal').classList.add('active');
+}
+
+function prescriptionMacroBlock(macro, index) {
+    const weakSubtopics = macro.subtopics.filter(st => st.errors > 0).slice(0, 6);
+    const subtopicText = weakSubtopics.length
+        ? weakSubtopics.map(st => prescriptionSubtopicLine(st)).join('\n')
+        : '- Sem subtema com erro ativo; manter revisão leve.';
+
+    const topMacroComps = macro.competencias
+        .filter(c => c.errors > 0)
+        .slice(0, 4)
+        .map(c => `**${c.name}** (${c.errors} erro${c.errors > 1 ? 's' : ''}/${c.total})`)
+        .join('; ');
+
+    return `### ${index}. ${macro.tema}
+- **Especialidade:** ${macro.esp}
+- **Desempenho no macrotema:** ${macro.acc}% de acerto | ${macro.errors} erro${macro.errors > 1 ? 's' : ''} em ${macro.total} questão${macro.total > 1 ? 'ões' : ''}
+- **Competências mais afetadas:** ${topMacroComps || macro.comp}
+- **Conduta de estudo:** revise primeiro os subtemas abaixo; depois resolva questões novas dentro deste mesmo macrotema até atingir pelo menos 75% de acerto.
+
+**Subtemas específicos que explicam a lacuna:**
+${subtopicText}`;
+}
+
+function prescriptionSubtopicLine(st) {
+    const compLines = st.competencias
+        .filter(c => c.errors > 0 || st.errors === 0)
+        .slice(0, 3)
+        .map(c => `${c.name} (${c.errors} erro${c.errors > 1 ? 's' : ''}/${c.total})`)
+        .join('; ');
+
+    return `- **${st.tema}** — ${st.acc}% de acerto, ${st.errors} erro${st.errors > 1 ? 's' : ''}/${st.total} questão${st.total > 1 ? 'ões' : ''}. **Competência exigida:** ${compLines || st.comp}. **Foco:** revisar definição, achados-chave, diferenciais e armadilhas de prova desse subtema.`;
 }
 
 function closeModal() {
