@@ -28,6 +28,8 @@
             padding: 0 0 100px 0;
             -webkit-font-smoothing: antialiased;
         }
+        body.night-invert { filter: invert(1) hue-rotate(180deg); }
+        .hidden { display: none; }
 
         .glass-nav {
             position: sticky; top: 0; z-index: 100;
@@ -102,13 +104,25 @@
             border: none; padding: 16px; border-radius: var(--radius-md);
             width: 100%; font-size: 16px; font-weight: 600; cursor: pointer;
         }
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: var(--radius-md);
+            width: 100%;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
 
 <nav class="glass-nav">
     <div class="top-bar-title">Modo Aprender</div>
-    <div style="font-size: 13px; color: var(--text-muted); font-weight: 500;">Protótipo</div>
+    <button class="btn-secondary" style="width:auto; margin-top:0; padding:8px 12px; font-size:12px;" onclick="toggleNightMode()">🌙 Modo Noturno</button>
 </nav>
 
 <div class="container" id="main-content">
@@ -161,28 +175,40 @@ const QUESTIONS = [
 
 let currentQ = null;
 let sessionLearnings = [];
+let topicQuestions = [];
+let currentQuestionIndex = 0;
+let answerHistory = [];
 
 function startLearning(idx) {
+    const selectedTopic = QUESTIONS[idx]?.topic;
+    topicQuestions = QUESTIONS.filter(q => q.topic === selectedTopic);
+    currentQuestionIndex = 0;
+    answerHistory = [];
     document.getElementById('topic-selector').classList.add('hidden');
     document.getElementById('quiz-screen').classList.remove('hidden');
-    loadQuestion(QUESTIONS[idx]);
+    loadQuestion(topicQuestions[currentQuestionIndex]);
 }
 
-function loadQuestion(q) {
+function loadQuestion(q, consultMode = false) {
     currentQ = q;
     const container = document.getElementById('question-container');
+    const canGoBack = currentQuestionIndex > 0;
+    const selectedAnswer = answerHistory[currentQuestionIndex]?.selected;
     container.innerHTML = `
         <div class="question-text" id="q-text-body">${q.text}</div>
         <div id="options">
             ${q.options.map((opt, i) => `
-                <div class="option" onclick="checkAnswer(${i})">${opt}</div>
+                <div class="option ${selectedAnswer === i ? 'selected' : ''}" ${consultMode ? '' : `onclick="checkAnswer(${i})"`}>${opt}</div>
             `).join('')}
         </div>
+        ${canGoBack ? '<button class="btn-secondary" onclick="goToPreviousQuestion()">← Voltar para questão anterior</button>' : ''}
+        ${consultMode ? '<p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Modo consulta: sua resposta original está destacada.</p>' : ''}
     `;
 }
 
 function checkAnswer(idx) {
     const isCorrect = idx === currentQ.correct;
+    answerHistory[currentQuestionIndex] = { selected: idx, isCorrect };
     
     // Transform question text with active keywords
     let highlightedText = currentQ.text;
@@ -198,8 +224,19 @@ function checkAnswer(idx) {
         </div>
         <div class="question-text">${highlightedText}</div>
         <p style="font-size: 13px; color: var(--text-muted);">Clique nos termos em azul para explorar o tema.</p>
+        ${currentQuestionIndex > 0 ? '<button class="btn-secondary" onclick="goToPreviousQuestion()">← Consultar questão anterior</button>' : ''}
         <button class="btn-primary" style="margin-top: 20px;" onclick="showFinal()">Finalizar e Ver Resumo</button>
     `;
+}
+
+function goToPreviousQuestion() {
+    if (currentQuestionIndex === 0) return;
+    currentQuestionIndex -= 1;
+    loadQuestion(topicQuestions[currentQuestionIndex], true);
+}
+
+function toggleNightMode() {
+    document.body.classList.toggle('night-invert');
 }
 
 function showConcept(key) {
