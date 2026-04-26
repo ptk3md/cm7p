@@ -1204,7 +1204,7 @@ const App = {
         const meta = document.getElementById('question-meta');
         meta.innerHTML = '';
         if (q.especialidade) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.especialidade) + '</span>';
-        if (q.competencia) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.tema_especifico) + '</span>';
+        if (q.competencia) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml(q.competencia) + '</span>';
         if (q.banca || q.ano) meta.innerHTML += '<span class="q-badge">' + this.escapeHtml([q.banca, q.ano].filter(Boolean).join(' • ')) + '</span>';
         document.getElementById('enunciado').textContent = q.enunciado;
         const container = document.getElementById('opcoes-container');
