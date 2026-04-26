@@ -146,7 +146,18 @@
     <div id="final-screen" class="hidden">
         <h2 style="text-align: center; margin-bottom: 24px;">Resumo da Sessão</h2>
         <div class="final-report" id="report-body"></div>
+        <button class="btn-secondary hidden" id="review-errors-btn" onclick="startReviewMode()">Revisar Questões Erradas</button>
         <button class="btn-primary" style="margin-top: 24px;" onclick="location.reload()">Nova Sessão</button>
+    </div>
+
+    <div id="review-screen" class="hidden">
+        <h2 style="text-align: center; margin-bottom: 16px;">Modo Revisão</h2>
+        <div class="final-report" id="review-body"></div>
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="btn-secondary" id="review-prev-btn" style="margin-top: 0;" onclick="changeReviewQuestion(-1)">← Anterior</button>
+            <button class="btn-secondary" id="review-next-btn" style="margin-top: 0;" onclick="changeReviewQuestion(1)">Próxima →</button>
+        </div>
+        <button class="btn-primary" style="margin-top: 16px;" onclick="exitReviewMode()">Voltar ao Resumo</button>
     </div>
 </div>
 
@@ -169,7 +180,8 @@ const QUESTIONS = [
             "passos iniciais": "Prover calor, posicionar a cabeça, aspirar se necessário e secar. Devem durar no máximo 30 segundos."
         },
         options: ["Aspirar vias aéreas", "Iniciar VPP", "Massagear o dorso", "Administrar Oxigênio"],
-        correct: 1
+        correct: 1,
+        explanation: "Em recém-nascido com apneia e FC abaixo de 100 bpm após os passos iniciais, a conduta indicada é iniciar ventilação com pressão positiva imediatamente."
     }
 ];
 
@@ -178,6 +190,8 @@ let sessionLearnings = [];
 let topicQuestions = [];
 let currentQuestionIndex = 0;
 let answerHistory = [];
+let wrongAnswers = [];
+let currentReviewIndex = 0;
 
 function startLearning(idx) {
     const selectedTopic = QUESTIONS[idx]?.topic;
@@ -258,6 +272,10 @@ function showFinal() {
     document.getElementById('quiz-screen').classList.add('hidden');
     document.getElementById('final-screen').classList.remove('hidden');
     const report = document.getElementById('report-body');
+    const reviewButton = document.getElementById('review-errors-btn');
+    wrongAnswers = answerHistory
+        .map((answer, index) => ({ answer, question: topicQuestions[index], index }))
+        .filter(item => item.answer && !item.answer.isCorrect);
     
     report.innerHTML = sessionLearnings.map(l => `
         <div class="report-item">
@@ -265,6 +283,50 @@ function showFinal() {
             <div class="report-text">${l.concept}</div>
         </div>
     `).join('') || '<p>Nenhum conceito explorado.</p>';
+
+    reviewButton.classList.toggle('hidden', wrongAnswers.length === 0);
+}
+
+function startReviewMode() {
+    if (!wrongAnswers.length) return;
+    currentReviewIndex = 0;
+    document.getElementById('final-screen').classList.add('hidden');
+    document.getElementById('review-screen').classList.remove('hidden');
+    renderReviewQuestion();
+}
+
+function changeReviewQuestion(step) {
+    const nextIndex = currentReviewIndex + step;
+    if (nextIndex < 0 || nextIndex >= wrongAnswers.length) return;
+    currentReviewIndex = nextIndex;
+    renderReviewQuestion();
+}
+
+function renderReviewQuestion() {
+    const reviewBody = document.getElementById('review-body');
+    const reviewItem = wrongAnswers[currentReviewIndex];
+    if (!reviewItem) return;
+    const question = reviewItem.question;
+
+    reviewBody.innerHTML = `
+        <div class="report-item">
+            <div class="report-concept">Questão ${reviewItem.index + 1} de ${topicQuestions.length}</div>
+            <div class="report-text" style="color: var(--text-main); margin-bottom: 10px;">${question.text}</div>
+            <div class="report-text"><strong>Alternativa correta:</strong> ${question.options[question.correct]}</div>
+            <div class="report-text" style="margin-top: 8px;"><strong>Explicação:</strong> ${question.explanation || 'Sem explicação cadastrada para esta questão.'}</div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+            Erro ${currentReviewIndex + 1} de ${wrongAnswers.length}
+        </p>
+    `;
+
+    document.getElementById('review-prev-btn').disabled = currentReviewIndex === 0;
+    document.getElementById('review-next-btn').disabled = currentReviewIndex === wrongAnswers.length - 1;
+}
+
+function exitReviewMode() {
+    document.getElementById('review-screen').classList.add('hidden');
+    document.getElementById('final-screen').classList.remove('hidden');
 }
 </script>
 
