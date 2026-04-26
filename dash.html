@@ -3,830 +3,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#f5f5f7">
-    <title>Análise • QuestBank</title>
+    <meta name="theme-color" content="#ffffff" id="theme-color-meta">
+    <title>Diagnóstico Analítico • QuestBank</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
         :root {
-            /* Apple Light Theme Palette */
-            --bg: #f5f5f7;
+            /* Uber/Apple Fusion Light Theme */
+            --bg: #ffffff;
             --surface: #ffffff;
-            --surface-2: #fbfbfd;
-            --surface-3: #f0f0f2;
+            --surface-hover: #f3f3f3;
+            --surface-alt: #f5f5f7;
             
-            --text-main: #1d1d1f;
+            --text-main: #000000;
+            --text-secondary: #4b4b4b;
             --text-muted: #86868b;
-            --text-light: #a1a1a6;
             
-            /* Accents */
-            --accent: #0071e3;
-            --accent-bg: #e8f2fc;
-            --success: #34c759;
-            --success-bg: #eaf9ed;
-            --success-border: rgba(52, 199, 89, 0.3);
-            --danger: #ff3b30;
-            --danger-bg: #ffeceb;
-            --danger-border: rgba(255, 59, 48, 0.3);
-            --warning: #ff9500;
-            --warning-bg: #fff6e5;
-            --warning-border: rgba(255, 149, 0, 0.3);
+            --border: #e2e2e2;
             
-            /* Borders & UI Elements */
-            --border: rgba(60, 60, 67, 0.12);
-            --border-light: rgba(60, 60, 67, 0.08);
-            --segmented-bg: rgba(118, 118, 128, 0.12);
+            /* Strict Status Colors */
+            --critical: #000000;
+            --critical-bg: #e2e2e2;
+            --warning: #4b4b4b;
+            --warning-bg: #f5f5f7;
             
-            /* Spacing & Radii */
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
+            /* Geometry */
+            --radius-card: 12px;
+            --radius-pill: 999px;
             --safe-bottom: env(safe-area-inset-bottom, 20px);
             
-            /* Shadows & Effects */
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
-            --shadow-float: 0 12px 40px rgba(0,0,0,0.12);
-            --shadow-segmented: 0 3px 8px rgba(0,0,0,0.12), 0 3px 1px rgba(0,0,0,0.04);
+            /* Typography */
+            --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+
+        body[data-theme="dark"] {
+            /* Uber/Apple Fusion Dark Theme */
+            --bg: #000000;
+            --surface: #000000;
+            --surface-hover: #1c1c1e;
+            --surface-alt: #121212;
             
-            /* Easing */
-            --apple-ease: cubic-bezier(0.25, 1, 0.5, 1);
+            --text-main: #ffffff;
+            --text-secondary: #afafaf;
+            --text-muted: #6e6e73;
+            
+            --border: #333333;
+            
+            --critical: #ffffff;
+            --critical-bg: #333333;
+            --warning: #afafaf;
+            --warning-bg: #1c1c1e;
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         html { scroll-behavior: smooth; }
         
         body { 
-            background: var(--bg); color: var(--text-main); 
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-            max-width: 800px; margin: 0 auto; padding: 0 0 calc(80px + var(--safe-bottom));
-            min-height: 100vh; font-size: 15px; letter-spacing: -0.01em; line-height: 1.5;
+            background: var(--bg); 
+            color: var(--text-main); 
+            font-family: var(--font-body);
+            -webkit-font-smoothing: antialiased; 
+            -moz-osx-font-smoothing: grayscale;
+            max-width: 760px; 
+            margin: 0 auto; 
+            padding: 0 0 calc(100px + var(--safe-bottom));
+            min-height: 100vh; 
+            font-size: 16px; 
+            line-height: 1.5;
         }
 
         .hidden { display: none !important; }
 
-        /* Top Navigation - Apple Glass */
-        .glass-nav {
+        /* Navigation */
+        .nav-header {
             position: sticky; top: 0; z-index: 100;
-            background: rgba(245, 245, 247, 0.72);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-light);
-            padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 24px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px; 
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .top-bar-title { font-size: 20px; font-weight: 600; color: var(--text-main); letter-spacing: -0.02em; }
-        .top-bar-sub { font-size: 13px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
-        .top-bar-nav { display: flex; align-items: center; gap: 12px; }
-        .nav-icon-btn {
+        .nav-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+        .nav-actions { display: flex; gap: 12px; }
+        
+        .icon-btn {
             display: flex; align-items: center; justify-content: center;
-            width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--border-light);
-            border-radius: 50%; color: var(--accent); text-decoration: none;
-            transition: all 0.2s var(--apple-ease); cursor: pointer; box-shadow: var(--shadow-sm);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: transparent; border: none; color: var(--text-main);
+            cursor: pointer; transition: background 0.2s;
         }
-        .nav-icon-btn:active { transform: scale(0.95); background: var(--surface-2); }
+        .icon-btn:active { background: var(--surface-hover); }
+        .theme-toggle .sun-icon, body[data-theme="dark"] .theme-toggle .moon-icon { display: none; }
+        body[data-theme="dark"] .theme-toggle .sun-icon { display: block; }
 
-        /* Segmented Controls (iOS Tabs) */
-        .tab-wrapper { padding: 0 20px; margin-bottom: 24px; }
-        .tab-bar {
-            display: flex; background: var(--segmented-bg);
-            border-radius: 9px; padding: 2px;
+        /* Main Content */
+        main { padding: 40px 24px; animation: fadeIn 0.4s ease forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: 40px; font-weight: 700; line-height: 1.1; 
+            letter-spacing: -0.03em; margin-bottom: 12px;
         }
-        .tab-btn {
-            flex: 1; padding: 6px 12px; text-align: center;
-            font-size: 13px; font-weight: 500; color: var(--text-main);
-            background: transparent; border: none; border-radius: 7px;
-            cursor: pointer; transition: all 0.2s var(--apple-ease); font-family: inherit;
+        .hero-subtitle {
+            font-size: 18px; color: var(--text-secondary); 
+            margin-bottom: 48px; line-height: 1.4; font-weight: 400;
         }
-        .tab-btn.active { background: var(--surface); box-shadow: var(--shadow-segmented); font-weight: 600; }
 
-        /* Cards Layout */
-        main { padding: 0 20px; animation: fadeUp 0.5s var(--apple-ease); }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card { 
-            background: var(--surface); border-radius: var(--radius-lg); 
-            padding: 24px; margin-bottom: 20px; box-shadow: var(--shadow-sm); 
+        /* Diagnostic Lists */
+        .section-label {
+            font-size: 14px; font-weight: 700; text-transform: uppercase; 
+            letter-spacing: 0.05em; color: var(--text-muted); 
+            margin-bottom: 16px; border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
         }
-        .card-title { 
-            font-size: 17px; font-weight: 600; color: var(--text-main); 
-            letter-spacing: -0.01em; margin-bottom: 20px; 
-            display: flex; align-items: center; gap: 8px;
+
+        .gap-node {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            padding: 20px 0; border-bottom: 1px solid var(--border);
         }
-        .card-title svg { color: var(--accent); flex-shrink: 0; }
-        .card-title.danger svg { color: var(--danger); }
-
-        /* Stat Grids */
-        .stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
-        .stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
-        .stat-box { background: var(--surface-2); border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 16px 12px; text-align: center; }
-        .stat-val { font-size: 26px; font-weight: 600; line-height: 1; margin-bottom: 6px; letter-spacing: -0.5px; font-variant-numeric: tabular-nums; }
-        .stat-val.accent { color: var(--accent); }
-        .stat-val.correct { color: var(--success); }
-        .stat-val.wrong { color: var(--danger); }
-        .stat-val.warn { color: var(--warning); }
-        .stat-lbl { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-
-        /* Heatmap Activity */
-        .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-        .heatmap-cell { aspect-ratio: 1; border-radius: 4px; background: var(--surface-3); cursor: default; transition: opacity 0.2s; }
-        .heatmap-cell[data-level="1"] { background: rgba(0, 113, 227, 0.2); }
-        .heatmap-cell[data-level="2"] { background: rgba(0, 113, 227, 0.45); }
-        .heatmap-cell[data-level="3"] { background: rgba(0, 113, 227, 0.7); }
-        .heatmap-cell[data-level="4"] { background: var(--accent); }
-        .heatmap-day-labels { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
-        .heatmap-day-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-align: center; }
-
-        /* Session Trend Chart */
-        .session-chart { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-top: 10px; border-bottom: 1px solid var(--border-light); position: relative; }
-        .session-bar-wrap { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; flex: 1; height: 100%; gap: 6px; cursor: pointer; }
-        .session-bar { width: 100%; max-width: 32px; border-radius: 4px 4px 0 0; transition: opacity 0.2s; position: relative; }
-        .session-bar-wrap:hover .session-bar { opacity: 0.7; }
-        .session-bar-lbl { font-size: 11px; color: var(--text-muted); font-weight: 500; margin-top: 4px; white-space: nowrap; }
-        .chart-70-line { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--success-border); pointer-events: none; z-index: 10; }
-
-        /* Tables */
-        .topic-table { width: 100%; border-collapse: collapse; }
-        .topic-table th { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 0 0 12px; text-align: left; border-bottom: 1px solid var(--border-light); }
-        .topic-table th:not(:first-child) { text-align: right; }
-        .topic-table td { padding: 14px 0; border-bottom: 1px solid var(--border-light); font-size: 15px; vertical-align: middle; color: var(--text-main); font-weight: 500; }
-        .topic-table td:not(:first-child) { text-align: right; }
-        .topic-table tr:last-child td { border-bottom: none; }
+        .gap-node:last-child { border-bottom: none; }
         
-        .acc-pill { display: inline-flex; align-items: center; justify-content: center; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 600; min-width: 48px; background: var(--surface-2); color: var(--text-main); }
-        .acc-pill.high { color: var(--success); }
-        .acc-pill.mid { color: var(--warning); }
-        .acc-pill.low { color: var(--danger); }
+        .gap-info { flex: 1; padding-right: 20px; }
+        .gap-theme { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
+        .gap-comp { font-size: 15px; color: var(--text-secondary); margin-bottom: 8px; }
         
-        .mini-bar-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-        .mini-bar-bg { width: 60px; height: 6px; background: var(--surface-3); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-        .mini-bar-fill { height: 100%; border-radius: 3px; }
-
-        /* Session Lists & Diag Items */
-        .session-item, .diag-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            padding: 16px; background: var(--surface); border: 1px solid var(--border-light); 
-            border-radius: var(--radius-md); margin-bottom: 10px; gap: 14px; 
-            box-shadow: var(--shadow-sm); transition: transform 0.2s;
+        .gap-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag {
+            padding: 4px 10px; border-radius: var(--radius-pill);
+            font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
         }
-        .session-item:active { transform: scale(0.98); background: var(--surface-2); }
-        
-        .session-date { font-size: 14px; color: var(--text-main); font-weight: 600; }
-        .session-meta { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
-        .session-score { font-size: 22px; font-weight: 600; text-align: right; flex-shrink: 0; letter-spacing: -0.5px; }
+        .tag.critical { background: var(--critical-bg); color: var(--critical); }
+        .tag.warning { background: var(--warning-bg); color: var(--warning); }
+        .tag.neutral { background: var(--surface-alt); color: var(--text-secondary); }
 
-        /* Urgency / Plan */
-        .urgency-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin: 24px 0 12px; display: flex; align-items: center; gap: 12px; }
-        .urgency-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
-        .urgency-section-title.crit { color: var(--danger); }
-        .urgency-section-title.warn { color: var(--warning); }
-        .urgency-section-title.good { color: var(--success); }
-        
-        .diag-item { border-left: 4px solid transparent; }
-        .diag-item.crit { border-left-color: var(--danger); }
-        .diag-item.warn { border-left-color: var(--warning); }
-        .diag-item.good { border-left-color: var(--success); }
-        
-        .diag-topic { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--text-main); }
-        .diag-comp { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 10px; }
-        .diag-meta-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        
-        .badge { padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.02em; }
-        .badge.err { color: var(--danger); background: var(--danger-bg); }
-        .badge.ok { color: var(--success); background: var(--success-bg); }
-        .badge.info { color: var(--text-muted); background: var(--surface-3); }
-        
-        .diag-acc { font-size: 22px; font-weight: 600; text-align: right; flex-shrink: 0; letter-spacing: -0.5px; }
-        .diag-acc.low { color: var(--danger); }
-        .diag-acc.mid { color: var(--warning); }
-        .diag-acc.high { color: var(--success); }
-        .diag-acc-sub { font-size: 11px; color: var(--text-muted); text-align: right; font-weight: 500; margin-bottom: 2px; }
+        .gap-metrics { text-align: right; flex-shrink: 0; }
+        .metric-value { font-family: var(--font-display); font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
+        .metric-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
 
-        /* Loader & Empty States */
-        .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite; margin: 0 auto 16px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-        .empty-title { font-size: 18px; font-weight: 600; color: var(--text-main); margin-bottom: 8px; letter-spacing: -0.01em; }
-
-        /* Apple UI Button */
-        .btn-primary { 
-            display: inline-flex; align-items: center; justify-content: center;
-            padding: 14px 24px; border-radius: 12px; border: none; background: var(--accent); 
-            color: #fff; font-family: inherit; font-size: 15px; font-weight: 600; 
-            cursor: pointer; transition: all 0.2s var(--apple-ease); text-decoration: none;
-            box-shadow: var(--shadow-sm);
+        /* Floating Action */
+        .floating-action {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 24px; background: linear-gradient(to top, var(--bg) 60%, transparent);
+            display: flex; justify-content: center; z-index: 90;
         }
-        .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
+        .btn-pill {
+            background: var(--text-main); color: var(--bg);
+            border: none; border-radius: var(--radius-pill);
+            padding: 18px 32px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: transform 0.2s;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        .btn-pill:active { transform: scale(0.96); }
+        body[data-theme="dark"] .btn-pill { box-shadow: 0 4px 16px rgba(255,255,255,0.08); }
 
-        /* Action Sheet Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s var(--apple-ease); }
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            display: flex; align-items: flex-end; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+        }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box { background: var(--surface); border-radius: var(--radius-xl); width: 100%; max-width: 540px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; transform: translateY(20px) scale(0.98); transition: transform 0.3s var(--apple-ease); box-shadow: var(--shadow-float); }
-        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
         
-        .modal-head { padding: 20px 24px; border-bottom: 1px solid var(--border-light); display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.9); }
-        .modal-head-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
-        .modal-close { background: var(--surface-3); border: none; color: var(--text-muted); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: background 0.2s; }
-        .modal-close:active { background: var(--border); }
-        
-        .modal-body { padding: 24px; overflow-y: auto; flex: 1; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; color: var(--text-main); background: var(--surface-2); white-space: pre-wrap; line-height: 1.6; }
-        .modal-foot { padding: 16px 24px; border-top: 1px solid var(--border-light); display: flex; justify-content: flex-end; background: var(--surface); }
-
-        @media (max-width: 600px) {
-            .stats-grid-4 { grid-template-columns: repeat(2, 1fr); }
-            .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .modal-surface {
+            background: var(--bg); width: 100%; max-width: 760px; max-height: 90vh;
+            border-top-left-radius: 24px; border-top-right-radius: 24px;
+            display: flex; flex-direction: column;
+            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        @media (min-width: 768px) {
+            .modal-overlay { align-items: center; padding: 24px; }
+            .modal-surface { border-radius: 16px; transform: translateY(20px) scale(0.98); }
+        }
+        .modal-overlay.active .modal-surface { transform: translateY(0) scale(1); }
+        
+        .modal-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+        
+        .modal-body { 
+            padding: 24px; overflow-y: auto; flex: 1; 
+            font-family: var(--font-mono); font-size: 14px; line-height: 1.6; 
+            color: var(--text-main); white-space: pre-wrap; 
+        }
+        .modal-footer { padding: 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
+
+        /* States */
+        .loader { display: flex; align-items: center; justify-content: center; height: 50vh; font-weight: 600; color: var(--text-muted); }
+        .empty-state { text-align: center; padding: 80px 24px; }
+        .empty-state h2 { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+        .empty-state p { color: var(--text-secondary); margin-bottom: 32px; }
+        
+        .btn-outline {
+            background: transparent; border: 2px solid var(--text-main); color: var(--text-main);
+            border-radius: var(--radius-pill); padding: 14px 28px; font-weight: 600;
+            text-decoration: none; display: inline-block; transition: background 0.2s;
+        }
+        .btn-outline:active { background: var(--surface-hover); }
     </style>
 </head>
 <body>
 
-<nav class="glass-nav" id="top-nav">
-    <div>
-        <div class="top-bar-title">Desempenho</div>
-        <div class="top-bar-sub">Métricas e Histórico Pessoal</div>
-    </div>
-    <div class="top-bar-nav">
-        <a href="transfer.html" class="nav-icon-btn" title="Dados">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </a>
-        <a href="index.html" class="nav-icon-btn" title="Sessão de Estudos">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+<nav class="nav-header">
+    <div class="nav-title">QuestBank</div>
+    <div class="nav-actions">
+        <button class="icon-btn theme-toggle" onclick="App.toggleTheme()" aria-label="Alternar tema">
+            <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </button>
+        <a href="index.html" class="icon-btn" aria-label="Voltar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
         </a>
     </div>
 </nav>
 
-<div class="tab-wrapper" id="tab-controls">
-    <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchTab('overview', this)">Visão Geral</button>
-        <button class="tab-btn" onclick="switchTab('topics', this)">Temas</button>
-        <button class="tab-btn" onclick="switchTab('sessions', this)">Sessões</button>
-        <button class="tab-btn" onclick="switchTab('plan', this)">Revisão</button>
-    </div>
-</div>
+<div id="loader" class="loader">Sintetizando histórico algorítmico...</div>
 
-<main id="dash-main" class="hidden">
-    <div id="tab-overview">
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Indicadores Globais
-            </div>
-            <div class="stats-grid-4">
-                <div class="stat-box"><div class="stat-val accent" id="ov-total">0</div><div class="stat-lbl">Questões</div></div>
-                <div class="stat-box"><div class="stat-val correct" id="ov-acc">—</div><div class="stat-lbl">Precisão</div></div>
-                <div class="stat-box"><div class="stat-val accent" id="ov-sessions">0</div><div class="stat-lbl">Sessões</div></div>
-                <div class="stat-box"><div class="stat-val warn" id="ov-streak">0</div><div class="stat-lbl">Sequência</div></div>
-            </div>
-            <div class="stats-grid-3">
-                <div class="stat-box"><div class="stat-val correct" id="ov-best-sess">—</div><div class="stat-lbl">Maior Pontuação</div></div>
-                <div class="stat-box"><div class="stat-val accent" id="ov-avg-sess">—</div><div class="stat-lbl">Média/Sessão</div></div>
-                <div class="stat-box"><div class="stat-val accent" id="ov-avg-time">—</div><div class="stat-lbl">Tempo/Q.</div></div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                Frequência — Últimas 10 semanas
-            </div>
-            <div class="heatmap-day-labels">
-                <div class="heatmap-day-lbl">D</div><div class="heatmap-day-lbl">S</div><div class="heatmap-day-lbl">T</div>
-                <div class="heatmap-day-lbl">Q</div><div class="heatmap-day-lbl">Q</div><div class="heatmap-day-lbl">S</div><div class="heatmap-day-lbl">S</div>
-            </div>
-            <div class="heatmap-grid" id="heatmap-grid"></div>
-            <div style="margin-top:14px;display:flex;gap:8px;font-size:11px;font-weight:500;color:var(--text-muted);align-items:center;justify-content:flex-end;">
-                <span>Baixa</span>
-                <span style="display:flex;gap:4px;align-items:center;">
-                    <span style="width:12px;height:12px;border-radius:3px;background:var(--surface-3);"></span>
-                    <span style="width:12px;height:12px;border-radius:3px;background:rgba(0,113,227,0.2);"></span>
-                    <span style="width:12px;height:12px;border-radius:3px;background:rgba(0,113,227,0.45);"></span>
-                    <span style="width:12px;height:12px;border-radius:3px;background:rgba(0,113,227,0.7);"></span>
-                    <span style="width:12px;height:12px;border-radius:3px;background:var(--accent);"></span>
-                </span>
-                <span>Alta</span>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
-                Progresso Recente
-            </div>
-            <div class="session-chart" id="session-trend-chart"></div>
-            <div style="margin-top:12px;font-size:12px;color:var(--text-muted);font-weight:500;">Linha pontilhada: Meta de 70% de acertos.</div>
-        </div>
+<main id="main-content" class="hidden">
+    <div id="empty-state" class="empty-state hidden">
+        <h2>Dados Insuficientes</h2>
+        <p>Não há volume de erros estatisticamente relevante para formular uma prescrição arquitetada. Continue resolvendo questões.</p>
+        <a href="index.html" class="btn-outline">Iniciar Sessão de Estudos</a>
     </div>
 
-    <div id="tab-topics" class="hidden">
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                Especialidades
-            </div>
-            <div id="esp-table-wrap"></div>
-        </div>
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Temas Específicos
-            </div>
-            <div id="tema-table-wrap"></div>
-        </div>
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
-                Competências
-            </div>
-            <div id="comp-table-wrap"></div>
-        </div>
-        <div class="card" id="worst-qs-card">
-            <div class="card-title danger">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Erros Recorrentes
-            </div>
-            <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;font-weight:500;">Conceitos que demandam maior atenção devido ao histórico de erros.</p>
-            <div id="worst-qs-list"></div>
-        </div>
-    </div>
-
-    <div id="tab-sessions" class="hidden">
-        <div class="card" style="padding: 16px;">
-            <div class="card-title" style="padding:8px 8px 0;">Sessões Realizadas</div>
-            <div id="sessions-list"></div>
-        </div>
-    </div>
-
-    <div id="tab-plan" class="hidden">
-        <div class="card" style="padding: 16px;">
-            <div class="card-title" style="padding:8px 8px 0;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Mapeamento de Lacunas
-            </div>
-            <div id="plan-container"></div>
-        </div>
+    <div id="diagnostic-view" class="hidden">
+        <h1 class="hero-title">Diagnóstico de Lacunas</h1>
+        <p class="hero-subtitle">Mapeamento algorítmico estruturado das suas deficiências teóricas baseado no histórico de resolução de problemas.</p>
         
-        <div class="card" id="prescription-trigger-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                Prescrição de Estudos
+        <div id="critical-gaps" style="margin-bottom: 48px;">
             </div>
-            <p style="font-size:14px;color:var(--text-muted);margin-bottom:20px;font-weight:500;line-height:1.4;">Gere um diagnóstico detalhado mapeado por competência e obtenha um plano de ação estruturado para revisão teórica.</p>
-            <button class="btn-primary" onclick="openPrescription()" style="width: 100%;">
-                Extrair Prescrição
-            </button>
-        </div>
+
+        <div id="warning-gaps">
+            </div>
     </div>
 </main>
 
-<div id="loading-state" style="text-align:center;padding:60px 20px;">
-    <div class="spinner"></div>
-    <div style="color:var(--text-muted);font-size:14px;font-weight:500;">Sincronizando análises...</div>
+<div id="action-bar" class="floating-action hidden">
+    <button class="btn-pill" onclick="App.openPrescription()">Gerar Prescrição Analítica</button>
 </div>
 
-<div id="empty-state" class="hidden">
-    <div class="empty-state">
-        <div class="empty-title">Sem histórico de atividades</div>
-        <div style="margin-bottom:24px;font-size:14px;">Complete sessões no Quiz para desbloquear métricas e planos de revisão estruturados.</div>
-        <a href="index.html" class="btn-primary">Iniciar Estudos</a>
-    </div>
-</div>
-
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
-    <div class="modal-box">
-        <div class="modal-head">
-            <div class="modal-head-title">Prescrição Analítica</div>
-            <button class="modal-close" onclick="closeModal()">×</button>
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)App.closeModal()">
+    <div class="modal-surface">
+        <div class="modal-header">
+            <div class="modal-title">Prescrição Técnica Otimizada</div>
+            <button class="icon-btn" onclick="App.closeModal()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
         </div>
         <div class="modal-body" id="modal-content"></div>
-        <div class="modal-foot">
-            <button class="btn-primary" id="btn-copy" onclick="copyMarkdown()">Copiar Texto</button>
+        <div class="modal-footer">
+            <button class="btn-pill" id="btn-copy" style="max-width: none;" onclick="App.copyMarkdown()">Copiar Relatório</button>
         </div>
     </div>
 </div>
 
 <script>
-// A LÓGICA E FUNCIONALIDADES ABAIXO SÃO ESTRITAMENTE IDÊNTICAS AO ORIGINAL. 
-// Apenas as classes/estilos de templates HTML gerados via JS foram lapidados para refletir a interface Apple Like.
-
-const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv';
-
-let G = {
-    banco: [],
+/**
+ * Arquitetura Frontend: Diagnostic Engine
+ * Responsabilidade: Isolar o consumo do histórico, compilar erros absolutos,
+ * mapear nós de competência e gerar um output em Markdown consumível.
+ */
+const App = {
+    url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
     historico: {},
-    sessions: [],
-    diagNodes: [],
-    currentMarkdown: ''
+    banco: [],
+    diagNodes: { crits: [], warns: [] },
+    markdownText: '',
+
+    init() {
+        this.applyTheme(localStorage.getItem('apex_theme') || 'light');
+        
+        const histRaw = localStorage.getItem('apex_historico');
+        this.historico = histRaw ? JSON.parse(histRaw) : {};
+
+        // Validar se existe material estatístico (erros)
+        const hasErrors = Object.values(this.historico).some(v => v === 'errada' || v?.correct === false);
+
+        if (!hasErrors) {
+            this.showEmptyState();
+            return;
+        }
+
+        this.fetchDatabase();
+    },
+
+    toggleTheme() {
+        const current = document.body.dataset.theme === 'dark' ? 'dark' : 'light';
+        this.applyTheme(current === 'dark' ? 'light' : 'dark');
+    },
+
+    applyTheme(theme) {
+        document.body.dataset.theme = theme;
+        localStorage.setItem('apex_theme', theme);
+        document.getElementById('theme-color-meta').setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+    },
+
+    showEmptyState() {
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+    },
+
+    fetchDatabase() {
+        Papa.parse(this.url, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: (r) => {
+                this.banco = r.data.filter(q => q.id).map(q => ({ ...q, id: String(q.id).trim().toUpperCase() }));
+                this.processDiagnostics();
+            },
+            error: () => {
+                document.getElementById('loader').textContent = 'Falha na conexão com o banco de dados principal.';
+            }
+        });
+    },
+
+    processDiagnostics() {
+        const topicMap = {};
+        let totalErrors = 0;
+        
+        // Agregar erros iterando sobre a estrutura do histórico
+        Object.entries(this.historico).forEach(([id, status]) => {
+            const isError = status === 'errada' || status?.correct === false;
+            if (!isError) return;
+
+            const q = this.banco.find(q => q.id === id);
+            if (!q) return;
+
+            const tema = q.tema_especifico || q.tema || 'Tópico Geral';
+            const comp = q.competencia || 'Competência não catalogada';
+            const esp = q.especialidade || 'Geral';
+            
+            // Chave de unicidade estrutural
+            const key = `${tema}|${comp}`;
+
+            if (!topicMap[key]) topicMap[key] = { tema, comp, esp, errors: 0 };
+            topicMap[key].errors++;
+            totalErrors++;
+        });
+
+        if (totalErrors === 0) {
+            this.showEmptyState();
+            return;
+        }
+
+        // Ordenação por severidade de erro
+        const sortedNodes = Object.values(topicMap).sort((a, b) => b.errors - a.errors);
+        
+        // Thresholds: Crítico (>=3 erros) | Atenção (<3 erros)
+        this.diagNodes.crits = sortedNodes.filter(n => n.errors >= 3);
+        this.diagNodes.warns = sortedNodes.filter(n => n.errors > 0 && n.errors < 3);
+
+        this.renderUI();
+    },
+
+    renderUI() {
+        const critContainer = document.getElementById('critical-gaps');
+        const warnContainer = document.getElementById('warning-gaps');
+
+        if (this.diagNodes.crits.length > 0) {
+            critContainer.innerHTML = `<div class="section-label">Alta Urgência</div>` + 
+                this.diagNodes.crits.map(n => this.buildNodeHTML(n, 'critical')).join('');
+        }
+
+        if (this.diagNodes.warns.length > 0) {
+            warnContainer.innerHTML = `<div class="section-label">Zona de Atenção</div>` + 
+                this.diagNodes.warns.slice(0, 10).map(n => this.buildNodeHTML(n, 'warning')).join('');
+        }
+
+        document.getElementById('loader').classList.add('hidden');
+        document.getElementById('main-content').classList.remove('hidden');
+        document.getElementById('diagnostic-view').classList.remove('hidden');
+        document.getElementById('action-bar').classList.remove('hidden');
+    },
+
+    buildNodeHTML(node, type) {
+        const isCrit = type === 'critical';
+        const tagClass = isCrit ? 'critical' : 'warning';
+        const tagText = isCrit ? 'Crítico' : 'Atenção';
+
+        return `
+        <div class="gap-node">
+            <div class="gap-info">
+                <div class="gap-theme">${this.escapeHtml(node.tema)}</div>
+                <div class="gap-comp">⮑ ${this.escapeHtml(node.comp)}</div>
+                <div class="gap-tags">
+                    <span class="tag ${tagClass}">${tagText}</span>
+                    <span class="tag neutral">${this.escapeHtml(node.esp)}</span>
+                </div>
+            </div>
+            <div class="gap-metrics">
+                <div class="metric-value">${node.errors}</div>
+                <div class="metric-label">Erros</div>
+            </div>
+        </div>`;
+    },
+
+    openPrescription() {
+        const dataAtual = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+        
+        this.markdownText = `# 🩺 DIRETRIZ DE REVISÃO ESTRATÉGICA
+> Gerado em ${dataAtual}
+> Foco: Mitigação de Pontos Cegos e Correção Teórica
+
+---
+
+## 🚨 PRIORIDADE 1: LACUNAS CRÍTICAS (REVISÃO DE BASE)
+*Deficiências estruturais com alta reincidência. Bloqueie a resolução de questões nestes temas e inicie estudo reverso passivo.*
+
+${this.diagNodes.crits.length > 0 
+    ? this.diagNodes.crits.map(n => `### ${n.tema}\n- **Vulnerabilidade:** ${n.comp}\n- **Gravidade:** ${n.errors} erros retidos.\n- **Ação Recomendada:** Leitura ativa de material base + Flashcards primários.`).join('\n\n') 
+    : '_Sistema estável. Nenhuma lacuna severa detectada._'}
+
+---
+
+## ⚠️ PRIORIDADE 2: ZONA DE ATENÇÃO (LAPIDAÇÃO)
+*Desvios de conceito secundários. Recomendado revisão por questões direcionadas (Modo: Meus Erros).*
+
+${this.diagNodes.warns.length > 0 
+    ? this.diagNodes.warns.slice(0, 8).map(n => `- **${n.tema}** (${n.comp}) — ${n.errors} erro(s)`).join('\n') 
+    : '_Nenhum desvio secundário registrado._'}
+
+---
+*Motor Analítico QuestBank. Mantenha o fluxo de dados retroalimentado.*`;
+
+        document.getElementById('modal-content').textContent = this.markdownText;
+        document.getElementById('modal').classList.add('active');
+        
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = 'Copiar Relatório';
+    },
+
+    closeModal() {
+        document.getElementById('modal').classList.remove('active');
+    },
+
+    copyMarkdown() {
+        navigator.clipboard.writeText(this.markdownText).then(() => {
+            const btn = document.getElementById('btn-copy');
+            btn.textContent = 'Copiado com Sucesso';
+            setTimeout(() => { btn.textContent = 'Copiar Relatório'; }, 2000);
+        }).catch(() => alert('Falha ao copiar. Selecione o texto e copie manualmente.'));
+    },
+
+    escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
 };
 
-function switchTab(name, btn) {
-    ['overview','topics','sessions','plan'].forEach(t => {
-        document.getElementById('tab-'+t).classList.toggle('hidden', t !== name);
-    });
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const histRaw = localStorage.getItem('apex_historico');
-    const sessRaw = localStorage.getItem('apex_sessions');
-
-    G.historico = histRaw ? JSON.parse(histRaw) : {};
-    G.sessions = sessRaw ? JSON.parse(sessRaw) : [];
-
-    const totalAnswered = Object.keys(G.historico).length;
-
-    if (totalAnswered === 0 && G.sessions.length === 0) {
-        document.getElementById('loading-state').classList.add('hidden');
-        document.getElementById('tab-controls').classList.add('hidden');
-        document.getElementById('empty-state').classList.remove('hidden');
-        return;
-    }
-
-    Papa.parse(SHEET_URL, {
-        download: true, header: true, skipEmptyLines: true,
-        complete(r) {
-            G.banco = r.data.filter(q => q.id && q.enunciado).map(q => ({ ...q, id: String(q.id).trim().toUpperCase() }));
-            build();
-        },
-        error() {
-            build();
-        }
-    });
-});
-
-function build() {
-    document.getElementById('loading-state').classList.add('hidden');
-    document.getElementById('dash-main').classList.remove('hidden');
-
-    buildOverview();
-    buildTopics();
-    buildSessions();
-    buildPlan();
-}
-
-function buildOverview() {
-    const total = Object.keys(G.historico).length;
-    const correct = Object.values(G.historico).filter(v => v === 'correta').length;
-    const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
-    const sessCount = G.sessions.length;
-
-    const streak = calcStreak();
-    const bestSess = G.sessions.length ? Math.max(...G.sessions.map(s => s.pct)) : null;
-    const avgSessScore = G.sessions.length ? Math.round(G.sessions.reduce((s, x) => s + x.pct, 0) / G.sessions.length) : null;
-    const allTimes = G.sessions.flatMap(s => s.respostas.map(r => r.tempoMs)).filter(t => t > 0);
-    const avgTime = allTimes.length ? Math.round(allTimes.reduce((a, b) => a + b, 0) / allTimes.length / 1000) : null;
-
-    document.getElementById('ov-total').textContent = total;
-    document.getElementById('ov-acc').textContent = total > 0 ? acc + '%' : '—';
-    document.getElementById('ov-sessions').textContent = sessCount;
-    document.getElementById('ov-streak').textContent = streak + 'd';
-    document.getElementById('ov-best-sess').textContent = bestSess !== null ? bestSess + '%' : '—';
-    document.getElementById('ov-avg-sess').textContent = avgSessScore !== null ? avgSessScore + '%' : '—';
-    document.getElementById('ov-avg-time').textContent = avgTime !== null ? avgTime + 's' : '—';
-
-    buildHeatmap();
-    buildSessionTrend();
-}
-
-function calcStreak() {
-    if (!G.sessions.length) return 0;
-    const days = [...new Set(G.sessions.map(s => s.date.slice(0, 10)))].sort().reverse();
-    const today = new Date().toISOString().slice(0, 10);
-    let streak = 0;
-    let cursor = new Date(today);
-    for (let i = 0; i < 365; i++) {
-        const d = cursor.toISOString().slice(0, 10);
-        if (days.includes(d)) { streak++; cursor.setDate(cursor.getDate() - 1); }
-        else break;
-    }
-    return streak;
-}
-
-function buildHeatmap() {
-    const grid = document.getElementById('heatmap-grid');
-    const today = new Date();
-    today.setHours(0,0,0,0);
-    const start = new Date(today);
-    start.setDate(today.getDate() - 69);
-    const dayOfWeek = start.getDay();
-    start.setDate(start.getDate() - dayOfWeek);
-
-    const dayMap = {};
-    G.sessions.forEach(s => {
-        const d = s.date.slice(0,10);
-        dayMap[d] = (dayMap[d] || 0) + s.total;
-    });
-
-    const maxQ = Math.max(...Object.values(dayMap), 1);
-    let html = '';
-    const cursor = new Date(start);
-    
-    for (let i = 0; i < 77; i++) {
-        const d = cursor.toISOString().slice(0,10);
-        const count = dayMap[d] || 0;
-        const future = cursor > today;
-        let level = 0;
-        if (!future && count > 0) {
-            const ratio = count / maxQ;
-            if (ratio < 0.25) level = 1;
-            else if (ratio < 0.5) level = 2;
-            else if (ratio < 0.75) level = 3;
-            else level = 4;
-        }
-        const title = count > 0 ? `${d}: ${count} questão(ões)` : d;
-        html += `<div class="heatmap-cell" data-level="${future ? 0 : level}" title="${title}" style="${future ? 'opacity:0.2;' : ''}"></div>`;
-        cursor.setDate(cursor.getDate() + 1);
-        if (cursor > today && cursor.getDay() === 0) break;
-    }
-    grid.innerHTML = html;
-}
-
-function buildSessionTrend() {
-    const chart = document.getElementById('session-trend-chart');
-    const sessions = G.sessions.slice(-20);
-    if (!sessions.length) { chart.innerHTML = '<div style="color:var(--text-muted);font-size:13px;padding:20px;font-weight:500;">Nenhuma sessão ainda.</div>'; return; }
-
-    chart.innerHTML = '';
-    const line70 = document.createElement('div');
-    line70.className = 'chart-70-line';
-    line70.style.bottom = '70%';
-    chart.appendChild(line70);
-
-    sessions.forEach((s, i) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'session-bar-wrap';
-        const bar = document.createElement('div');
-        bar.className = 'session-bar';
-        bar.style.height = Math.max(4, s.pct) + '%';
-        bar.style.background = s.pct >= 70 ? 'var(--success)' : s.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
-        bar.title = `Sessão ${i+1}: ${s.pct}%`;
-        const lbl = document.createElement('div');
-        lbl.className = 'session-bar-lbl';
-        lbl.textContent = s.pct + '%';
-        wrap.appendChild(bar);
-        wrap.appendChild(lbl);
-        chart.appendChild(wrap);
-    });
-}
-
-function buildTopics() {
-    const espStats = {}, temaStats = {}, compStats = {};
-    const wrongQs = [];
-
-    Object.entries(G.historico).forEach(([id, status]) => {
-        const q = G.banco.find(q => q.id === id);
-        if (!q) return;
-        const esp = q.especialidade || 'Sem especialidade';
-        const tema = q.tema_especifico || 'Sem tema';
-        const comp = q.competencia || 'Sem competência listada';
-        const isCorrect = status === 'correta';
-
-        if (!espStats[esp]) espStats[esp] = { total: 0, correct: 0, errors: 0 };
-        espStats[esp].total++; if (isCorrect) espStats[esp].correct++; else espStats[esp].errors++;
-
-        if (!temaStats[tema]) temaStats[tema] = { total: 0, correct: 0, errors: 0, esp };
-        temaStats[tema].total++; if (isCorrect) temaStats[tema].correct++; else temaStats[tema].errors++;
-
-        if (!compStats[comp]) compStats[comp] = { total: 0, correct: 0, errors: 0, tema };
-        compStats[comp].total++; if (isCorrect) compStats[comp].correct++; else compStats[comp].errors++;
-
-        if (!isCorrect) wrongQs.push({ id, tema, esp, comp });
-    });
-
-    renderTable('esp-table-wrap', espStats);
-    renderTable('tema-table-wrap', temaStats);
-    renderTable('comp-table-wrap', compStats);
-
-    const freqMap = {};
-    wrongQs.forEach(w => {
-        const key = `${w.tema}:::${w.comp}:::${w.esp}`;
-        if(!freqMap[key]) freqMap[key] = { tema: w.tema, comp: w.comp, esp: w.esp, count: 0, ids: [] };
-        freqMap[key].count++;
-        freqMap[key].ids.push(w.id);
-    });
-
-    const sortedFreq = Object.values(freqMap).sort((a,b) => b.count - a.count);
-    const wrapEl = document.getElementById('worst-qs-list');
-    
-    if (!sortedFreq.length) { 
-        wrapEl.innerHTML = '<div style="color:var(--text-muted);font-size:14px;font-weight:500;">Nenhum erro computado. 🎉</div>'; 
-        return; 
-    }
-
-    // Refinamento do string template com o design system
-    wrapEl.innerHTML = sortedFreq.slice(0, 15).map(w =>
-        `<div style="display:flex;justify-content:space-between;padding:16px;background:var(--danger-bg);border-radius:var(--radius-md);margin-bottom:12px;gap:16px;align-items:center;">
-            <div style="flex:1;min-width:0;">
-                <div style="font-size:15px;font-weight:600;color:var(--danger);margin-bottom:4px;">${escHtml(w.tema)}</div>
-                <div style="font-size:13px;color:var(--text-main);font-weight:500;margin-bottom:8px;">⮑ ${escHtml(w.comp)}</div>
-                <div><span class="badge" style="background:#fff;color:var(--danger);border:1px solid var(--danger-border);">${escHtml(w.esp)}</span></div>
-            </div>
-            <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:26px;font-weight:600;color:var(--danger);line-height:1;letter-spacing:-0.5px;">${w.count}</div>
-                <div style="font-size:10px;color:var(--danger);text-transform:uppercase;font-weight:700;margin-top:6px;letter-spacing:0.04em;">Erros</div>
-            </div>
-        </div>`
-    ).join('');
-}
-
-function renderTable(containerId, stats) {
-    const el = document.getElementById(containerId);
-    const rows = Object.entries(stats).map(([name, s]) => ({
-        name, total: s.total, correct: s.correct,
-        acc: Math.round((s.correct / s.total) * 100)
-    })).sort((a, b) => b.total - a.total);
-
-    if (!rows.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-weight:500;">Sem dados.</div>'; return; }
-
-    el.innerHTML = `<table class="topic-table">
-        <thead><tr>
-            <th>Tópico</th>
-            <th>Questões</th>
-            <th>Precisão</th>
-        </tr></thead>
-        <tbody>${rows.map(r => {
-            const cls = r.acc >= 70 ? 'high' : r.acc >= 50 ? 'mid' : 'low';
-            const col = r.acc >= 70 ? 'var(--success)' : r.acc >= 50 ? 'var(--warning)' : 'var(--danger)';
-            return `<tr>
-                <td>${escHtml(r.name)}</td>
-                <td style="color:var(--text-muted);font-weight:500;">${r.correct}/${r.total}</td>
-                <td>
-                    <div class="mini-bar-wrap">
-                        <div class="mini-bar-bg"><div class="mini-bar-fill" style="width:${r.acc}%;background:${col};"></div></div>
-                        <span class="acc-pill ${cls}">${r.acc}%</span>
-                    </div>
-                </td>
-            </tr>`;
-        }).join('')}</tbody>
-    </table>`;
-}
-
-function buildSessions() {
-    const el = document.getElementById('sessions-list');
-    if (!G.sessions.length) { el.innerHTML = '<div style="color:var(--text-muted);font-size:13px;text-align:center;padding:20px;">Nenhuma sessão.</div>'; return; }
-
-    const sorted = [...G.sessions].reverse();
-    el.innerHTML = sorted.map(s => {
-        const d = new Date(s.date);
-        const dateStr = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
-        const timeStr = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
-        const dur = s.duracao ? Math.round(s.duracao / 60000) + 'min' : '—';
-        const col = s.pct >= 70 ? 'var(--success)' : s.pct >= 50 ? 'var(--warning)' : 'var(--danger)';
-        return `<div class="session-item">
-            <div>
-                <div class="session-date">${dateStr} · ${timeStr}</div>
-                <div class="session-meta">${s.total} questões analisadas (${dur})</div>
-            </div>
-            <div class="session-score" style="color:${col}">${s.pct}%</div>
-        </div>`;
-    }).join('');
-}
-
-function buildPlan() {
-    const topicMap = {};
-
-    Object.entries(G.historico).forEach(([id, status]) => {
-        const q = G.banco.find(q => q.id === id);
-        if (!q) return;
-        const tema = q.tema_especifico || q.tema || 'Geral';
-        const esp = q.especialidade || 'Geral';
-        const comp = q.competencia || 'Sem competência listada';
-        const key = `${esp}|${tema}|${comp}`; 
-        
-        if (!topicMap[key]) topicMap[key] = { tema, esp, comp, total: 0, correct: 0, errors: 0 };
-        topicMap[key].total++;
-        if (status === 'correta') topicMap[key].correct++;
-        else topicMap[key].errors++;
-    });
-
-    const nodes = Object.values(topicMap).map(t => {
-        const acc = Math.round((t.correct / t.total) * 100);
-        const urgency = (t.errors * 2) + (100 - acc);
-        let cat = 'good';
-        if (acc < 50 && t.errors >= 2) cat = 'crit';
-        else if (acc < 75 || t.errors >= 1) cat = 'warn';
-        return { ...t, acc, urgency, cat };
-    }).sort((a, b) => b.urgency - a.urgency);
-
-    G.diagNodes = nodes;
-    const container = document.getElementById('plan-container');
-    
-    if (!nodes.length) { container.innerHTML = '<div style="color:var(--text-muted);font-size:13px;font-weight:500;">Histórico insuficiente.</div>'; return; }
-
-    const crits = nodes.filter(n => n.cat === 'crit').slice(0, 6);
-    const warns = nodes.filter(n => n.cat === 'warn').slice(0, 5);
-    const goods = nodes.filter(n => n.cat === 'good').slice(0, 4);
-
-    let html = '';
-    if (crits.length) {
-        html += `<div class="urgency-section-title crit">Alta Urgência (Deficiências Críticas)</div>`;
-        html += crits.map(t => diagItemHtml(t)).join('');
-    }
-    if (warns.length) {
-        html += `<div class="urgency-section-title warn">Atenção (Lacunas Parciais)</div>`;
-        html += warns.map(t => diagItemHtml(t)).join('');
-    }
-    if (goods.length) {
-        html += `<div class="urgency-section-title good">Domínio (Manutenção)</div>`;
-        html += goods.map(t => diagItemHtml(t)).join('');
-    }
-    container.innerHTML = html;
-}
-
-function diagItemHtml(t) {
-    const accCls = t.acc >= 70 ? 'high' : t.acc >= 50 ? 'mid' : 'low';
-    return `<div class="diag-item ${t.cat}">
-        <div style="flex:1;min-width:0;">
-            <div class="diag-topic">${escHtml(t.tema)}</div>
-            <div class="diag-comp">⮑ ${escHtml(t.comp)}</div>
-            <div class="diag-meta-row">
-                ${t.errors > 0 ? `<span class="badge err">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>` : `<span class="badge ok">Sólido</span>`}
-                <span class="badge info">${escHtml(t.esp)}</span>
-            </div>
-        </div>
-        <div style="text-align:right;flex-shrink:0;">
-            <div class="diag-acc-sub">Precisão</div>
-            <div class="diag-acc ${accCls}">${t.acc}%</div>
-        </div>
-    </div>`;
-}
-
-function openPrescription() {
-    if (!G.diagNodes.length) return;
-    const crits = G.diagNodes.filter(n => n.cat === 'crit');
-    const warns = G.diagNodes.filter(n => n.cat === 'warn');
-    const totalQ = Object.keys(G.historico).length;
-    const totalCorr = Object.values(G.historico).filter(v => v === 'correta').length;
-    const globalAcc = totalQ > 0 ? Math.round((totalCorr / totalQ) * 100) : 0;
-    const hoje = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
-
-    const compErrors = {};
-    G.diagNodes.forEach(n => {
-        if(n.errors > 0) {
-            if(!compErrors[n.comp]) compErrors[n.comp] = 0;
-            compErrors[n.comp] += n.errors;
-        }
-    });
-    const topComps = Object.entries(compErrors).sort((a,b) => b[1] - a[1]).slice(0, 3);
-
-    G.currentMarkdown = `# 🩺 Prescrição de Estudos — QuestBank
-> Gerada em ${hoje}
-
----
-
-## 📊 Diagnóstico Global
-
-| Métrica | Valor |
-|---|---|
-| Questões analisadas | ${totalQ} |
-| Taxa de acerto global | ${globalAcc}% |
-| Sessões ativas | ${G.sessions.length} |
-| Lacunas críticas | ${crits.length} |
-
-${topComps.length > 0 ? `### 🎯 Principais Deficiências por Competência\n${topComps.map(c => `- **${c[0]}** (${c[1]} erros acumulados)`).join('\n')}\n` : ''}
----
-
-## 🚨 Prioridade Máxima (Revisão de Base)
-
-${crits.length > 0 ? crits.slice(0,5).map((t, i) => `### ${i+1}. ${t.tema}
-- **Eixo:** ${t.esp}
-- **Ponto Cego:** ${t.comp}
-- **Precisão Atual:** ${t.acc}% | **Erros Acumulados:** ${t.errors}
-- **Diretriz:** Estudo reverso inviável. Bloqueie a resolução de questões neste tópico. Inicie revisão teórica focada especificamente no ponto cego mapeado.`).join('\n\n') : '_Nenhuma competência em estágio crítico. Parabéns!_'}
-
----
-
-## ⚠️ Zona de Atenção
-
-${warns.length > 0 ? warns.slice(0,5).map((t, i) => `${i+1}. **${t.tema}** — ${t.comp} (${t.acc}% acerto, ${t.errors} erros)`).join('\n') : '_Sistema estabilizado._'}
-
----
-_Métricas extraídas dinamicamente do banco de dados do QuestBank._`;
-
-    document.getElementById('modal-content').textContent = G.currentMarkdown;
-    document.getElementById('modal').classList.add('active');
-    document.getElementById('btn-copy').textContent = 'Copiar Texto';
-    document.getElementById('btn-copy').style.background = 'var(--accent)';
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('active'); }
-
-function copyMarkdown() {
-    navigator.clipboard.writeText(G.currentMarkdown).then(() => {
-        const btn = document.getElementById('btn-copy');
-        btn.textContent = '✓ Copiado';
-        btn.style.background = 'var(--success)';
-    }).catch(() => alert('Falha ao copiar. Selecione o texto manualmente.'));
-}
-
-function escHtml(t) {
-    if (typeof t !== 'string') return String(t || '');
-    const d = document.createElement('div'); d.textContent = t; return d.innerHTML;
-}
+window.addEventListener('DOMContentLoaded', () => App.init());
 </script>
 </body>
 </html>
