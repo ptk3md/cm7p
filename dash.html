@@ -3,462 +3,1011 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ffffff" id="theme-color-meta">
-    <title>Diagnóstico Analítico • QuestBank</title>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    
+    <meta name="theme-color" content="#121212" id="theme-color-meta">
+    <title>Revisão • QuestBank</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" crossorigin="anonymous"></script>
+
     <style>
+        /* ─────────────────────────────────────────────
+           DESIGN TOKENS — Spotify-inspired Dark System
+        ───────────────────────────────────────────── */
         :root {
-            /* Uber/Apple Fusion Light Theme */
-            --bg: #ffffff;
-            --surface: #ffffff;
-            --surface-hover: #f3f3f3;
-            --surface-alt: #f5f5f7;
-            
-            --text-main: #000000;
-            --text-secondary: #4b4b4b;
-            --text-muted: #86868b;
-            
-            --border: #e2e2e2;
-            
-            /* Strict Status Colors */
-            --critical: #000000;
-            --critical-bg: #e2e2e2;
-            --warning: #4b4b4b;
-            --warning-bg: #f5f5f7;
-            
-            /* Geometry */
-            --radius-card: 12px;
-            --radius-pill: 999px;
-            --safe-bottom: env(safe-area-inset-bottom, 20px);
-            
-            /* Typography */
-            --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            --bg:            #121212;
+            --surface:       #181818;
+            --surface-2:     #1f1f1f;
+            --surface-3:     #252525;
+            --text-main:     #ffffff;
+            --text-muted:    #b3b3b3;
+            --text-light:    #6e6e73;
+            --accent:        #1ed760;
+            --accent-dim:    rgba(30, 215, 96, 0.15);
+            --danger:        #f3727f;
+            --danger-bg:     rgba(243, 114, 127, 0.12);
+            --warning:       #ffa42b;
+            --warning-bg:    rgba(255, 164, 43, 0.12);
+            --success:       #1ed760;
+            --success-bg:    rgba(30, 215, 96, 0.12);
+            --border:        rgba(255,255,255,0.08);
+            --border-mid:    rgba(255,255,255,0.12);
+            --shadow-card:   rgba(0,0,0,0.3) 0px 8px 8px;
+            --shadow-float:  rgba(0,0,0,0.5) 0px 8px 24px;
+            --radius-sm:     6px;
+            --radius-md:     10px;
+            --radius-lg:     16px;
+            --safe-bottom:   env(safe-area-inset-bottom, 20px);
+            --ease:          cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        body[data-theme="dark"] {
-            /* Uber/Apple Fusion Dark Theme */
-            --bg: #000000;
-            --surface: #000000;
-            --surface-hover: #1c1c1e;
-            --surface-alt: #121212;
-            
-            --text-main: #ffffff;
-            --text-secondary: #afafaf;
-            --text-muted: #6e6e73;
-            
-            --border: #333333;
-            
-            --critical: #ffffff;
-            --critical-bg: #333333;
-            --warning: #afafaf;
-            --warning-bg: #1c1c1e;
+        /* ── LIGHT MODE OVERRIDE ── */
+        body[data-theme="light"] {
+            --bg:            #f5f5f7;
+            --surface:       #ffffff;
+            --surface-2:     #f0f0f2;
+            --surface-3:     #e8e8ea;
+            --text-main:     #1d1d1f;
+            --text-muted:    #6e6e73;
+            --text-light:    #a1a1a6;
+            --accent:        #1db954;
+            --accent-dim:    rgba(29, 185, 84, 0.10);
+            --danger:        #d93025;
+            --danger-bg:     rgba(217, 48, 37, 0.08);
+            --warning:       #e67700;
+            --warning-bg:    rgba(230, 119, 0, 0.08);
+            --success:       #1db954;
+            --success-bg:    rgba(29, 185, 84, 0.10);
+            --border:        rgba(0,0,0,0.08);
+            --border-mid:    rgba(0,0,0,0.12);
+            --shadow-card:   rgba(0,0,0,0.06) 0px 4px 12px;
+            --shadow-float:  rgba(0,0,0,0.16) 0px 12px 40px;
         }
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        /* ── NAV GLASS ── */
+        body[data-theme="light"] .glass-nav {
+            background: rgba(245, 245, 247, 0.82);
+        }
+
+        /* ── RESET ── */
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
         html { scroll-behavior: smooth; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text-main); 
-            font-family: var(--font-body);
-            -webkit-font-smoothing: antialiased; 
+
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            max-width: 760px; 
-            margin: 0 auto; 
-            padding: 0 0 calc(100px + var(--safe-bottom));
-            min-height: 100vh; 
-            font-size: 16px; 
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 0 calc(60px + var(--safe-bottom));
+            min-height: 100vh;
+            font-size: 15px;
+            letter-spacing: -0.01em;
             line-height: 1.5;
+            transition: background 0.3s var(--ease), color 0.3s var(--ease);
         }
 
         .hidden { display: none !important; }
 
-        /* Navigation */
-        .nav-header {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--bg);
+        /* ─────────────────────────────────────────────
+           NAV BAR — Glass + Circular Controls
+        ───────────────────────────────────────────── */
+        .glass-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
             border-bottom: 1px solid var(--border);
-            padding: 16px 24px; 
-            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.3s var(--ease);
         }
-        .nav-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
-        .nav-actions { display: flex; gap: 12px; }
-        
-        .icon-btn {
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            width: 28px; height: 28px;
             display: flex; align-items: center; justify-content: center;
-            width: 40px; height: 40px; border-radius: 50%;
-            background: transparent; border: none; color: var(--text-main);
-            cursor: pointer; transition: background 0.2s;
+            flex-shrink: 0;
         }
-        .icon-btn:active { background: var(--surface-hover); }
-        .theme-toggle .sun-icon, body[data-theme="dark"] .theme-toggle .moon-icon { display: none; }
+
+        .nav-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s var(--ease);
+            box-shadow: none;
+        }
+        .nav-btn:hover { background: var(--surface-3); color: var(--text-main); }
+        .nav-btn:active { transform: scale(0.93); }
+
+        /* Theme toggle icon swap */
+        .theme-toggle .sun-icon,
+        body[data-theme="dark"] .theme-toggle .moon-icon { display: none; }
         body[data-theme="dark"] .theme-toggle .sun-icon { display: block; }
+        body[data-theme="light"] .theme-toggle .moon-icon { display: none; }
+        body[data-theme="light"] .theme-toggle .sun-icon { display: none !important; }
+        body[data-theme="light"] .theme-toggle .moon-icon { display: block; }
 
-        /* Main Content */
-        main { padding: 40px 24px; animation: fadeIn 0.4s ease forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .hero-title {
-            font-family: var(--font-display);
-            font-size: 40px; font-weight: 700; line-height: 1.1; 
-            letter-spacing: -0.03em; margin-bottom: 12px;
+        /* ─────────────────────────────────────────────
+           MAIN WRAPPER
+        ───────────────────────────────────────────── */
+        main {
+            padding: 24px 20px;
+            animation: fadeUp 0.45s var(--ease) both;
         }
-        .hero-subtitle {
-            font-size: 18px; color: var(--text-secondary); 
-            margin-bottom: 48px; line-height: 1.4; font-weight: 400;
-        }
-
-        /* Diagnostic Lists */
-        .section-label {
-            font-size: 14px; font-weight: 700; text-transform: uppercase; 
-            letter-spacing: 0.05em; color: var(--text-muted); 
-            margin-bottom: 16px; border-bottom: 1px solid var(--border);
-            padding-bottom: 8px;
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
         }
 
-        .gap-node {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            padding: 20px 0; border-bottom: 1px solid var(--border);
+        /* ─────────────────────────────────────────────
+           SECTION HEADER
+        ───────────────────────────────────────────── */
+        .section-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--accent);
+            margin-bottom: 8px;
         }
-        .gap-node:last-child { border-bottom: none; }
-        
-        .gap-info { flex: 1; padding-right: 20px; }
-        .gap-theme { font-size: 18px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.01em; }
-        .gap-comp { font-size: 15px; color: var(--text-secondary); margin-bottom: 8px; }
-        
-        .gap-tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag {
-            padding: 4px 10px; border-radius: var(--radius-pill);
-            font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-        }
-        .tag.critical { background: var(--critical-bg); color: var(--critical); }
-        .tag.warning { background: var(--warning-bg); color: var(--warning); }
-        .tag.neutral { background: var(--surface-alt); color: var(--text-secondary); }
 
-        .gap-metrics { text-align: right; flex-shrink: 0; }
-        .metric-value { font-family: var(--font-display); font-size: 32px; font-weight: 700; line-height: 1; letter-spacing: -0.04em; }
-        .metric-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 4px; }
-
-        /* Floating Action */
-        .floating-action {
-            position: fixed; bottom: 0; left: 0; right: 0;
-            padding: 24px; background: linear-gradient(to top, var(--bg) 60%, transparent);
-            display: flex; justify-content: center; z-index: 90;
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-main);
+            margin-bottom: 6px;
+            line-height: 1.15;
         }
+
+        .section-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-bottom: 28px;
+            line-height: 1.5;
+        }
+
+        /* ─────────────────────────────────────────────
+           URGENCY CATEGORY LABELS
+        ───────────────────────────────────────────── */
+        .urgency-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.10em;
+            margin: 28px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .urgency-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .urgency-label.crit { color: var(--danger); }
+        .urgency-label.warn { color: var(--warning); }
+        .urgency-label.good { color: var(--accent); }
+
+        /* ─────────────────────────────────────────────
+           DIAGNOSTIC ITEM CARDS
+        ───────────────────────────────────────────── */
+        .diag-item {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            border-left: 3px solid transparent;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: var(--shadow-card);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .diag-item:hover { background: var(--surface-2); }
+        .diag-item.crit { border-left-color: var(--danger); }
+        .diag-item.warn { border-left-color: var(--warning); }
+        .diag-item.good { border-left-color: var(--accent); }
+
+        .diag-content { flex: 1; min-width: 0; }
+
+        .diag-topic {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .diag-comp {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .diag-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 3px 9px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge.err  { color: var(--danger);  background: var(--danger-bg); }
+        .badge.ok   { color: var(--accent);  background: var(--accent-dim); }
+        .badge.tag  { color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border); }
+
+        .diag-score {
+            flex-shrink: 0;
+            text-align: right;
+        }
+        .diag-score-lbl {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+        .diag-score-val {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .diag-score-val.low  { color: var(--danger); }
+        .diag-score-val.mid  { color: var(--warning); }
+        .diag-score-val.high { color: var(--accent); }
+
+        /* ─────────────────────────────────────────────
+           PRESCRIPTION TRIGGER
+        ───────────────────────────────────────────── */
+        .rx-block {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin-top: 36px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+        }
+
+        .rx-icon {
+            width: 56px; height: 56px;
+            margin: 0 auto 16px;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--accent-dim);
+            border-radius: 50%;
+        }
+
+        .rx-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .rx-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.55;
+            max-width: 380px;
+            margin: 0 auto 24px;
+        }
+
+        /* ─────────────────────────────────────────────
+           BUTTONS — Spotify Pill Style
+        ───────────────────────────────────────────── */
         .btn-pill {
-            background: var(--text-main); color: var(--bg);
-            border: none; border-radius: var(--radius-pill);
-            padding: 18px 32px; font-size: 16px; font-weight: 600;
-            cursor: pointer; transition: transform 0.2s;
-            width: 100%; max-width: 400px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 9999px;
+            border: none;
+            background: var(--accent);
+            color: #000000;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            cursor: pointer;
+            transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), filter 0.18s;
+            box-shadow: var(--shadow-card);
         }
-        .btn-pill:active { transform: scale(0.96); }
-        body[data-theme="dark"] .btn-pill { box-shadow: 0 4px 16px rgba(255,255,255,0.08); }
+        .btn-pill:hover  { transform: scale(1.03); filter: brightness(1.08); }
+        .btn-pill:active { transform: scale(0.97); }
+        .btn-pill:disabled {
+            background: var(--surface-3);
+            color: var(--text-light);
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
 
-        /* Modal */
+        .btn-pill-outline {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--border-mid);
+        }
+        .btn-pill-outline:hover { background: var(--surface-2); }
+
+        /* ─────────────────────────────────────────────
+           LOADING / EMPTY STATE
+        ───────────────────────────────────────────── */
+        .state-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+        .state-body {
+            font-size: 14px;
+            color: var(--text-muted);
+            max-width: 300px;
+            line-height: 1.5;
+        }
+
+        /* ─────────────────────────────────────────────
+           GLOBAL STATS BAR — compact strip above diagnosis
+        ───────────────────────────────────────────── */
+        .stats-strip {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            flex: 1;
+            min-width: 80px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 12px;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+        }
+
+        .stat-chip-val {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .stat-chip-val.accent  { color: var(--accent); }
+        .stat-chip-val.danger  { color: var(--danger); }
+        .stat-chip-val.warning { color: var(--warning); }
+        .stat-chip-val.neutral { color: var(--text-main); }
+
+        .stat-chip-lbl {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+        }
+
+        /* ─────────────────────────────────────────────
+           MODAL — Prescription Output
+        ───────────────────────────────────────────── */
         .modal-overlay {
-            position: fixed; inset: 0; z-index: 200;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            display: flex; align-items: flex-end; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 200;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s var(--ease);
         }
-        .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        
-        .modal-surface {
-            background: var(--bg); width: 100%; max-width: 760px; max-height: 90vh;
-            border-top-left-radius: 24px; border-top-right-radius: 24px;
-            display: flex; flex-direction: column;
-            transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
         }
-        @media (min-width: 768px) {
-            .modal-overlay { align-items: center; padding: 24px; }
-            .modal-surface { border-radius: 16px; transform: translateY(20px) scale(0.98); }
-        }
-        .modal-overlay.active .modal-surface { transform: translateY(0) scale(1); }
-        
-        .modal-header { padding: 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
-        
-        .modal-body { 
-            padding: 24px; overflow-y: auto; flex: 1; 
-            font-family: var(--font-mono); font-size: 14px; line-height: 1.6; 
-            color: var(--text-main); white-space: pre-wrap; 
-        }
-        .modal-footer { padding: 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
 
-        /* States */
-        .loader { display: flex; align-items: center; justify-content: center; height: 50vh; font-weight: 600; color: var(--text-muted); }
-        .empty-state { text-align: center; padding: 80px 24px; }
-        .empty-state h2 { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 12px; }
-        .empty-state p { color: var(--text-secondary); margin-bottom: 32px; }
-        
-        .btn-outline {
-            background: transparent; border: 2px solid var(--text-main); color: var(--text-main);
-            border-radius: var(--radius-pill); padding: 14px 28px; font-weight: 600;
-            text-decoration: none; display: inline-block; transition: background 0.2s;
+        .modal-sheet {
+            background: var(--surface);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 760px;
+            max-height: 88vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(100%);
+            transition: transform 0.4s var(--ease);
+            box-shadow: var(--shadow-float);
+            border-top: 1px solid var(--border-mid);
         }
-        .btn-outline:active { background: var(--surface-hover); }
+        .modal-overlay.active .modal-sheet {
+            transform: translateY(0);
+        }
+
+        .modal-handle {
+            width: 40px;
+            height: 4px;
+            background: var(--border-mid);
+            border-radius: 9999px;
+            margin: 12px auto 0;
+            flex-shrink: 0;
+        }
+
+        .modal-head {
+            padding: 16px 24px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .modal-head-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-head-title span {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        .modal-close-btn {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+        .modal-close-btn:hover { background: var(--surface-3); color: var(--text-main); }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--text-main);
+            background: var(--surface-2);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+
+        .modal-foot {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-shrink: 0;
+            padding-bottom: calc(16px + var(--safe-bottom));
+        }
+
+        /* ─────────────────────────────────────────────
+           SCROLLBAR
+        ───────────────────────────────────────────── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 2px; }
+
+        /* ─────────────────────────────────────────────
+           RESPONSIVE
+        ───────────────────────────────────────────── */
+        @media (max-width: 500px) {
+            .stats-strip { gap: 8px; }
+            .stat-chip-val { font-size: 18px; }
+            .section-title { font-size: 20px; }
+            .rx-block { padding: 22px 16px; }
+            .btn-pill { width: 100%; }
+        }
     </style>
 </head>
-<body>
+<body data-theme="dark">
 
-<nav class="nav-header">
-    <div class="nav-title">QuestBank</div>
-    <div class="nav-actions">
-        <button class="icon-btn theme-toggle" onclick="App.toggleTheme()" aria-label="Alternar tema">
-            <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-            <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+<!-- ── NAV ─────────────────────────────────── -->
+<nav class="glass-nav">
+    <div class="nav-brand">
+        <!-- Spotify-like logo mark -->
+        <div class="nav-logo">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="28" height="28" rx="14" fill="#1ed760" fill-opacity="0.12"/>
+                <path d="M9 10h10M9 14h8M9 18h5" stroke="#1ed760" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div>
+            <div class="nav-title">QuestBank</div>
+            <div class="nav-sub">Diagnóstico de Lacunas</div>
+        </div>
+    </div>
+    <div class="nav-controls">
+        <!-- Dark / Light Toggle -->
+        <button class="nav-btn theme-toggle" id="theme-toggle" title="Alternar tema" aria-label="Alternar tema" onclick="toggleTheme()">
+            <!-- Moon (shows in light mode) -->
+            <svg class="moon-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <!-- Sun (shows in dark mode) -->
+            <svg class="sun-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         </button>
-        <a href="index.html" class="icon-btn" aria-label="Voltar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <!-- Back to Index -->
+        <a href="index.html" class="nav-btn" title="Voltar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
         </a>
     </div>
 </nav>
 
-<div id="loader" class="loader">Sintetizando histórico algorítmico...</div>
-
-<main id="main-content" class="hidden">
-    <div id="empty-state" class="empty-state hidden">
-        <h2>Dados Insuficientes</h2>
-        <p>Não há volume de erros estatisticamente relevante para formular uma prescrição arquitetada. Continue resolvendo questões.</p>
-        <a href="index.html" class="btn-outline">Iniciar Sessão de Estudos</a>
-    </div>
-
-    <div id="diagnostic-view" class="hidden">
-        <h1 class="hero-title">Diagnóstico de Lacunas</h1>
-        <p class="hero-subtitle">Mapeamento algorítmico estruturado das suas deficiências teóricas baseado no histórico de resolução de problemas.</p>
-        
-        <div id="critical-gaps" style="margin-bottom: 48px;">
-            </div>
-
-        <div id="warning-gaps">
-            </div>
-    </div>
-</main>
-
-<div id="action-bar" class="floating-action hidden">
-    <button class="btn-pill" onclick="App.openPrescription()">Gerar Prescrição Analítica</button>
+<!-- ── LOADING ──────────────────────────────── -->
+<div id="loading-state" class="state-center">
+    <div class="spinner"></div>
+    <div class="state-title">Carregando dados</div>
+    <div class="state-body">Sincronizando banco de questões e histórico...</div>
 </div>
 
-<div class="modal-overlay" id="modal" onclick="if(event.target===this)App.closeModal()">
-    <div class="modal-surface">
-        <div class="modal-header">
-            <div class="modal-title">Prescrição Técnica Otimizada</div>
-            <button class="icon-btn" onclick="App.closeModal()">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+<!-- ── EMPTY ────────────────────────────────── -->
+<div id="empty-state" class="state-center hidden">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <div class="state-title">Sem histórico</div>
+    <div class="state-body">Complete sessões no Quiz para desbloquear o diagnóstico e a prescrição de estudos.</div>
+    <a href="index.html" class="btn-pill" style="margin-top:8px;">Iniciar Estudos</a>
+</div>
+
+<!-- ── MAIN ─────────────────────────────────── -->
+<main id="dash-main" class="hidden">
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+        <div class="stat-chip">
+            <div class="stat-chip-val neutral" id="st-total">0</div>
+            <div class="stat-chip-lbl">Questões</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-chip-val accent" id="st-acc">—</div>
+            <div class="stat-chip-lbl">Precisão</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-chip-val danger" id="st-crit">0</div>
+            <div class="stat-chip-lbl">Críticos</div>
+        </div>
+        <div class="stat-chip">
+            <div class="stat-chip-val warning" id="st-warn">0</div>
+            <div class="stat-chip-lbl">Atenção</div>
+        </div>
+    </div>
+
+    <!-- Section Header -->
+    <div class="section-eyebrow">Mapeamento de Lacunas</div>
+    <div class="section-title">Onde você precisa melhorar</div>
+    <div class="section-sub">Temas ordenados por urgência, calculada com base em erros acumulados e taxa de acerto.</div>
+
+    <!-- Diagnostic Map -->
+    <div id="diag-container"></div>
+
+    <!-- Prescription Trigger Block -->
+    <div class="rx-block" id="rx-block">
+        <div class="rx-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div class="rx-title">Prescrição Analítica</div>
+        <div class="rx-desc">Gere um diagnóstico estruturado, mapeado por competência e com diretrizes específicas de revisão para cada lacuna crítica identificada.</div>
+        <button class="btn-pill" id="btn-rx" onclick="openPrescription()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            Extrair Prescrição
+        </button>
+    </div>
+
+</main>
+
+<!-- ── MODAL — Prescription Sheet ─────────── -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-sheet">
+        <div class="modal-handle"></div>
+        <div class="modal-head">
+            <div class="modal-head-title">
+                <span></span>
+                Prescrição de Estudos
+            </div>
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
         </div>
         <div class="modal-body" id="modal-content"></div>
-        <div class="modal-footer">
-            <button class="btn-pill" id="btn-copy" style="max-width: none;" onclick="App.copyMarkdown()">Copiar Relatório</button>
+        <div class="modal-foot">
+            <button class="btn-pill btn-pill-outline" onclick="closeModal()">Fechar</button>
+            <button class="btn-pill" id="btn-copy" onclick="copyMarkdown()">Copiar Texto</button>
         </div>
     </div>
 </div>
 
 <script>
-/**
- * Arquitetura Frontend: Diagnostic Engine
- * Responsabilidade: Isolar o consumo do histórico, compilar erros absolutos,
- * mapear nós de competência e gerar um output em Markdown consumível.
- */
-const App = {
-    url: 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv',
-    historico: {},
-    banco: [],
-    diagNodes: { crits: [], warns: [] },
-    markdownText: '',
+/* ─────────────────────────────────────────────────────────────────
+   CONSTANTS
+───────────────────────────────────────────────────────────────── */
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1K9p0IyfTZ-tS21LdOdEHBbX34ZDETlCngVfigrnAKnc/gviz/tq?tqx=out:csv';
 
-    init() {
-        this.applyTheme(localStorage.getItem('apex_theme') || 'light');
-        
-        const histRaw = localStorage.getItem('apex_historico');
-        this.historico = histRaw ? JSON.parse(histRaw) : {};
-
-        // Validar se existe material estatístico (erros)
-        const hasErrors = Object.values(this.historico).some(v => v === 'errada' || v?.correct === false);
-
-        if (!hasErrors) {
-            this.showEmptyState();
-            return;
-        }
-
-        this.fetchDatabase();
-    },
-
-    toggleTheme() {
-        const current = document.body.dataset.theme === 'dark' ? 'dark' : 'light';
-        this.applyTheme(current === 'dark' ? 'light' : 'dark');
-    },
-
-    applyTheme(theme) {
-        document.body.dataset.theme = theme;
-        localStorage.setItem('apex_theme', theme);
-        document.getElementById('theme-color-meta').setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
-    },
-
-    showEmptyState() {
-        document.getElementById('loader').classList.add('hidden');
-        document.getElementById('main-content').classList.remove('hidden');
-        document.getElementById('empty-state').classList.remove('hidden');
-    },
-
-    fetchDatabase() {
-        Papa.parse(this.url, {
-            download: true,
-            header: true,
-            skipEmptyLines: true,
-            complete: (r) => {
-                this.banco = r.data.filter(q => q.id).map(q => ({ ...q, id: String(q.id).trim().toUpperCase() }));
-                this.processDiagnostics();
-            },
-            error: () => {
-                document.getElementById('loader').textContent = 'Falha na conexão com o banco de dados principal.';
-            }
-        });
-    },
-
-    processDiagnostics() {
-        const topicMap = {};
-        let totalErrors = 0;
-        
-        // Agregar erros iterando sobre a estrutura do histórico
-        Object.entries(this.historico).forEach(([id, status]) => {
-            const isError = status === 'errada' || status?.correct === false;
-            if (!isError) return;
-
-            const q = this.banco.find(q => q.id === id);
-            if (!q) return;
-
-            const tema = q.tema_especifico || q.tema || 'Tópico Geral';
-            const comp = q.competencia || 'Competência não catalogada';
-            const esp = q.especialidade || 'Geral';
-            
-            // Chave de unicidade estrutural
-            const key = `${tema}|${comp}`;
-
-            if (!topicMap[key]) topicMap[key] = { tema, comp, esp, errors: 0 };
-            topicMap[key].errors++;
-            totalErrors++;
-        });
-
-        if (totalErrors === 0) {
-            this.showEmptyState();
-            return;
-        }
-
-        // Ordenação por severidade de erro
-        const sortedNodes = Object.values(topicMap).sort((a, b) => b.errors - a.errors);
-        
-        // Thresholds: Crítico (>=3 erros) | Atenção (<3 erros)
-        this.diagNodes.crits = sortedNodes.filter(n => n.errors >= 3);
-        this.diagNodes.warns = sortedNodes.filter(n => n.errors > 0 && n.errors < 3);
-
-        this.renderUI();
-    },
-
-    renderUI() {
-        const critContainer = document.getElementById('critical-gaps');
-        const warnContainer = document.getElementById('warning-gaps');
-
-        if (this.diagNodes.crits.length > 0) {
-            critContainer.innerHTML = `<div class="section-label">Alta Urgência</div>` + 
-                this.diagNodes.crits.map(n => this.buildNodeHTML(n, 'critical')).join('');
-        }
-
-        if (this.diagNodes.warns.length > 0) {
-            warnContainer.innerHTML = `<div class="section-label">Zona de Atenção</div>` + 
-                this.diagNodes.warns.slice(0, 10).map(n => this.buildNodeHTML(n, 'warning')).join('');
-        }
-
-        document.getElementById('loader').classList.add('hidden');
-        document.getElementById('main-content').classList.remove('hidden');
-        document.getElementById('diagnostic-view').classList.remove('hidden');
-        document.getElementById('action-bar').classList.remove('hidden');
-    },
-
-    buildNodeHTML(node, type) {
-        const isCrit = type === 'critical';
-        const tagClass = isCrit ? 'critical' : 'warning';
-        const tagText = isCrit ? 'Crítico' : 'Atenção';
-
-        return `
-        <div class="gap-node">
-            <div class="gap-info">
-                <div class="gap-theme">${this.escapeHtml(node.tema)}</div>
-                <div class="gap-comp">⮑ ${this.escapeHtml(node.comp)}</div>
-                <div class="gap-tags">
-                    <span class="tag ${tagClass}">${tagText}</span>
-                    <span class="tag neutral">${this.escapeHtml(node.esp)}</span>
-                </div>
-            </div>
-            <div class="gap-metrics">
-                <div class="metric-value">${node.errors}</div>
-                <div class="metric-label">Erros</div>
-            </div>
-        </div>`;
-    },
-
-    openPrescription() {
-        const dataAtual = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
-        
-        this.markdownText = `# 🩺 DIRETRIZ DE REVISÃO ESTRATÉGICA
-> Gerado em ${dataAtual}
-> Foco: Mitigação de Pontos Cegos e Correção Teórica
-
----
-
-## 🚨 PRIORIDADE 1: LACUNAS CRÍTICAS (REVISÃO DE BASE)
-*Deficiências estruturais com alta reincidência. Bloqueie a resolução de questões nestes temas e inicie estudo reverso passivo.*
-
-${this.diagNodes.crits.length > 0 
-    ? this.diagNodes.crits.map(n => `### ${n.tema}\n- **Vulnerabilidade:** ${n.comp}\n- **Gravidade:** ${n.errors} erros retidos.\n- **Ação Recomendada:** Leitura ativa de material base + Flashcards primários.`).join('\n\n') 
-    : '_Sistema estável. Nenhuma lacuna severa detectada._'}
-
----
-
-## ⚠️ PRIORIDADE 2: ZONA DE ATENÇÃO (LAPIDAÇÃO)
-*Desvios de conceito secundários. Recomendado revisão por questões direcionadas (Modo: Meus Erros).*
-
-${this.diagNodes.warns.length > 0 
-    ? this.diagNodes.warns.slice(0, 8).map(n => `- **${n.tema}** (${n.comp}) — ${n.errors} erro(s)`).join('\n') 
-    : '_Nenhum desvio secundário registrado._'}
-
----
-*Motor Analítico QuestBank. Mantenha o fluxo de dados retroalimentado.*`;
-
-        document.getElementById('modal-content').textContent = this.markdownText;
-        document.getElementById('modal').classList.add('active');
-        
-        const btn = document.getElementById('btn-copy');
-        btn.textContent = 'Copiar Relatório';
-    },
-
-    closeModal() {
-        document.getElementById('modal').classList.remove('active');
-    },
-
-    copyMarkdown() {
-        navigator.clipboard.writeText(this.markdownText).then(() => {
-            const btn = document.getElementById('btn-copy');
-            btn.textContent = 'Copiado com Sucesso';
-            setTimeout(() => { btn.textContent = 'Copiar Relatório'; }, 2000);
-        }).catch(() => alert('Falha ao copiar. Selecione o texto e copie manualmente.'));
-    },
-
-    escapeHtml(str) {
-        if (!str) return '';
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+/* ─────────────────────────────────────────────────────────────────
+   STATE
+───────────────────────────────────────────────────────────────── */
+const G = {
+    banco:       [],
+    historico:   {},
+    sessions:    [],
+    diagNodes:   [],
+    currentMd:   ''
 };
 
-window.addEventListener('DOMContentLoaded', () => App.init());
+/* ─────────────────────────────────────────────────────────────────
+   THEME
+───────────────────────────────────────────────────────────────── */
+function applyTheme(theme) {
+    const t = theme === 'light' ? 'light' : 'dark';
+    document.body.dataset.theme = t;
+    localStorage.setItem('apex_theme', t);
+    const meta = document.getElementById('theme-color-meta');
+    if (meta) meta.setAttribute('content', t === 'dark' ? '#121212' : '#f5f5f7');
+}
+
+function toggleTheme() {
+    applyTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark');
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   INIT
+───────────────────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', () => {
+    // Theme
+    applyTheme(localStorage.getItem('apex_theme') || 'dark');
+
+    // Load local data
+    try { G.historico = JSON.parse(localStorage.getItem('apex_historico') || '{}'); } catch(e) { G.historico = {}; }
+    try { G.sessions  = JSON.parse(localStorage.getItem('apex_sessions')  || '[]'); } catch(e) { G.sessions = []; }
+
+    const totalAnswered = Object.keys(G.historico).length;
+    if (totalAnswered === 0) {
+        document.getElementById('loading-state').classList.add('hidden');
+        document.getElementById('empty-state').classList.remove('hidden');
+        return;
+    }
+
+    // Fetch question bank from Sheets
+    Papa.parse(SHEET_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete(results) {
+            G.banco = results.data.map(r => ({
+                id:             String(r.id || r.ID || '').trim().toUpperCase(),
+                especialidade:  r.especialidade  || r.Especialidade  || '',
+                tema:           r.tema           || r.Tema           || '',
+                tema_especifico:r.tema_especifico|| r.Tema_especifico|| r['Tema Específico'] || '',
+                competencia:    r.competencia    || r.Competencia    || r.Competência || ''
+            }));
+            finishBoot();
+        },
+        error() {
+            // Graceful degradation: build plan with available data
+            finishBoot();
+        }
+    });
+});
+
+function finishBoot() {
+    buildDiagnostic();
+
+    document.getElementById('loading-state').classList.add('hidden');
+
+    if (!G.diagNodes.length) {
+        document.getElementById('empty-state').classList.remove('hidden');
+    } else {
+        document.getElementById('dash-main').classList.remove('hidden');
+        renderStatsStrip();
+        renderDiagItems();
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   DIAGNOSTIC BUILDER
+   Merges historico + banco → urgency-sorted topic nodes
+───────────────────────────────────────────────────────────────── */
+function buildDiagnostic() {
+    const topicMap = {};
+
+    Object.entries(G.historico).forEach(([rawId, status]) => {
+        const id = String(rawId).trim().toUpperCase();
+        const q  = G.banco.find(q => q.id === id);
+
+        const tema = (q && (q.tema_especifico || q.tema)) || 'Geral';
+        const esp  = (q && q.especialidade) || 'Geral';
+        const comp = (q && q.competencia)   || 'Sem competência mapeada';
+        const key  = `${esp}|${tema}|${comp}`;
+
+        if (!topicMap[key]) topicMap[key] = { tema, esp, comp, total: 0, correct: 0, errors: 0 };
+        topicMap[key].total++;
+        if (status === 'correta') topicMap[key].correct++;
+        else topicMap[key].errors++;
+    });
+
+    G.diagNodes = Object.values(topicMap).map(t => {
+        const acc     = Math.round((t.correct / t.total) * 100);
+        const urgency = (t.errors * 2) + (100 - acc);
+        let cat = 'good';
+        if (acc < 50 && t.errors >= 2)       cat = 'crit';
+        else if (acc < 75 || t.errors >= 1)  cat = 'warn';
+        return { ...t, acc, urgency, cat };
+    }).sort((a, b) => b.urgency - a.urgency);
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RENDER STATS STRIP
+───────────────────────────────────────────────────────────────── */
+function renderStatsStrip() {
+    const total   = Object.keys(G.historico).length;
+    const correct = Object.values(G.historico).filter(v => v === 'correta').length;
+    const acc     = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const crits   = G.diagNodes.filter(n => n.cat === 'crit').length;
+    const warns   = G.diagNodes.filter(n => n.cat === 'warn').length;
+
+    document.getElementById('st-total').textContent = total;
+
+    const accEl = document.getElementById('st-acc');
+    accEl.textContent = acc + '%';
+    accEl.className = 'stat-chip-val ' + (acc >= 70 ? 'accent' : acc >= 50 ? 'warning' : 'danger');
+
+    document.getElementById('st-crit').textContent = crits;
+    document.getElementById('st-warn').textContent = warns;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   RENDER DIAGNOSTIC LIST
+───────────────────────────────────────────────────────────────── */
+function renderDiagItems() {
+    const container = document.getElementById('diag-container');
+    if (!G.diagNodes.length) {
+        container.innerHTML = '<div style="color:var(--text-muted);font-size:14px;padding:20px 0;">Histórico insuficiente para gerar diagnóstico.</div>';
+        return;
+    }
+
+    const crits = G.diagNodes.filter(n => n.cat === 'crit');
+    const warns = G.diagNodes.filter(n => n.cat === 'warn');
+    const goods = G.diagNodes.filter(n => n.cat === 'good');
+
+    let html = '';
+
+    if (crits.length) {
+        html += `<div class="urgency-label crit">Alta Urgência — ${crits.length} tópico${crits.length > 1 ? 's' : ''}</div>`;
+        html += crits.map(diagItemHtml).join('');
+    }
+    if (warns.length) {
+        html += `<div class="urgency-label warn">Atenção — ${warns.length} tópico${warns.length > 1 ? 's' : ''}</div>`;
+        html += warns.map(diagItemHtml).join('');
+    }
+    if (goods.length) {
+        html += `<div class="urgency-label good">Domínio — ${goods.length} tópico${goods.length > 1 ? 's' : ''}</div>`;
+        html += goods.map(diagItemHtml).join('');
+    }
+
+    container.innerHTML = html;
+}
+
+function diagItemHtml(t) {
+    const scoreCls = t.acc >= 70 ? 'high' : t.acc >= 50 ? 'mid' : 'low';
+    const errBadge = t.errors > 0
+        ? `<span class="badge err">${t.errors} erro${t.errors > 1 ? 's' : ''}</span>`
+        : `<span class="badge ok">Sólido</span>`;
+    return `
+    <div class="diag-item ${t.cat}">
+        <div class="diag-content">
+            <div class="diag-topic">${esc(t.tema)}</div>
+            <div class="diag-comp">↳ ${esc(t.comp)}</div>
+            <div class="diag-badges">
+                ${errBadge}
+                <span class="badge tag">${esc(t.esp)}</span>
+            </div>
+        </div>
+        <div class="diag-score">
+            <div class="diag-score-lbl">Precisão</div>
+            <div class="diag-score-val ${scoreCls}">${t.acc}%</div>
+        </div>
+    </div>`;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   PRESCRIPTION GENERATOR
+───────────────────────────────────────────────────────────────── */
+function openPrescription() {
+    if (!G.diagNodes.length) return;
+
+    const crits   = G.diagNodes.filter(n => n.cat === 'crit');
+    const warns   = G.diagNodes.filter(n => n.cat === 'warn');
+    const total   = Object.keys(G.historico).length;
+    const correct = Object.values(G.historico).filter(v => v === 'correta').length;
+    const globalAcc = total > 0 ? Math.round((correct / total) * 100) : 0;
+    const hoje = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    // Aggregate errors by competency
+    const compErrors = {};
+    G.diagNodes.forEach(n => {
+        if (n.errors > 0) {
+            compErrors[n.comp] = (compErrors[n.comp] || 0) + n.errors;
+        }
+    });
+    const topComps = Object.entries(compErrors)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4);
+
+    G.currentMd = `# 🩺 Prescrição de Estudos — QuestBank
+> Gerada em ${hoje}
+
+---
+
+## 📊 Diagnóstico Global
+
+| Métrica                | Valor              |
+|------------------------|--------------------|
+| Questões analisadas    | ${total}           |
+| Taxa de acerto global  | ${globalAcc}%      |
+| Sessões registradas    | ${G.sessions.length}|
+| Lacunas críticas       | ${crits.length}    |
+| Temas em atenção       | ${warns.length}    |
+
+${topComps.length > 0 ? `### 🎯 Deficiências por Competência\n${topComps.map(([comp, errs]) => `- **${comp}** — ${errs} erros acumulados`).join('\n')}\n` : ''}
+---
+
+## 🚨 Prioridade Máxima — Revisão de Base
+
+${crits.length > 0
+    ? crits.slice(0, 6).map((t, i) => `### ${i + 1}. ${t.tema}
+- **Eixo:** ${t.esp}
+- **Ponto Cego:** ${t.comp}
+- **Precisão Atual:** ${t.acc}% | **Erros Acumulados:** ${t.errors}
+- **Diretriz:** Revisão teórica prioritária. Bloqueie novas questões neste tópico até consolidar os fundamentos. Foco específico no ponto cego mapeado.`).join('\n\n')
+    : '_Nenhum tópico em estágio crítico. Parabéns!_'}
+
+---
+
+## ⚠️ Zona de Atenção — Consolidação Parcial
+
+${warns.length > 0
+    ? warns.slice(0, 6).map((t, i) => `${i + 1}. **${t.tema}** — ${t.comp}
+   - Precisão: ${t.acc}% | Erros: ${t.errors} | Eixo: ${t.esp}`).join('\n')
+    : '_Nenhum tópico em zona de atenção._'}
+
+---
+
+## ✅ Domínio — Manutenção
+
+${G.diagNodes.filter(n => n.cat === 'good').length > 0
+    ? G.diagNodes.filter(n => n.cat === 'good').slice(0, 5).map(t => `- **${t.tema}** (${t.acc}% acerto) — Manter frequência de revisão espaçada.`).join('\n')
+    : '_Sem tópicos em domínio consolidado ainda._'}
+
+---
+_Prescrição gerada dinamicamente pelo QuestBank com base no histórico de respostas._`;
+
+    document.getElementById('modal-content').textContent = G.currentMd;
+    const copyBtn = document.getElementById('btn-copy');
+    copyBtn.textContent = 'Copiar Texto';
+    copyBtn.style.background = '';
+    document.getElementById('modal').classList.add('active');
+}
+
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+
+function copyMarkdown() {
+    navigator.clipboard.writeText(G.currentMd).then(() => {
+        const btn = document.getElementById('btn-copy');
+        btn.textContent = '✓ Copiado!';
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#000';
+        setTimeout(() => {
+            btn.textContent = 'Copiar Texto';
+            btn.style.background = '';
+            btn.style.color = '';
+        }, 2500);
+    }).catch(() => {
+        alert('Erro ao copiar. Selecione o texto manualmente.');
+    });
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   UTILS
+───────────────────────────────────────────────────────────────── */
+function esc(str) {
+    if (typeof str !== 'string') return String(str || '');
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+}
 </script>
 </body>
 </html>
